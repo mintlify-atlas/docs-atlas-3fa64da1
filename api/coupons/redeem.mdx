@@ -1,0 +1,198 @@
+---
+title: 'Redeem Coupon'
+description: 'Redeem a coupon using user points'
+api: 'POST /usuarioCupon/canjear'
+---
+
+## Overview
+
+This endpoint allows users to redeem coupons by exchanging their accumulated points. When successful, it creates a UsuarioCupon record, deducts points from the user's balance, and generates a unique verification code.
+
+## Request Body
+
+<ParamField body="idUsuario" type="integer" required>
+  The ID of the user redeeming the coupon
+</ParamField>
+
+<ParamField body="idCupon" type="integer" required>
+  The ID of the coupon to redeem
+</ParamField>
+
+## Response
+
+<ResponseField name="idUsuarioCupon" type="integer">
+  Unique identifier for the redeemed coupon record
+</ResponseField>
+
+<ResponseField name="cupon" type="object">
+  The redeemed coupon details
+  <ResponseField name="idCupon" type="integer">
+    Coupon identifier
+  </ResponseField>
+  <ResponseField name="nombreCupon" type="string">
+    Coupon name
+  </ResponseField>
+  <ResponseField name="descCupon" type="string">
+    Coupon description
+  </ResponseField>
+  <ResponseField name="puntosRequeridos" type="integer">
+    Points that were deducted
+  </ResponseField>
+  <ResponseField name="tienda" type="object">
+    Store information where coupon can be used
+  </ResponseField>
+</ResponseField>
+
+<ResponseField name="usuario" type="object">
+  User information
+  <ResponseField name="idUsu" type="integer">
+    User identifier
+  </ResponseField>
+  <ResponseField name="puntosUsu" type="integer">
+    User's remaining points balance after redemption
+  </ResponseField>
+</ResponseField>
+
+<ResponseField name="CodigoCupon" type="string">
+  Unique coupon code for this redemption
+</ResponseField>
+
+<ResponseField name="qrVerificationCode" type="string">
+  QR code verification string for in-store validation
+</ResponseField>
+
+<ResponseField name="fechaCanje" type="datetime">
+  Timestamp when the coupon was redeemed (ISO 8601 format)
+</ResponseField>
+
+<ResponseField name="canjeado" type="boolean">
+  Always `false` initially - indicates whether the coupon has been used at the store
+</ResponseField>
+
+<ResponseField name="fechaUso" type="datetime" nullable>
+  Timestamp when the coupon was used (null until used)
+</ResponseField>
+
+<ResponseField name="estado" type="string">
+  Current status of the coupon. Possible values:
+  - `AC` - Active (coupon is valid and can be used)
+  - `VE` - Expired (coupon validity period has passed)
+  - `CA` - Cashed/Used (coupon has been redeemed at store)
+</ResponseField>
+
+## Example Request
+
+```bash
+curl -X POST "https://api.greenguard.com/usuarioCupon/canjear" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "idUsuario": 123,
+    "idCupon": 5
+  }'
+```
+
+## Example Response
+
+```json
+{
+  "idUsuarioCupon": 456,
+  "cupon": {
+    "idCupon": 5,
+    "nombreCupon": "20% de descuento en productos ecológicos",
+    "descCupon": "Obtén un 20% de descuento en todos los productos ecológicos de nuestra tienda",
+    "codCupon": "ECO20",
+    "puntosRequeridos": 200,
+    "tienda": {
+      "idTienda": 5,
+      "nomTienda": "EcoMercado San Isidro",
+      "distrito": {
+        "idDistrito": 10
+      }
+    }
+  },
+  "usuario": {
+    "idUsu": 123,
+    "nomUsu": "Juan",
+    "puntosUsu": 250
+  },
+  "CodigoCupon": "ECO20-USER123-456",
+  "qrVerificationCode": "QR-GG-456-8A7B9C",
+  "fechaCanje": "2024-03-13T15:30:00",
+  "canjeado": false,
+  "fechaUso": null,
+  "estado": "AC"
+}
+```
+
+## Redemption Process
+
+1. **Validation**: System checks if:
+   - User exists and is active
+   - Coupon exists and is active
+   - User has sufficient points (`puntosUsu >= puntosRequeridos`)
+
+2. **Points Deduction**: User's points are reduced by `puntosRequeridos`
+
+3. **Coupon Creation**: A new UsuarioCupon record is created with:
+   - Unique `CodigoCupon` for the user
+   - Unique `qrVerificationCode` for store validation
+   - Initial state `AC` (Active)
+   - `canjeado` set to `false`
+   - Current timestamp in `fechaCanje`
+
+4. **Response**: Returns complete redemption details
+
+## Error Responses
+
+### Insufficient Points
+```json
+{
+  "error": "INSUFFICIENT_POINTS",
+  "message": "User has 150 points but coupon requires 200 points",
+  "puntosActuales": 150,
+  "puntosRequeridos": 200,
+  "puntosNecesarios": 50
+}
+```
+
+### Coupon Not Active
+```json
+{
+  "error": "COUPON_NOT_AVAILABLE",
+  "message": "This coupon is no longer available for redemption"
+}
+```
+
+### User Not Found
+```json
+{
+  "error": "USER_NOT_FOUND",
+  "message": "User with ID 123 does not exist"
+}
+```
+
+## Estado Field Values
+
+The `estado` field tracks the coupon lifecycle:
+
+- **AC (Activo)**: Coupon has been redeemed but not yet used at the store. User can present this coupon for validation.
+- **VE (Vencido)**: Coupon has expired based on validity period. Can no longer be used.
+- **CA (Canjeado)**: Coupon has been successfully used at the store. The `fechaUso` field will contain the usage timestamp and `canjeado` will be `true`.
+
+## QR Verification
+
+The `qrVerificationCode` is used for in-store validation:
+- Store scans the QR code
+- System validates the code is active and belongs to the correct user
+- Upon successful validation, coupon state changes to `CA`
+- Points are not refunded once redeemed
+
+## Best Practices
+
+1. Always check user's points balance before showing redemption option
+2. Display clear confirmation before redeeming
+3. Show the QR code prominently after successful redemption
+4. Allow users to view their active coupons
+5. Implement expiration logic based on business rules
+6. Log all redemption transactions for audit purposes

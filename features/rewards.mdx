@@ -1,0 +1,585 @@
+---
+title: 'Rewards Marketplace'
+description: 'Redeem your earned points for coupons and discounts at partner stores and businesses'
+---
+
+## Overview
+
+The GreenGuard Rewards Marketplace transforms your civic engagement into tangible benefits. Redeem points earned from incident reporting for coupons at local businesses, creating a sustainable ecosystem that rewards environmental stewardship.
+
+## How the Marketplace Works
+
+### Three-Sided Ecosystem
+
+GreenGuard connects:
+
+1. **Citizens (You)** - Earn points by reporting environmental incidents
+2. **Partner Stores** - Offer coupons to attract environmentally-conscious customers
+3. **Municipalities** - Benefit from improved civic engagement and cleaner communities
+
+<CardGroup cols={3}>
+  <Card title="Citizens" icon="user" color="#2d8659">
+    Report incidents → Earn points → Redeem coupons
+  </Card>
+  <Card title="Stores" icon="store" color="#2d8659">
+    Provide coupons → Attract customers → Boost business
+  </Card>
+  <Card title="Municipality" icon="building" color="#2d8659">
+    Cleaner city → Engaged citizens → Better community
+  </Card>
+</CardGroup>
+
+## Coupon System
+
+### Coupon Model
+
+Each coupon in the marketplace is structured as:
+
+```java
+@Entity
+@Table(name = "tb_cupon")
+public class Cupon {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name="id_cupon")
+    private Integer idCupon;
+    
+    @Column(name="nombre_cupon")
+    private String nombreCupon;  // Coupon title (e.g., "20% off purchase")
+    
+    @Column(name="desc_cupon")
+    private String descCupon;  // Detailed description and terms
+    
+    @ManyToOne
+    @JoinColumn(name = "id_cate")
+    private Categoria categoria;  // Category (Food, Retail, Services, etc.)
+    
+    @Column(name="cod_cupon")
+    private String codCupon;  // Template coupon code
+    
+    @Column(name="puntos_requeridos")
+    private int puntosRequeridos;  // Points cost to redeem
+    
+    @ManyToOne
+    @JoinColumn(name = "id_tienda")
+    private Tienda tienda;  // Partner store offering the coupon
+    
+    @Column(name="fecha_creacion")
+    private LocalDateTime fechaCreacion;  // When coupon was listed
+    
+    @Column(name="activo")
+    private Boolean activo;  // Whether coupon is currently available
+}
+```
+
+### Coupon Categories
+
+Coupons are organized by category for easy browsing:
+
+```java
+@Entity
+@Table(name = "tb_categoria")
+public class Categoria {
+    private Integer idCate;
+    private String descCate;  // Category name
+}
+```
+
+Common categories include:
+- **Food & Dining** - Restaurants, cafes, food delivery
+- **Retail** - Clothing, electronics, general merchandise
+- **Services** - Haircuts, repairs, professional services
+- **Entertainment** - Movies, events, recreation
+- **Eco-Friendly** - Sustainable products, green businesses
+- **Transportation** - Bike rentals, public transit, ride-sharing
+
+## Partner Stores
+
+### Store Model
+
+Businesses that offer coupons are registered as:
+
+```java
+@Entity
+@Table(name = "tb_tienda")
+public class Tienda {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name="id_tienda")
+    private Integer idTienda;
+    
+    @Column(name="nom_tienda")
+    private String nomTienda;  // Store name
+    
+    @ManyToOne
+    @JoinColumn(name = "id_usu")
+    private Usuario usuario;  // Store owner/manager account
+    
+    @ManyToOne
+    @JoinColumn(name = "id_distrito")
+    private Distrito distrito;  // Store location
+}
+```
+
+**Store Features:**
+- Each store has a dedicated profile page
+- Displays all active coupons from that store
+- Shows location and contact information
+- Managed by store owner through "Tienda" portal
+
+## Browsing the Marketplace
+
+### Viewing Available Coupons
+
+Access all active coupons:
+
+```http
+GET /cupon/activos
+```
+
+Returns coupons where `activo = true`, ordered by:
+- Featured status (if implemented)
+- Points required (lowest first)
+- Most recently added
+
+### Filtering Options
+
+**By Category:**
+```http
+GET /cupon/categoria/{idCate}
+```
+
+**By Store:**
+```http
+GET /cupon/tienda/{idTienda}
+```
+
+**By Points Range:**
+```http
+GET /cupon/rango-puntos?min=500&max=2000
+```
+
+**By District:**
+```http
+GET /cupon/distrito/{idDistrito}
+```
+
+### Coupon Details
+
+Each coupon listing displays:
+
+<CardGroup cols={2}>
+  <Card title="Offer Details" icon="tag">
+    - Coupon name and description
+    - Terms and conditions
+    - Expiration policy
+    - Usage restrictions
+  </Card>
+  <Card title="Redemption Info" icon="coins">
+    - Points required
+    - Your current balance
+    - Store information
+    - Availability status
+  </Card>
+</CardGroup>
+
+## Redeeming Coupons
+
+<Steps>
+  <Step title="Select Coupon">
+    Browse marketplace and choose a coupon you want to redeem.
+    
+    **Check Requirements:**
+    - Do you have enough points? (`usuario.puntosUsu >= cupon.puntosRequeridos`)
+    - Is the coupon active? (`cupon.activo = true`)
+    - Is the store in your area?
+  </Step>
+  
+  <Step title="Confirm Redemption">
+    Submit redemption request:
+    
+    ```http
+    POST /cupon/{idCupon}/canjear
+    Content-Type: application/json
+    
+    {
+      "idUsuario": 123
+    }
+    ```
+    
+    The system:
+    1. Validates you have sufficient points
+    2. Deducts points from your balance
+    3. Creates `UsuarioCupon` record
+    4. Generates unique coupon code
+    5. Sends confirmation notification
+  </Step>
+  
+  <Step title="Receive Coupon Code">
+    A `UsuarioCupon` record is created for you:
+    
+    ```java
+    @Entity
+    @Table(name = "tb_usuario_cupon")
+    public class UsuarioCupon {
+        @Id
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
+        @Column(name="id_usuario_cupon")
+        private Integer idUsuarioCupon;
+        
+        @ManyToOne
+        @JoinColumn(name = "id_cupon")
+        private Cupon cupon;  // The coupon you redeemed
+        
+        @ManyToOne
+        @JoinColumn(name = "id_usuario")
+        private Usuario usuario;  // Your account
+        
+        @Column(name="codigo_cupon")
+        private String CodigoCupon;  // Your unique redemption code
+        
+        @Column(name="qr_verification_code")
+        private String qrVerificationCode;  // QR code for scanning
+        
+        @Column(name="fecha_canje")
+        private LocalDateTime fechaCanje;  // When you redeemed it
+        
+        @Column(name="canjeado")
+        private Boolean canjeado;  // false until you use it at store
+        
+        @Column(name="fecha_uso")
+        private LocalDateTime fechaUso;  // When you used it at store
+        
+        @Column(name="estado")
+        private EstadoUsuarioCupon estado;  // AC, VE, or CA
+    }
+    ```
+    
+    You receive:
+    - Unique `CodigoCupon` string (e.g., "GG-2024-XYZ789")
+    - QR code for easy scanning
+    - Digital coupon in your "My Coupons" section
+  </Step>
+  
+  <Step title="Use at Store">
+    Present your coupon at the partner store:
+    
+    **Options:**
+    1. Show QR code for store to scan
+    2. Provide alphanumeric code verbally
+    3. Display digital coupon from app
+    
+    Store staff validates the code and applies your discount.
+  </Step>
+  
+  <Step title="Coupon Marked as Used">
+    After validation, the store updates:
+    
+    ```http
+    POST /usuario-cupon/{idUsuarioCupon}/usar
+    ```
+    
+    System sets:
+    - `canjeado = true`
+    - `fechaUso = <current timestamp>`
+    - `estado = EstadoUsuarioCupon.CA` (Canjeado/Used)
+    
+    Coupon is no longer valid for future use (one-time use only).
+  </Step>
+</Steps>
+
+## Coupon States
+
+Each redeemed coupon progresses through states:
+
+```java
+public enum EstadoUsuarioCupon {
+    AC,  // Activo - Redeemed but not yet used
+    VE,  // Vencido - Expired before use
+    CA   // Canjeado - Used at store
+}
+```
+
+<CardGroup cols={3}>
+  <Card title="AC - Activo" icon="ticket" color="#2d8659">
+    **Active**
+    
+    You've redeemed the coupon and it's ready to use. Valid until expiration date.
+  </Card>
+  <Card title="VE - Vencido" icon="clock" color="#2d8659">
+    **Expired**
+    
+    Coupon passed expiration date before you used it. No longer valid. Points are not refunded.
+  </Card>
+  <Card title="CA - Canjeado" icon="check-circle" color="#2d8659">
+    **Used**
+    
+    Successfully used at partner store. Discount has been applied.
+  </Card>
+</CardGroup>
+
+<Warning>
+  Points are NOT refunded for expired coupons. Always use coupons before their expiration date!
+</Warning>
+
+## Managing Your Coupons
+
+### View Redeemed Coupons
+
+Access all coupons you've redeemed:
+
+```http
+GET /usuario-cupon/usuario/{idUsu}
+```
+
+Returns all `UsuarioCupon` records for your account, including:
+- Active coupons (AC) ready to use
+- Used coupons (CA) for history
+- Expired coupons (VE)
+
+### Active Coupons Only
+
+Filter for usable coupons:
+
+```http
+GET /usuario-cupon/usuario/{idUsu}/activos
+```
+
+Returns only coupons where `estado = EstadoUsuarioCupon.AC`.
+
+### Coupon Details
+
+Get full information about a specific redeemed coupon:
+
+```http
+GET /usuario-cupon/{idUsuarioCupon}
+```
+
+Includes:
+- Coupon code and QR code
+- Store information
+- Redemption date
+- Expiration date
+- Current status
+- Terms and conditions
+
+## Store Owner Portal
+
+### Creating Coupons
+
+Store owners can create coupons through the "Tienda" portal:
+
+```http
+POST /cupon/crear
+Content-Type: application/json
+
+{
+  "nombreCupon": "20% Off Entire Purchase",
+  "descCupon": "Get 20% discount on any items in store. Cannot be combined with other offers. Valid through end of month.",
+  "categoria": { "idCate": 2 },
+  "puntosRequeridos": 1500,
+  "tienda": { "idTienda": 45 },
+  "activo": true
+}
+```
+
+### Validating Coupons
+
+Stores verify customer coupons:
+
+1. **Scan QR Code** or enter coupon code manually
+2. **System validates:**
+   - Code exists and matches `CodigoCupon`
+   - `estado = AC` (active, not expired or used)
+   - Belongs to the correct store
+3. **Apply discount** to customer's purchase
+4. **Mark as used** via API
+
+```http
+POST /usuario-cupon/validar
+Content-Type: application/json
+
+{
+  "codigoCupon": "GG-2024-XYZ789",
+  "idTienda": 45
+}
+```
+
+Response confirms validity and coupon details.
+
+### Managing Store Coupons
+
+Store owners can:
+- View all their coupons: `GET /cupon/tienda/{idTienda}`
+- Deactivate coupons: `PUT /cupon/{idCupon}/desactivar`
+- Update coupon details: `PUT /cupon/{idCupon}`
+- View redemption statistics: `GET /cupon/{idCupon}/estadisticas`
+
+## Points Transaction Flow
+
+### Redemption Impact
+
+When you redeem a coupon:
+
+```java
+public void redimirCupon(Usuario usuario, Cupon cupon) {
+    // Check balance
+    if (usuario.getPuntosUsu() < cupon.getPuntosRequeridos()) {
+        throw new InsufficientPointsException();
+    }
+    
+    // Deduct points
+    int nuevoPuntaje = usuario.getPuntosUsu() - cupon.getPuntosRequeridos();
+    usuario.setPuntosUsu(nuevoPuntaje);
+    
+    // Create UsuarioCupon record
+    UsuarioCupon uc = new UsuarioCupon();
+    uc.setUsuario(usuario);
+    uc.setCupon(cupon);
+    uc.setCodigoCupon(generarCodigoUnico());
+    uc.setQrVerificationCode(generarCodigoQR());
+    uc.setFechaCanje(LocalDateTime.now());
+    uc.setCanjeado(false);
+    uc.setEstado(EstadoUsuarioCupon.AC);
+    
+    // Save changes
+    usuarioRepository.save(usuario);
+    usuarioCuponRepository.save(uc);
+    
+    // Send notification
+    enviarNotificacionCupon(usuario, cupon);
+}
+```
+
+**Example Transaction:**
+- **Before:** `puntosUsu = 2500`
+- **Redeem:** Coupon requiring 1500 points
+- **After:** `puntosUsu = 1000`
+
+<Note>
+  Points are deducted immediately and permanently. There are no refunds, even for expired coupons.
+</Note>
+
+## Coupon Expiration
+
+### Expiration Policies
+
+Coupons typically expire:
+- **Standard:** 30 days after redemption
+- **Seasonal:** End of promotional period
+- **Custom:** Store-defined expiration date
+
+### Expiration Notifications
+
+You receive notifications:
+- **7 days before expiration** - Reminder to use soon
+- **1 day before expiration** - Final warning
+- **On expiration** - Confirmation that coupon is now invalid
+
+### Handling Expired Coupons
+
+When a coupon expires:
+
+```java
+public void marcarCuponesVencidos() {
+    LocalDateTime ahora = LocalDateTime.now();
+    List<UsuarioCupon> cupones = usuarioCuponRepository
+        .findByEstadoAndFechaCanjeExpired(EstadoUsuarioCupon.AC, ahora.minusDays(30));
+    
+    for (UsuarioCupon uc : cupones) {
+        uc.setEstado(EstadoUsuarioCupon.VE);
+        usuarioCuponRepository.save(uc);
+        enviarNotificacionVencimiento(uc.getUsuario(), uc);
+    }
+}
+```
+
+System automatically:
+- Changes `estado` from AC to VE
+- Sends expiration notification
+- Removes from "Active Coupons" list
+- Moves to coupon history
+
+## API Reference
+
+### Coupon Endpoints
+
+```java
+@RestController
+@RequestMapping("/cupon")
+public class CuponController {
+    @Autowired
+    CuponService cuponService;
+    
+    // Browse marketplace
+    // GET /cupon/activos
+    // GET /cupon/categoria/{idCate}
+    // GET /cupon/tienda/{idTienda}
+    
+    // Redeem coupon
+    // POST /cupon/{idCupon}/canjear
+    
+    // Store management
+    // POST /cupon/crear
+    // PUT /cupon/{idCupon}
+    // DELETE /cupon/{idCupon}
+}
+```
+
+### User Coupon Endpoints
+
+```java
+@RestController
+@RequestMapping("/usuario-cupon")
+public class UsuarioCuponController {
+    @Autowired
+    UsuarioCuponService usuarioCuponService;
+    
+    // View redeemed coupons
+    // GET /usuario-cupon/usuario/{idUsu}
+    // GET /usuario-cupon/usuario/{idUsu}/activos
+    
+    // Coupon details
+    // GET /usuario-cupon/{idUsuarioCupon}
+    
+    // Use coupon (store only)
+    // POST /usuario-cupon/{idUsuarioCupon}/usar
+    // POST /usuario-cupon/validar
+}
+```
+
+## Best Practices
+
+### For Citizens
+
+1. **Check Balance** - Ensure you have enough points before browsing
+2. **Read Terms** - Understand restrictions and expiration policies
+3. **Plan Usage** - Redeem only coupons you'll actually use
+4. **Use Promptly** - Don't let valuable coupons expire
+5. **Local Stores** - Prioritize stores in your district for convenience
+
+### For Store Owners
+
+1. **Competitive Pricing** - Price coupons attractively to encourage redemptions
+2. **Clear Terms** - Avoid confusion with explicit conditions
+3. **Reasonable Expiration** - Give customers enough time to use coupons
+4. **Monitor Performance** - Track redemption rates and adjust offerings
+5. **Train Staff** - Ensure employees know how to validate coupons
+
+<Note>
+  Popular stores with attractive coupons see increased foot traffic and build loyalty with environmentally-conscious customers.
+</Note>
+
+## Related Features
+
+<CardGroup cols={3}>
+  <Card title="Gamification" icon="trophy" href="/features/gamification">
+    Learn how to earn more points for coupons
+  </Card>
+  <Card title="Notifications" icon="bell" href="/features/notifications">
+    Configure expiration alerts
+  </Card>
+  <Card title="Incident Reporting" icon="flag" href="/features/incident-reporting">
+    Report incidents to earn redemption points
+  </Card>
+</CardGroup>

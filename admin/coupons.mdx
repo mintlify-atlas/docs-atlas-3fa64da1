@@ -1,0 +1,696 @@
+---
+title: 'Coupon Management'
+description: 'Create and manage reward coupons in the GreenGuard points system'
+---
+
+The coupon management system allows administrators and store managers to create reward coupons that users can redeem using their earned points from environmental reporting.
+
+## Coupon Data Model
+
+Coupons are stored in the `tb_cupon` table with the following structure:
+
+### Coupon Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `idCupon` | Integer | Unique coupon identifier (auto-generated) |
+| `nombreCupon` | String | Coupon name/title |
+| `descCupon` | String | Coupon description and details |
+| `categoria` | Categoria | Coupon category (FK) |
+| `codCupon` | String | Unique coupon code |
+| `puntosRequeridos` | Integer | Points required to redeem |
+| `tienda` | Tienda | Associated store (FK) |
+| `fechaCreacion` | LocalDateTime | Creation timestamp |
+| `activo` | Boolean | Active/inactive status |
+
+```java
+@Entity
+@Table(name = "tb_cupon")
+public class Cupon {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name="id_cupon")
+    private Integer idCupon;
+
+    @Column(name="nombre_cupon")
+    private String nombreCupon;
+
+    @Column(name="desc_cupon")
+    private String descCupon;
+
+    @ManyToOne
+    @JoinColumn(name = "id_cate")
+    private Categoria categoria;
+
+    @Column(name="cod_cupon")
+    private String codCupon;
+
+    @Column(name="puntos_requeridos")
+    private int puntosRequeridos;
+
+    @ManyToOne
+    @JoinColumn(name = "id_tienda")
+    private Tienda tienda;
+
+    @Column(name="fecha_creacion")
+    private LocalDateTime fechaCreacion;
+
+    @Column(name="activo")
+    private Boolean activo;
+}
+```
+
+## Coupon Controller
+
+The CuponController manages all coupon operations:
+
+```java
+@RestController
+@RequestMapping("/cupon")
+public class CuponController {
+    @Autowired
+    CuponService cuponService;
+}
+```
+
+Access coupon endpoints through the `/cupon` base path.
+
+## Creating Coupons
+
+### Coupon Creation Workflow
+
+<Steps>
+  <Step title="Prepare Coupon Details">
+    Gather required information:
+    
+    <Check>Coupon name (e.g., "20% Off Eco-Products")</Check>
+    <Check>Description of the offer</Check>
+    <Check>Category selection</Check>
+    <Check>Points required for redemption</Check>
+    <Check>Associated store</Check>
+    <Check>Unique coupon code</Check>
+  </Step>
+  
+  <Step title="Set Points Value">
+    Determine appropriate points cost:
+    
+    ```java
+    cupon.setPuntosRequeridos(100); // Example: 100 points
+    ```
+    
+    **Pricing Guidelines:**
+    - Low value offers: 50-100 points
+    - Medium value: 100-500 points
+    - High value: 500-1000+ points
+    
+    <Note>
+    Points should reflect the real-world value of the coupon to maintain fair exchange rates.
+    </Note>
+  </Step>
+  
+  <Step title="Generate Coupon Code">
+    Create a unique, memorable code:
+    
+    ```java
+    cupon.setCodCupon("GREENSPRING2024");
+    ```
+    
+    **Code Best Practices:**
+    - Alphanumeric characters
+    - Easy to remember and type
+    - Unique across all coupons
+    - Relevant to the offer
+  </Step>
+  
+  <Step title="Assign Store and Category">
+    Link the coupon to a store and category:
+    
+    ```java
+    cupon.setTienda(selectedStore);
+    cupon.setCategoria(selectedCategory);
+    cupon.setFechaCreacion(LocalDateTime.now());
+    cupon.setActivo(true);
+    ```
+  </Step>
+  
+  <Step title="Activate Coupon">
+    Make the coupon available for redemption:
+    
+    ```java
+    cupon.setActivo(true);
+    ```
+  </Step>
+</Steps>
+
+### Coupon Fields Explained
+
+<Accordion title="Coupon Name">
+  **`nombreCupon`** - Display title for users
+  
+  Examples:
+  - "15% Off Organic Products"
+  - "Free Reusable Bag"
+  - "$10 Discount on Eco-Friendly Items"
+  
+  Keep it concise and compelling to encourage redemptions.
+</Accordion>
+
+<Accordion title="Coupon Description">
+  **`descCupon`** - Detailed information about the offer
+  
+  Include:
+  - What the coupon provides
+  - Any terms or conditions
+  - Expiration details (if applicable)
+  - How to redeem at store
+  
+  Example:
+  ```
+  Get 15% off all organic and eco-friendly products. 
+  Valid for purchases over $20. Show this coupon at checkout.
+  Cannot be combined with other offers.
+  ```
+</Accordion>
+
+<Accordion title="Coupon Code">
+  **`codCupon`** - Unique identifier for redemption
+  
+  Format suggestions:
+  - Store abbreviation + offer + date: `ECO20OFF2024`
+  - Seasonal themes: `GREENSPRING`, `ECOWINTER`
+  - Event-based: `EARTHDAY50`
+  
+  <Warning>
+  Ensure codes are unique across the entire platform to prevent conflicts.
+  </Warning>
+</Accordion>
+
+<Accordion title="Points Required">
+  **`puntosRequeridos`** - Cost in points to redeem
+  
+  Consider:
+  - Real-world value of the offer
+  - How many reports equal this reward
+  - Competitive offerings from other stores
+  - User engagement goals
+  
+  ```java
+  // Example pricing tiers
+  cupon.setPuntosRequeridos(50);   // Small discount
+  cupon.setPuntosRequeridos(200);  // Medium value
+  cupon.setPuntosRequeridos(500);  // Premium reward
+  ```
+</Accordion>
+
+## Coupon Categories
+
+### Category System
+
+Coupons are organized by category:
+
+```java
+@ManyToOne
+@JoinColumn(name = "id_cate")
+private Categoria categoria;
+```
+
+Categories help users find relevant coupons:
+- Eco-Products
+- Sustainable Fashion
+- Green Transportation
+- Organic Food
+- Renewable Energy
+- Zero Waste Items
+
+<Note>
+Categories are managed through the CategoriaController at `/categoria` endpoint.
+</Note>
+
+## Coupon-Store Relationship
+
+### Store Association
+
+Every coupon belongs to a specific store:
+
+```java
+@ManyToOne
+@JoinColumn(name = "id_tienda")
+private Tienda tienda;
+```
+
+**Key Points:**
+- Coupons are redeemable only at the assigned store
+- Store managers can only create coupons for their stores
+- Users can filter coupons by store location
+- Store analytics track coupon performance
+
+### Multi-Store Coupons
+
+If a coupon should work at multiple locations:
+- Create separate coupon records for each store
+- Use the same coupon code across records
+- Coordinate redemption tracking
+
+## Managing Coupon Status
+
+### Active vs Inactive Coupons
+
+```java
+@Column(name="activo")
+private Boolean activo;
+```
+
+<Tabs>
+  <Tab title="Active Coupons">
+    **`activo = true`**
+    
+    Active coupons are:
+    - Visible to users in the coupon marketplace
+    - Available for purchase with points
+    - Redeemable at stores
+    - Included in search and filters
+    
+    ```java
+    cupon.setActivo(true);
+    ```
+  </Tab>
+  
+  <Tab title="Inactive Coupons">
+    **`activo = false`**
+    
+    Inactive coupons are:
+    - Hidden from user browsing
+    - Not purchasable with points
+    - Archived for historical records
+    - Excluded from active listings
+    
+    ```java
+    cupon.setActivo(false);
+    ```
+    
+    <Note>
+    Already redeemed coupons in users' accounts remain valid even if the template is deactivated.
+    </Note>
+  </Tab>
+</Tabs>
+
+### When to Deactivate
+
+Deactivate coupons when:
+- Promotion period has ended
+- Store no longer offers this deal
+- Coupon is being replaced with updated version
+- Seasonal offer is out of season
+- Store is closing or leaving platform
+
+## Coupon Redemption Tracking
+
+### Usuario-Cupon Relationship
+
+Track which users have redeemed which coupons:
+
+```java
+@Entity
+@Table(name = "tb_usuario_cupon")
+public class UsuarioCupon {
+    // Links users to their redeemed coupons
+}
+```
+
+**Redemption Flow:**
+
+<Steps>
+  <Step title="User Purchases Coupon">
+    User exchanges points for a coupon:
+    - Deduct points from user balance
+    - Create UsuarioCupon record
+    - Provide coupon code to user
+  </Step>
+  
+  <Step title="User Presents at Store">
+    User shows coupon at store for redemption:
+    - Display coupon code
+    - Store verifies coupon
+    - Store applies discount/offer
+  </Step>
+  
+  <Step title="Mark as Redeemed">
+    Store marks the coupon as used:
+    - Update UsuarioCupon status
+    - Prevent duplicate redemption
+    - Track redemption timestamp
+  </Step>
+</Steps>
+
+### Redemption Status
+
+The `EstadoUsuarioCupon` enum tracks redemption state:
+
+```java
+public enum EstadoUsuarioCupon {
+    // Redemption states defined in enum
+}
+```
+
+Common states:
+- **Purchased** - User owns but hasn't redeemed yet
+- **Redeemed** - Used at store
+- **Expired** - Passed expiration date
+- **Canceled** - Invalidated for some reason
+
+## Viewing and Filtering Coupons
+
+### Admin Views
+
+<Tabs>
+  <Tab title="All Coupons">
+    View complete coupon catalog:
+    
+    ```sql
+    SELECT 
+      c.id_cupon,
+      c.nombre_cupon,
+      c.puntos_requeridos,
+      t.nom_tienda,
+      cat.nombre_categoria,
+      c.activo
+    FROM tb_cupon c
+    JOIN tb_tienda t ON c.id_tienda = t.id_tienda
+    JOIN tb_categoria cat ON c.id_cate = cat.id_cate
+    ORDER BY c.fecha_creacion DESC;
+    ```
+  </Tab>
+  
+  <Tab title="By Store">
+    Filter coupons for specific stores:
+    
+    ```sql
+    SELECT * FROM tb_cupon
+    WHERE id_tienda = ?
+    ORDER BY puntos_requeridos ASC;
+    ```
+  </Tab>
+  
+  <Tab title="By Category">
+    Group coupons by category:
+    
+    ```sql
+    SELECT 
+      cat.nombre_categoria,
+      COUNT(*) as coupon_count
+    FROM tb_cupon c
+    JOIN tb_categoria cat ON c.id_cate = cat.id_cate
+    WHERE c.activo = true
+    GROUP BY cat.id_cate;
+    ```
+  </Tab>
+  
+  <Tab title="By Points Range">
+    Find coupons in specific point ranges:
+    
+    ```sql
+    SELECT * FROM tb_cupon
+    WHERE puntos_requeridos BETWEEN ? AND ?
+    AND activo = true
+    ORDER BY puntos_requeridos ASC;
+    ```
+  </Tab>
+</Tabs>
+
+## Coupon Analytics
+
+### Key Metrics
+
+<CardGroup cols={2}>
+  <Card title="Total Coupons" icon="ticket">
+    Count of all coupon offerings
+  </Card>
+  <Card title="Active Coupons" icon="circle-check">
+    Currently available coupons
+  </Card>
+  <Card title="Redemption Rate" icon="percent">
+    Percentage of purchased coupons redeemed
+  </Card>
+  <Card title="Popular Coupons" icon="star">
+    Most frequently purchased coupons
+  </Card>
+</CardGroup>
+
+### Performance Queries
+
+```sql
+-- Most popular coupons
+SELECT 
+  c.nombre_cupon,
+  COUNT(uc.id_usu_cupon) as redemption_count
+FROM tb_cupon c
+LEFT JOIN tb_usuario_cupon uc ON c.id_cupon = uc.id_cupon
+GROUP BY c.id_cupon
+ORDER BY redemption_count DESC
+LIMIT 10;
+
+-- Points spent by category
+SELECT 
+  cat.nombre_categoria,
+  SUM(c.puntos_requeridos) as total_points
+FROM tb_cupon c
+JOIN tb_categoria cat ON c.id_cate = cat.id_cate
+JOIN tb_usuario_cupon uc ON c.id_cupon = uc.id_cupon
+GROUP BY cat.id_cate;
+
+-- Coupon effectiveness by store
+SELECT 
+  t.nom_tienda,
+  COUNT(DISTINCT c.id_cupon) as total_coupons,
+  COUNT(uc.id_usu_cupon) as total_redemptions,
+  ROUND(COUNT(uc.id_usu_cupon) / COUNT(DISTINCT c.id_cupon), 2) as avg_redemptions_per_coupon
+FROM tb_tienda t
+JOIN tb_cupon c ON t.id_tienda = c.id_tienda
+LEFT JOIN tb_usuario_cupon uc ON c.id_cupon = uc.id_cupon
+GROUP BY t.id_tienda;
+```
+
+## Updating Coupons
+
+### Editable Fields
+
+<Warning>
+Be cautious when editing active coupons that users may have already purchased.
+</Warning>
+
+<Accordion title="Description Updates">
+  Safe to update at any time:
+  
+  ```java
+  cupon.setDescCupon("Updated offer details...");
+  ```
+  
+  Use for:
+  - Clarifying terms
+  - Fixing typos
+  - Adding redemption instructions
+</Accordion>
+
+<Accordion title="Points Required">
+  **Caution**: Affects user purchasing decisions
+  
+  ```java
+  cupon.setPuntosRequeridos(newAmount);
+  ```
+  
+  Consider:
+  - Users who already purchased at old price
+  - Communication to existing coupon holders
+  - Price increase vs decrease impact
+</Accordion>
+
+<Accordion title="Active Status">
+  Toggle coupon availability:
+  
+  ```java
+  cupon.setActivo(!cupon.getActivo());
+  ```
+  
+  <Note>
+  Deactivating a coupon doesn't affect already-purchased instances in users' accounts.
+  </Note>
+</Accordion>
+
+<Accordion title="Category Reassignment">
+  Change coupon categorization:
+  
+  ```java
+  cupon.setCategoria(newCategory);
+  ```
+  
+  Affects how users find the coupon in browsing/filtering.
+</Accordion>
+
+## Best Practices
+
+### Creating Effective Coupons
+
+<Steps>
+  <Step title="Clear Value Proposition">
+    Make the offer immediately understandable:
+    - "20% Off" not "Special Discount"
+    - Specific amounts: "$10 Off" vs "Save Money"
+    - Clear eligibility requirements
+  </Step>
+  
+  <Step title="Appropriate Point Pricing">
+    Balance value with accessibility:
+    - Research competitor offerings
+    - Consider your store's margin
+    - Align with typical user point earnings
+    - Test different price points
+  </Step>
+  
+  <Step title="Compelling Descriptions">
+    Write descriptions that convert:
+    - Highlight key benefits
+    - Include all terms clearly
+    - Add redemption instructions
+    - Create urgency (if time-limited)
+  </Step>
+  
+  <Step title="Strategic Categories">
+    Categorize accurately for discoverability:
+    - Use the most specific category
+    - Align with user search patterns
+    - Consider seasonal categorization
+  </Step>
+</Steps>
+
+### Managing Coupon Lifecycle
+
+1. **Launch** - Start with attractive initial offers
+2. **Monitor** - Track redemption rates and user feedback
+3. **Optimize** - Adjust points, description, or terms based on performance
+4. **Refresh** - Rotate seasonal or promotional coupons
+5. **Retire** - Deactivate outdated or underperforming coupons
+
+### Coupon Code Guidelines
+
+- **Unique**: Never reuse codes
+- **Memorable**: Easy to spell and remember
+- **Relevant**: Relate to offer or store
+- **Appropriate Length**: 6-15 characters ideal
+- **No Confusion**: Avoid ambiguous characters (0/O, 1/I)
+
+## Store Manager Coupon Access
+
+### Role-Based Permissions
+
+Store managers (users with "Tienda" role) can:
+
+<Check>Create coupons for their own stores</Check>
+<Check>Edit their store's coupon details</Check>
+<Check>Activate/deactivate their coupons</Check>
+<Check>View redemption analytics for their coupons</Check>
+
+<Warning>
+Store managers should NOT be able to:
+- Edit coupons from other stores
+- Change point values without approval (optional policy)
+- Delete redeemed coupon records
+</Warning>
+
+### Manager Workflow
+
+```typescript
+// Store manager accesses coupon creation via /tienda route
+{
+  path: 'tienda',
+  loadChildren: () =>
+    import('./tienda/tienda.module').then((m) => m.TiendaModule)
+}
+```
+
+The interface automatically filters coupons to those belonging to the manager's store(s).
+
+## Bulk Operations
+
+### Common Bulk Actions
+
+<Accordion title="Seasonal Activation">
+  Activate multiple seasonal coupons at once:
+  
+  ```sql
+  UPDATE tb_cupon
+  SET activo = true
+  WHERE id_cate = ? -- Seasonal category
+  AND fecha_creacion >= ?;
+  ```
+</Accordion>
+
+<Accordion title="Deactivate Expired">
+  Bulk deactivate old promotions:
+  
+  ```sql
+  UPDATE tb_cupon
+  SET activo = false
+  WHERE fecha_creacion < DATE_SUB(NOW(), INTERVAL 90 DAY)
+  AND activo = true;
+  ```
+</Accordion>
+
+<Accordion title="Points Adjustment">
+  Update pricing for a category:
+  
+  ```sql
+  UPDATE tb_cupon
+  SET puntos_requeridos = puntos_requeridos * 1.1 -- 10% increase
+  WHERE id_cate = ?;
+  ```
+  
+  <Warning>
+  Communicate price changes to users and store managers beforehand.
+  </Warning>
+</Accordion>
+
+## Integration with Points System
+
+### User Points Balance
+
+Before allowing coupon purchase, verify user has sufficient points:
+
+```java
+Usuario user = // current user
+Cupon coupon = // selected coupon
+
+if (user.getPuntosUsu() >= coupon.getPuntosRequeridos()) {
+    // Allow purchase
+    user.setPuntosUsu(user.getPuntosUsu() - coupon.getPuntosRequeridos());
+    // Create UsuarioCupon record
+} else {
+    // Insufficient points error
+}
+```
+
+### Points Sources
+
+Users earn points through:
+- Environmental report submissions
+- Report resolutions (when their reports are marked solved)
+- Special promotional events
+- Referral bonuses (if implemented)
+
+See [Report Management](/admin/reports) for how points are awarded.
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Store Management" icon="store" href="/admin/stores">
+    Manage stores that offer coupons
+  </Card>
+  <Card title="User Management" icon="users" href="/admin/users">
+    View user points balances
+  </Card>
+  <Card title="Report Management" icon="clipboard" href="/admin/reports">
+    Understand how users earn points
+  </Card>
+  <Card title="Admin Overview" icon="gauge" href="/admin/overview">
+    Return to admin panel overview
+  </Card>
+</CardGroup>

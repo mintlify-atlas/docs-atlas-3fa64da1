@@ -1,0 +1,206 @@
+---
+title: 'Update Incident Report'
+description: 'Update an existing incident report'
+api: 'PUT /reporte/{id}'
+---
+
+## Overview
+
+Update an existing incident report. This endpoint allows modifying report details, status, location, and associated classifications. The `repoResuelto` timestamp is automatically set when status changes to `RE` (Resolved).
+
+## Path Parameters
+
+<ParamField path="id" type="integer" required>
+  The unique identifier of the report to update
+</ParamField>
+
+## Request Body
+
+<ParamField body="detalleRepo" type="string">
+  Updated description of the incident
+</ParamField>
+
+<ParamField body="imagenRepo" type="string">
+  Updated image URL or path
+</ParamField>
+
+<ParamField body="estado" type="string">
+  Updated report status:
+  - `PE` - Pendiente (Pending)
+  - `EP` - En Proceso (In Process)
+  - `RE` - Resuelto (Resolved)
+  - `CA` - Cancelado (Cancelled)
+</ParamField>
+
+<ParamField body="latitud" type="decimal">
+  Updated latitude coordinate
+</ParamField>
+
+<ParamField body="longitud" type="decimal">
+  Updated longitude coordinate
+</ParamField>
+
+<ParamField body="idTipoInci" type="integer">
+  Updated incident type ID
+</ParamField>
+
+<ParamField body="idTipoClasi" type="integer">
+  Updated classification type ID
+</ParamField>
+
+<ParamField body="idDistrito" type="integer">
+  Updated district ID
+</ParamField>
+
+<Note>
+  You only need to include the fields you want to update. Omitted fields will remain unchanged.
+</Note>
+
+## Response
+
+<ResponseField name="idReporte" type="integer">
+  Report ID
+</ResponseField>
+
+<ResponseField name="numReport" type="string">
+  Report number
+</ResponseField>
+
+<ResponseField name="usuario" type="object">
+  User information
+</ResponseField>
+
+<ResponseField name="detalleRepo" type="string">
+  Updated incident description
+</ResponseField>
+
+<ResponseField name="imagenRepo" type="string">
+  Updated image URL
+</ResponseField>
+
+<ResponseField name="estado" type="string">
+  Updated report status
+</ResponseField>
+
+<ResponseField name="latitud" type="decimal">
+  Updated latitude
+</ResponseField>
+
+<ResponseField name="longitud" type="decimal">
+  Updated longitude
+</ResponseField>
+
+<ResponseField name="tipoIncidente" type="object">
+  Updated incident type details
+</ResponseField>
+
+<ResponseField name="tipoClasificacion" type="object">
+  Updated classification type details
+</ResponseField>
+
+<ResponseField name="distrito" type="object">
+  Updated district information
+</ResponseField>
+
+<ResponseField name="repoRegistado" type="datetime">
+  Original registration timestamp
+</ResponseField>
+
+<ResponseField name="repoResuelto" type="datetime">
+  Resolution timestamp (automatically set when status changes to RE)
+</ResponseField>
+
+## Example Requests
+
+### Update report status to In Process
+
+```bash
+curl -X PUT https://api.greenguard.com/reporte/123 \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -d '{
+    "estado": "EP"
+  }'
+```
+
+### Update report status to Resolved
+
+```bash
+curl -X PUT https://api.greenguard.com/reporte/123 \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -d '{
+    "estado": "RE"
+  }'
+```
+
+### Update multiple fields
+
+```bash
+curl -X PUT https://api.greenguard.com/reporte/123 \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -d '{
+    "detalleRepo": "Basura acumulada - Actualizado: Ya fue limpiado parcialmente",
+    "estado": "EP",
+    "idTipoClasi": 2
+  }'
+```
+
+### Update location coordinates
+
+```bash
+curl -X PUT https://api.greenguard.com/reporte/123 \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -d '{
+    "latitud": -12.0465,
+    "longitud": -77.0429
+  }'
+```
+
+## Example Response
+
+```json
+{
+  "idReporte": 123,
+  "numReport": "RPT-2024-00123",
+  "usuario": {
+    "idUsu": 1,
+    "nomUsu": "Juan",
+    "correoUsu": "juan@example.com"
+  },
+  "detalleRepo": "Basura acumulada - Actualizado: Ya fue limpiado parcialmente",
+  "imagenRepo": "https://storage.greenguard.com/images/report-12345.jpg",
+  "estado": "EP",
+  "latitud": -12.0464,
+  "longitud": -77.0428,
+  "tipoIncidente": {
+    "idTipoInci": 2,
+    "descTipoInci": "Acumulación de residuos"
+  },
+  "tipoClasificacion": {
+    "idTipoClasi": 2,
+    "descTipoClasi": "Normal"
+  },
+  "distrito": {
+    "idDistrito": 5,
+    "descDistrito": "Miraflores"
+  },
+  "repoRegistado": "2024-03-13T10:30:00",
+  "repoResuelto": null
+}
+```
+
+## Status Transitions
+
+The following status transitions are common:
+
+- `PE` (Pending) → `EP` (In Process): When authorities start working on the report
+- `EP` (In Process) → `RE` (Resolved): When the incident is resolved
+- `PE` or `EP` → `CA` (Cancelled): When the report is invalid or cancelled
+- `RE` (Resolved): Final state, typically not changed after this
+
+<Warning>
+  When updating a report to `RE` (Resolved) status, the `repoResuelto` timestamp is automatically set to the current date and time.
+</Warning>

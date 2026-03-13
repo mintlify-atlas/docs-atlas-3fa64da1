@@ -1,122 +1,152 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "mint",
-  "name": "Mint Starter Kit",
+  "name": "GreenGuard",
+  "theme": "palm",
   "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
+    "primary": "#2d8659",
+    "light": "#4CAF50",
+    "dark": "#1b5e3a"
   },
-  "favicon": "/favicon.svg",
+  "navbar": {
+    "primary": {
+      "type": "github",
+      "href": "https://github.com/CoDeVeck/GreenGuardWeb"
+    }
+  },
+  "footer": {
+    "socials": {
+      "github": "https://github.com/CoDeVeck/GreenGuardWeb"
+    }
+  },
   "navigation": {
     "tabs": [
       {
-        "tab": "Guides",
+        "tab": "Platform",
         "groups": [
           {
-            "group": "Getting started",
+            "group": "Overview",
             "pages": [
-              "index",
-              "quickstart",
-              "development"
+              "introduction",
+              "quickstart"
             ]
           },
           {
-            "group": "Customization",
+            "group": "Core Features",
             "pages": [
-              "essentials/settings",
-              "essentials/navigation"
+              "features/incident-reporting",
+              "features/gamification",
+              "features/notifications",
+              "features/rewards"
             ]
           },
           {
-            "group": "Writing content",
+            "group": "User Roles",
             "pages": [
-              "essentials/markdown",
-              "essentials/code",
-              "essentials/images",
-              "essentials/reusable-snippets"
-            ]
-          },
-          {
-            "group": "AI tools",
-            "pages": [
-              "ai-tools/cursor",
-              "ai-tools/claude-code",
-              "ai-tools/windsurf"
+              "roles/citizens",
+              "roles/municipality",
+              "roles/stores",
+              "roles/admin"
             ]
           }
         ]
       },
       {
-        "tab": "API reference",
+        "tab": "Setup & Deployment",
         "groups": [
           {
-            "group": "API documentation",
+            "group": "Installation",
             "pages": [
-              "api-reference/introduction"
+              "setup/requirements",
+              "setup/backend",
+              "setup/frontend",
+              "setup/database"
             ]
           },
           {
-            "group": "Endpoint examples",
+            "group": "Configuration",
             "pages": [
-              "api-reference/endpoint/get",
-              "api-reference/endpoint/create",
-              "api-reference/endpoint/delete",
-              "api-reference/endpoint/webhook"
+              "configuration/application",
+              "configuration/database",
+              "configuration/environment"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "groups": [
+          {
+            "group": "Authentication",
+            "pages": [
+              "api/auth/overview",
+              "api/auth/login",
+              "api/auth/register"
+            ]
+          },
+          {
+            "group": "Reports",
+            "pages": [
+              "api/reports/create",
+              "api/reports/list",
+              "api/reports/update",
+              "api/reports/delete"
+            ]
+          },
+          {
+            "group": "Users",
+            "pages": [
+              "api/users/profile",
+              "api/users/points",
+              "api/users/update"
+            ]
+          },
+          {
+            "group": "Coupons",
+            "pages": [
+              "api/coupons/list",
+              "api/coupons/redeem",
+              "api/coupons/user-coupons"
+            ]
+          },
+          {
+            "group": "Notifications",
+            "pages": [
+              "api/notifications/send",
+              "api/notifications/list"
+            ]
+          },
+          {
+            "group": "Reference Data",
+            "pages": [
+              "api/reference/districts",
+              "api/reference/incident-types",
+              "api/reference/classifications",
+              "api/reference/categories"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Admin Panel",
+        "groups": [
+          {
+            "group": "Getting Started",
+            "pages": [
+              "admin/overview",
+              "admin/access"
+            ]
+          },
+          {
+            "group": "Management",
+            "pages": [
+              "admin/users",
+              "admin/reports",
+              "admin/stores",
+              "admin/coupons"
             ]
           }
         ]
       }
-    ],
-    "global": {
-      "anchors": [
-        {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
-        },
-        {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
-        }
-      ]
-    }
-  },
-  "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
-  },
-  "navbar": {
-    "links": [
-      {
-        "label": "Support",
-        "href": "mailto:hi@mintlify.com"
-      }
-    ],
-    "primary": {
-      "type": "button",
-      "label": "Dashboard",
-      "href": "https://dashboard.mintlify.com"
-    }
-  },
-  "contextual": {
-    "options": [
-     "copy",
-     "view",
-     "chatgpt",
-     "claude",
-     "perplexity",
-     "mcp",
-     "cursor",
-     "vscode"
-   ]
-  },
-  "footer": {
-    "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
-    }
+    ]
   }
 }

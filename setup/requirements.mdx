@@ -1,0 +1,156 @@
+---
+title: 'System Requirements'
+description: 'Prerequisites and system requirements for running GreenGuard'
+---
+
+## Overview
+
+Before setting up the GreenGuard platform, ensure your system meets the following requirements for both backend and frontend components.
+
+## Backend Requirements
+
+### Java Development Kit (JDK)
+
+<Warning>
+  GreenGuard requires Java 21 or higher. Earlier versions are not supported.
+</Warning>
+
+- **Required Version:** Java 21
+- **Recommended:** Oracle JDK 21 or OpenJDK 21
+- **Purpose:** Running the Spring Boot application
+
+Verify your Java installation:
+
+```bash
+java -version
+```
+
+### Apache Maven
+
+- **Required Version:** Maven 3.6 or higher
+- **Purpose:** Building and managing the Spring Boot project dependencies
+
+Verify your Maven installation:
+
+```bash
+mvn -version
+```
+
+<Note>
+  The project includes Maven wrapper (mvnw), so you can use `./mvnw` instead of installing Maven globally.
+</Note>
+
+## Frontend Requirements
+
+### Node.js
+
+- **Required Version:** Node.js 18.x or higher
+- **Recommended:** Node.js 20.x LTS
+- **Purpose:** Running the Angular development server and build tools
+
+Verify your Node.js installation:
+
+```bash
+node --version
+```
+
+### npm (Node Package Manager)
+
+- **Required Version:** npm 9.x or higher
+- **Purpose:** Managing Angular project dependencies
+
+Verify your npm installation:
+
+```bash
+npm --version
+```
+
+### Angular CLI
+
+- **Required Version:** Angular CLI 19.2.4
+- **Purpose:** Development and build tools for Angular
+
+Install Angular CLI globally:
+
+<CodeGroup>
+```bash npm
+npm install -g @angular/cli@19.2.4
+```
+
+```bash yarn
+yarn global add @angular/cli@19.2.4
+```
+</CodeGroup>
+
+## Database Requirements
+
+### PostgreSQL
+
+- **Required Version:** PostgreSQL 12 or higher
+- **Recommended:** PostgreSQL 14 or higher
+- **Purpose:** Primary database for storing application data
+
+Verify your PostgreSQL installation:
+
+```bash
+psql --version
+```
+
+<Warning>
+  Ensure PostgreSQL is running and accessible on port 5432 (default) or update the application configuration accordingly.
+</Warning>
+
+## System Resources
+
+### Minimum Requirements
+
+- **RAM:** 4 GB
+- **CPU:** Dual-core processor
+- **Disk Space:** 2 GB free space
+- **Operating System:** Windows 10+, macOS 10.15+, or Linux (Ubuntu 20.04+)
+
+### Recommended Requirements
+
+- **RAM:** 8 GB or more
+- **CPU:** Quad-core processor or better
+- **Disk Space:** 5 GB free space
+- **Operating System:** Latest stable version of your preferred OS
+
+## Development Tools (Optional)
+
+### Integrated Development Environment (IDE)
+
+**For Backend:**
+- IntelliJ IDEA (Community or Ultimate)
+- Eclipse IDE for Enterprise Java Developers
+- Visual Studio Code with Java Extension Pack
+
+**For Frontend:**
+- Visual Studio Code
+- WebStorm
+- Sublime Text with TypeScript support
+
+### Database Management Tools
+
+- pgAdmin 4 (PostgreSQL administration)
+- DBeaver (Universal database tool)
+- Azure Data Studio
+
+## Network Requirements
+
+- **Backend Port:** 8080 (Spring Boot default)
+- **Frontend Port:** 4200 (Angular dev server default)
+- **Database Port:** 5432 (PostgreSQL default)
+- **Internet Connection:** Required for downloading dependencies
+
+<Note>
+  Ensure these ports are available and not blocked by firewall rules.
+</Note>
+
+## Next Steps
+
+Once you've verified all requirements are met, proceed with:
+
+1. [Backend Setup](/setup/backend) - Configure the Spring Boot application
+2. [Frontend Setup](/setup/frontend) - Set up the Angular application
+3. [Database Setup](/setup/database) - Initialize the PostgreSQL database

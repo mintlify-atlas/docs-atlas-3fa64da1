@@ -1,80 +1,175 @@
 ---
-title: "Quickstart"
-description: "Start building awesome documentation in minutes"
+title: 'Quick Start Guide'
+description: 'Get started with GreenGuard in minutes - from registration to your first environmental incident report'
 ---
 
-## Get started in three steps
+## Welcome to GreenGuard
 
-Get your documentation site running locally and make your first customization.
+GreenGuard is a civic engagement platform that empowers citizens to report environmental incidents and earn rewards for making their communities cleaner and safer. Follow this guide to create your account and submit your first incident report.
 
-### Step 1: Set up your local environment
+<Steps>
+  <Step title="Create Your Account">
+    Start by registering a new user account on the GreenGuard platform.
 
-<AccordionGroup>
-  <Accordion icon="copy" title="Clone your docs locally">
-    During the onboarding process, you created a GitHub repository with your docs content if you didn't already have one. You can find a link to this repository in your [dashboard](https://dashboard.mintlify.com).
-    
-    To clone the repository locally so that you can make and preview changes to your docs, follow the [Cloning a repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) guide in the GitHub docs.
-  </Accordion>
-  <Accordion icon="rectangle-terminal" title="Start the preview server">
-    1. Install the Mintlify CLI: `npm i -g mint`
-    2. Navigate to your docs directory and run: `mint dev`
-    3. Open `http://localhost:3000` to see your docs live!
-    
-    <Tip>Your preview updates automatically as you edit files.</Tip>
-  </Accordion>
-</AccordionGroup>
+    **Required Information:**
+    - Full name (first name, paternal surname, maternal surname)
+    - Valid email address
+    - Strong password
+    - Phone number
+    - Document ID (DNI or identification number)
+    - Gender
+    - Profile image (optional)
 
-### Step 2: Deploy your changes
+    **Registration Endpoint:**
+    ```http
+    POST /auth/register
+    ```
 
-<AccordionGroup>
-  <Accordion icon="github" title="Install our GitHub app">
-    Install the Mintlify GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app).
-    
-    Our GitHub app automatically deploys your changes to your docs site, so you don't need to manage deployments yourself.
-</Accordion>
-<Accordion icon="palette" title="Update your site name and colors">
-    For a first change, let's update the name and colors of your docs site.
+    The system automatically assigns you the "Cliente" (Citizen) role and initializes your account with:
+    - **0 points** to start earning through incident reports
+    - Active account status
+    - Registration timestamp
+    - Optional FCM token for push notifications
 
-    1. Open `docs.json` in your editor.
-    2. Change the `"name"` field to your project name.
-    3. Update the `"colors"` to match your brand.
-    4. Save and see your changes instantly at `http://localhost:3000`.
+    <Note>
+      Your account is activated immediately upon registration. You can start reporting incidents right away!
+    </Note>
+  </Step>
 
-    <Tip>Try changing the primary color to see an immediate difference!</Tip>
-  </Accordion>
-</AccordionGroup>
+  <Step title="Complete Your Profile">
+    After registration, enhance your profile to get the most out of GreenGuard:
 
-### Step 3: Go live
+    1. **Upload a profile photo** to personalize your account
+    2. **Enable push notifications** by allowing FCM token registration
+    3. **Verify your contact information** to receive updates about your reports
 
-<Accordion icon="rocket" title="Publish your docs">
-  1. Commit and push your changes.
-  2. Your docs will update and be live in moments!
-</Accordion>
+    The system stores your FCM (Firebase Cloud Messaging) token for real-time notifications about:
+    - Report status updates
+    - Available rewards
+    - Community achievements
+  </Step>
 
-## Next steps
+  <Step title="Submit Your First Incident Report">
+    Now you're ready to make an impact! Report environmental incidents in your community.
 
-Now that you have your docs running, explore these key features:
+    ### What You Can Report
+
+    Common incident types include:
+    - Illegal dumping
+    - Accumulated trash
+    - Abandoned vehicles
+    - Damaged infrastructure
+    - Environmental hazards
+    - Public space issues
+
+    ### Creating a Report
+
+    Each report requires:
+
+    <CardGroup cols={2}>
+      <Card title="Location Data" icon="map-pin">
+        - GPS coordinates (latitude/longitude)
+        - District selection
+        - Precise incident location
+      </Card>
+      <Card title="Incident Details" icon="clipboard">
+        - Incident type classification
+        - Detailed description
+        - Photo evidence
+        - Severity classification
+      </Card>
+    </CardGroup>
+
+    **Report Model Structure:**
+    ```java
+    @Entity
+    @Table(name = "tb_reporte")
+    public class Reporte {
+        private String numReport;         // Auto-generated report number
+        private Usuario usuario;          // Your user account
+        private String detalleRepo;       // Incident description
+        private String imagenRepo;        // Photo URL
+        private EstadoReporte estado;     // Status: PE, EP, RE, CA
+        private BigDecimal latitud;       // GPS latitude
+        private BigDecimal longitud;      // GPS longitude
+        private TipoIncidentes tipoIncidente;     // Incident category
+        private TipoClasificacion tipoClasificacion; // Severity level
+        private Distrito distrito;        // District/area
+        private LocalDateTime repoRegistado;  // Submission timestamp
+        private LocalDateTime repoResuelto;   // Resolution timestamp
+    }
+    ```
+
+    ### Report Status Lifecycle
+
+    Your report progresses through these states:
+    - **PE (Pendiente)** - Submitted and awaiting review
+    - **EP (En Proceso)** - Municipality is working on it
+    - **RE (Resuelto)** - Issue resolved
+    - **CA (Cancelado)** - Report cancelled or invalid
+
+    <Warning>
+      Always include a clear photo of the incident. Reports with photo evidence are processed faster by municipal authorities.
+    </Warning>
+  </Step>
+
+  <Step title="Track Your Report">
+    After submitting your report, you'll receive:
+
+    1. **A unique report number** for tracking
+    2. **Push notification** confirming receipt
+    3. **Status updates** as the municipality processes your report
+
+    You can monitor:
+    - Current report status (Pending, In Process, Resolved, Cancelled)
+    - Timestamp of status changes
+    - Municipal response notes
+    - Resolution timeline
+
+    <Note>
+      You'll receive a push notification each time your report status changes. Make sure notifications are enabled!
+    </Note>
+  </Step>
+
+  <Step title="Earn Points and Rewards">
+    Congratulations! You've submitted your first report. Now you can:
+
+    - **Earn points** when your report is validated and processed
+    - **Track your impact** through your cumulative points balance
+    - **Redeem rewards** in the marketplace once you accumulate enough points
+    - **Climb the leaderboard** and become a top contributor
+
+    Points are stored in your user profile:
+    ```java
+    @Column(name="puntos_usu")
+    private int puntosUsu;  // Your total points balance
+    ```
+
+    Visit the [Rewards Marketplace](/features/rewards) to browse available coupons and see how many points you need to redeem them.
+  </Step>
+</Steps>
+
+## Next Steps
+
+Now that you've submitted your first report, explore more features:
 
 <CardGroup cols={2}>
-
-<Card title="Write Content" icon="pen-to-square" href="/essentials/markdown">
-  Learn MDX syntax and start writing your documentation.
-</Card>
-
-<Card title="Customize style" icon="palette" href="/essentials/settings">
-  Make your docs match your brand perfectly.
-</Card>
-
-<Card title="Add code examples" icon="square-code" href="/essentials/code">
-  Include syntax-highlighted code blocks.
-</Card>
-
-<Card title="API documentation" icon="code" href="/api-reference/introduction">
-  Auto-generate API docs from OpenAPI specs.
-</Card>
-
+  <Card title="Incident Reporting" icon="flag" href="/features/incident-reporting">
+    Learn advanced reporting techniques and best practices
+  </Card>
+  <Card title="Gamification System" icon="trophy" href="/features/gamification">
+    Understand how to maximize your points and climb the ranks
+  </Card>
+  <Card title="Push Notifications" icon="bell" href="/features/notifications">
+    Configure notifications to stay updated on your reports
+  </Card>
+  <Card title="Rewards Marketplace" icon="gift" href="/features/rewards">
+    Browse and redeem coupons with your earned points
+  </Card>
 </CardGroup>
 
+## Need Help?
+
 <Note>
-  **Need help?** See our [full documentation](https://mintlify.com/docs) or join our [community](https://mintlify.com/community).
+  If you encounter any issues during registration or your first report submission, contact your local municipal office or check the platform status page.
 </Note>

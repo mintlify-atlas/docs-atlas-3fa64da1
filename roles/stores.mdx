@@ -1,0 +1,442 @@
+---
+title: Store Partner Role
+description: Create and manage reward coupons to engage with the community and attract customers
+icon: store
+---
+
+## Overview
+
+Store partners are local businesses that participate in GreenGuard's rewards marketplace by offering discount coupons that citizens can redeem using earned points. This role creates a mutually beneficial relationship: citizens receive tangible rewards for community engagement, while stores gain visibility and attract motivated customers.
+
+<Note>
+Store partners benefit from a pre-qualified customer base that has demonstrated community engagement and earned points specifically to spend at partner businesses.
+</Note>
+
+## Core Capabilities
+
+<CardGroup cols={2}>
+  <Card title="Create Coupons" icon="ticket">
+    Design and publish discount offers in the rewards marketplace
+  </Card>
+  <Card title="Manage Inventory" icon="boxes-stacked">
+    Control coupon availability, points required, and expiration settings
+  </Card>
+  <Card title="Track Redemptions" icon="chart-line">
+    Monitor coupon usage and customer engagement metrics
+  </Card>
+  <Card title="Verify QR Codes" icon="qrcode">
+    Scan and validate citizen coupon codes at point of sale
+  </Card>
+</CardGroup>
+
+## Store Profile Setup
+
+### Store Information
+
+Each store partner maintains a profile containing:
+
+| Field | Description |
+|-------|-------------|
+| **Store Name** | Business name displayed in the marketplace |
+| **District** | Primary location for local customer targeting |
+| **Owner/Manager** | Associated user account managing the store |
+| **Contact Information** | Phone and email from the user account |
+| **Operational Status** | Active store indicator |
+
+### District-Based Visibility
+
+Stores are associated with specific municipal districts:
+
+- **Local Discovery**: Citizens can filter coupons by nearby stores in their district
+- **Community Connection**: Build relationships with local residents reporting incidents
+- **Targeted Marketing**: Offers reach customers most likely to visit your location
+- **Geographic Analytics**: Track which districts generate the most redemptions
+
+## Creating Coupons
+
+### Coupon Design Process
+
+<Steps>
+  <Step title="Define the Offer">
+    Decide on the discount value, product/service included, and any restrictions or limitations.
+  </Step>
+  <Step title="Set Point Value">
+    Determine how many points citizens must spend to redeem the coupon. Consider the offer value and desired redemption volume.
+  </Step>
+  <Step title="Choose Category">
+    Select the appropriate category: Food & Restaurants, Retail & Clothing, Groceries, or Electronics.
+  </Step>
+  <Step title="Write Description">
+    Craft a compelling description that clearly explains the offer value and any terms or conditions.
+  </Step>
+  <Step title="Set Availability">
+    Publish the coupon to make it visible in the rewards marketplace.
+  </Step>
+</Steps>
+
+### Coupon Attributes
+
+Store partners configure the following fields when creating coupons:
+
+<AccordionGroup>
+  <Accordion title="Coupon Name" icon="heading">
+    **Format**: Short, descriptive title (up to 50 characters)
+    
+    **Examples**:
+    - "20% Off Any Pizza"
+    - "$10 Off $50 Purchase"
+    - "Free Dessert with Entree"
+    - "Buy One Get One 50% Off"
+    
+    **Best Practices**: Make the value proposition immediately clear to attract citizen attention.
+  </Accordion>
+  <Accordion title="Description" icon="file-lines">
+    **Format**: Detailed explanation (up to 50 characters)
+    
+    **Include**:
+    - Specific items or services covered
+    - Any exclusions or restrictions
+    - Validity period or usage limitations
+    - Special terms or minimum purchase requirements
+    
+    **Example**: "Valid on all menu items. Dine-in only. One per customer. Excludes alcohol."
+  </Accordion>
+  <Accordion title="Category" icon="layer-group">
+    **Available Categories**:
+    - **Food & Restaurants**: Dining, beverages, catering
+    - **Retail & Clothing**: Apparel, accessories, fashion
+    - **Groceries**: Supermarkets, produce, household items
+    - **Electronics**: Appliances, gadgets, devices
+    
+    Citizens browse by category, so accurate classification improves discoverability.
+  </Accordion>
+  <Accordion title="Points Required" icon="coins">
+    **Pricing Strategy**: Balance between attractiveness to citizens and business margins.
+    
+    **Typical Ranges**:
+    - 50-100 points: Small discounts, low-value items
+    - 100-250 points: Medium discounts, moderate purchases
+    - 250-500 points: Large discounts, premium offers
+    - 500+ points: Major discounts, high-value items
+    
+    Consider that citizens earn points by reporting incidents, so pricing should reflect community effort.
+  </Accordion>
+  <Accordion title="Coupon Code" icon="barcode">
+    **Format**: Unique alphanumeric identifier (up to 20 characters)
+    
+    **Purpose**:
+    - Internal tracking and verification
+    - Reference for citizen inquiries
+    - Integration with POS systems
+    
+    **Example**: `GGCPN2026Q1001`, `SPRING20`, `WELCOME10`
+  </Accordion>
+  <Accordion title="Active Status" icon="toggle-on">
+    **Control Availability**: Enable or disable coupon visibility in the marketplace.
+    
+    **Use Cases**:
+    - Temporarily pause during high redemption volume
+    - Seasonal offers (activate/deactivate as needed)
+    - Inventory management (disable when out of stock)
+    - A/B testing different offers
+  </Accordion>
+</AccordionGroup>
+
+## Managing Coupons
+
+### Coupon Lifecycle
+
+Store partners control coupon availability and inventory:
+
+<Tabs>
+  <Tab title="Active Coupons">
+    **Visible in Marketplace**: Citizens can browse and redeem these coupons.
+    
+    **Management Actions**:
+    - Monitor redemption rates
+    - Adjust points required if needed
+    - Track which coupons generate most interest
+    - Temporarily deactivate during inventory issues
+  </Tab>
+  <Tab title="Inactive Coupons">
+    **Hidden from Marketplace**: Not available for citizen redemption.
+    
+    **Common Reasons**:
+    - Out of stock or inventory limitations
+    - Seasonal offer outside valid period
+    - Testing or preparing new campaigns
+    - Excessive redemption volume
+    
+    Inactive coupons can be reactivated at any time without creating new entries.
+  </Tab>
+  <Tab title="Historical Coupons">
+    **Past Campaigns**: Expired or discontinued offers retained for analytics.
+    
+    **Value**:
+    - Review redemption performance
+    - Identify successful offer structures
+    - Plan future campaigns based on data
+    - Calculate ROI and customer acquisition costs
+  </Tab>
+</Tabs>
+
+### Inventory Management
+
+Store partners should actively manage coupon inventory:
+
+<CardGroup cols={2}>
+  <Card title="Monitor Stock" icon="warehouse">
+    Track product availability to ensure you can fulfill redeemed coupons without disappointing customers.
+  </Card>
+  <Card title="Set Limits" icon="gauge-high">
+    Consider internal redemption limits per day/week to manage demand and protect margins.
+  </Card>
+  <Card title="Seasonal Adjustments" icon="calendar">
+    Activate relevant offers during peak seasons and holidays when specific products are in stock.
+  </Card>
+  <Card title="Quick Deactivation" icon="power-off">
+    Immediately disable coupons if you run out of stock or face unexpected supply issues.
+  </Card>
+</CardGroup>
+
+## Redemption Process
+
+### How Citizens Redeem Coupons
+
+Understanding the citizen redemption workflow helps stores prepare for in-store validation:
+
+<Steps>
+  <Step title="Citizen Selects Coupon">
+    Customer browses the marketplace and chooses your offer, spending their earned points.
+  </Step>
+  <Step title="Coupon Generated">
+    System creates a unique redemption record with a QR verification code and coupon code.
+  </Step>
+  <Step title="Customer Visits Store">
+    Citizen presents their phone showing the coupon QR code at your location.
+  </Step>
+  <Step title="Store Scans QR Code">
+    Your staff uses the verification system to scan and validate the code.
+  </Step>
+  <Step title="Redemption Confirmed">
+    System marks the coupon as redeemed, preventing duplicate usage, and finalizes the transaction.
+  </Step>
+</Steps>
+
+### QR Code Verification
+
+Each redeemed coupon includes a unique QR verification code:
+
+- **Security**: Prevents fraud and duplicate redemptions
+- **Tracking**: Links specific redemptions to citizens and coupons
+- **Analytics**: Provides data on which offers drive foot traffic
+- **Validation**: Confirms coupon hasn't expired or been used previously
+
+<Warning>
+Always scan the QR verification code before providing the discount. The code ensures the coupon is valid and hasn't been previously redeemed.
+</Warning>
+
+### Coupon States
+
+Redeemed coupons progress through three states:
+
+<CardGroup cols={3}>
+  <Card title="Active (AC)" icon="circle-check" color="#10b981">
+    Citizen has redeemed the coupon with points but hasn't used it at the store yet. Ready for scanning.
+  </Card>
+  <Card title="Redeemed (CA)" icon="check-double" color="#6366f1">
+    Store has scanned the QR code and applied the discount. Transaction complete.
+  </Card>
+  <Card title="Expired (VE)" icon="circle-xmark" color="#ef4444">
+    Coupon validity period has passed without store redemption. Cannot be used.
+  </Card>
+</CardGroup>
+
+## Analytics and Insights
+
+### Tracking Performance
+
+Store partners can access valuable data about coupon performance:
+
+| Metric | Description |
+|--------|-------------|
+| **Total Redemptions** | Number of coupons redeemed at your store |
+| **Active Coupons** | Citizens holding unredeemed coupons for your offers |
+| **Popular Offers** | Which coupons generate the most redemptions |
+| **Peak Redemption Times** | When citizens typically visit to use coupons |
+| **District Distribution** | Which neighborhoods drive the most traffic |
+| **Conversion Rate** | Ratio of coupon views to actual redemptions |
+| **Average Points Spent** | Typical point investment per citizen transaction |
+
+### Data-Driven Optimization
+
+Use analytics to improve coupon strategy:
+
+<AccordionGroup>
+  <Accordion title="Identify Top Performers" icon="trophy">
+    Analyze which coupon structures (discount percentage, point costs, categories) generate the most redemptions. Replicate successful patterns.
+  </Accordion>
+  <Accordion title="Optimize Point Pricing" icon="dollar-sign">
+    If redemption rates are too low, the points required might be too high. If rates are excessive, you may be underpricing the offer.
+  </Accordion>
+  <Accordion title="Test Offer Variations" icon="flask">
+    Create similar coupons with different values or restrictions to determine what resonates with citizens.
+  </Accordion>
+  <Accordion title="Seasonal Timing" icon="calendar-days">
+    Review historical data to identify optimal times for specific product categories and plan campaigns accordingly.
+  </Accordion>
+  <Accordion title="Customer Retention" icon="rotate">
+    Track whether citizens who redeem coupons become repeat customers or make additional purchases beyond the discount.
+  </Accordion>
+</AccordionGroup>
+
+## Notifications and Alerts
+
+Store partners receive notifications about coupon activity:
+
+<CardGroup cols={2}>
+  <Card title="New Redemptions" icon="bell">
+    Alert when citizens redeem your coupons, helping forecast expected foot traffic.
+  </Card>
+  <Card title="High Demand Alerts" icon="fire">
+    Notification when a coupon is being redeemed at an unusually high rate.
+  </Card>
+  <Card title="Expiring Coupons" icon="clock">
+    Reminder when citizens have unredeemed coupons approaching expiration.
+  </Card>
+  <Card title="System Updates" icon="megaphone">
+    Important platform changes affecting the rewards marketplace.
+  </Card>
+</CardGroup>
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Create Compelling Offers" icon="sparkles">
+    Make discounts genuinely valuable to motivate citizens to spend their hard-earned points at your store rather than competitors.
+  </Accordion>
+  <Accordion title="Price Competitively" icon="scale-balanced">
+    Balance point costs with discount value. Consider that citizens earn roughly 10-20 points per incident report, so a 100-point coupon represents significant effort.
+  </Accordion>
+  <Accordion title="Keep Inventory Current" icon="boxes-packing">
+    Deactivate coupons immediately if you run out of stock. Nothing frustrates customers more than discovering an offer isn't actually available.
+  </Accordion>
+  <Accordion title="Train Staff" icon="chalkboard-user">
+    Ensure all employees understand the QR verification process and can smoothly handle coupon redemptions without confusion.
+  </Accordion>
+  <Accordion title="Provide Excellent Service" icon="handshake">
+    Remember that coupon redeemers are community-minded citizens who've earned their rewards. Treat them exceptionally to build loyalty.
+  </Accordion>
+  <Accordion title="Monitor Redemption Rates" icon="chart-mixed">
+    Regularly review analytics to understand which offers work and adjust your strategy accordingly.
+  </Accordion>
+  <Accordion title="Refresh Offers Regularly" icon="arrows-rotate">
+    Update your coupon portfolio periodically to maintain citizen interest and showcase seasonal products or services.
+  </Accordion>
+  <Accordion title="Clear Terms" icon="list-check">
+    Explicitly state any restrictions, minimum purchases, or exclusions in the description to avoid customer disappointment.
+  </Accordion>
+</AccordionGroup>
+
+## Benefits of Partnership
+
+### Store Advantages
+
+<CardGroup cols={2}>
+  <Card title="Targeted Marketing" icon="bullseye">
+    Reach engaged citizens who've demonstrated community commitment and have purchasing power (points).
+  </Card>
+  <Card title="Foot Traffic" icon="person-walking">
+    Drive visits to your physical location from motivated customers actively seeking your offers.
+  </Card>
+  <Card title="Brand Visibility" icon="eye">
+    Increase awareness in your district by appearing in the marketplace alongside your business information.
+  </Card>
+  <Card title="Community Goodwill" icon="heart">
+    Build reputation as a community partner supporting civic engagement and urban improvement.
+  </Card>
+  <Card title="Customer Acquisition" icon="user-plus">
+    Convert one-time coupon users into regular customers through exceptional service and quality.
+  </Card>
+  <Card title="Data Insights" icon="chart-pie">
+    Access analytics about customer behavior, preferences, and demographic patterns.
+  </Card>
+</CardGroup>
+
+### Community Impact
+
+Store participation strengthens the entire GreenGuard ecosystem:
+
+- **Motivates Reporting**: Citizens are incentivized to report more incidents knowing they can earn valuable rewards
+- **Improves Infrastructure**: More reports lead to faster municipal response and better urban conditions
+- **Supports Local Economy**: Keeps spending within the community by connecting citizens to neighborhood businesses
+- **Builds Relationships**: Creates connections between stores and engaged, civic-minded residents
+
+## Technical Integration
+
+### API Access
+
+Store partners with technical resources can integrate GreenGuard with existing systems:
+
+- **POS Integration**: Automatically verify QR codes at checkout
+- **Inventory Management**: Sync coupon availability with stock levels
+- **CRM Systems**: Track coupon redeemers in customer databases
+- **Analytics Tools**: Export redemption data for advanced analysis
+
+<Card title="API Documentation" icon="code" href="/api/auth/overview">
+  Explore technical endpoints for store and coupon management
+</Card>
+
+## Getting Started
+
+<Steps>
+  <Step title="Create Store Profile">
+    Register as a store partner and complete your business profile with name, district, and contact information.
+  </Step>
+  <Step title="Design Your First Coupon">
+    Start with a popular product or service at a moderate point cost (100-200 points) to test market response.
+  </Step>
+  <Step title="Activate and Monitor">
+    Make the coupon active and watch redemption analytics to gauge citizen interest.
+  </Step>
+  <Step title="Train Your Team">
+    Ensure staff understand QR code verification and can provide excellent service to coupon users.
+  </Step>
+  <Step title="Optimize and Expand">
+    Based on performance data, adjust pricing and create additional offers to grow your coupon portfolio.
+  </Step>
+</Steps>
+
+## Support and Resources
+
+<CardGroup cols={2}>
+  <Card title="Store Dashboard" icon="chart-line">
+    Access your central management interface for coupons, redemptions, and analytics.
+  </Card>
+  <Card title="QR Scanner App" icon="mobile-screen">
+    Download the mobile verification app for easy in-store coupon validation.
+  </Card>
+  <Card title="Marketing Materials" icon="images">
+    Request co-branded materials to promote your partnership with GreenGuard.
+  </Card>
+  <Card title="Partner Support" icon="headset">
+    Contact the partnership team for assistance with strategy, technical issues, or questions.
+  </Card>
+</CardGroup>
+
+## Related Documentation
+
+<CardGroup cols={2}>
+  <Card title="Citizen Role" icon="user" href="/roles/citizens">
+    How citizens earn and redeem points for your coupons
+  </Card>
+  <Card title="Gamification System" icon="trophy" href="/features/gamification">
+    Understanding the points economy and reward mechanics
+  </Card>
+  <Card title="Admin Role" icon="shield" href="/roles/admin">
+    System oversight and store account management
+  </Card>
+  <Card title="API Reference" icon="code" href="/api/auth/overview">
+    Technical integration documentation for developers
+  </Card>
+</CardGroup>

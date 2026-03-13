@@ -1,0 +1,520 @@
+---
+title: 'Store Management'
+description: 'Manage partner stores and store managers in GreenGuard'
+---
+
+The store management system allows administrators to oversee partner stores where users can redeem their earned points for coupons and rewards.
+
+## Store Data Model
+
+Stores are stored in the `tb_tienda` table with the following structure:
+
+### Store Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `idTienda` | Integer | Unique store identifier (auto-generated) |
+| `nomTienda` | String | Store name/business name |
+| `usuario` | Usuario | Store manager account (FK) |
+| `distrito` | Distrito | Store location district (FK) |
+
+```java
+@Entity
+@Table(name = "tb_tienda")
+public class Tienda {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name="id_tienda")
+    private Integer idTienda;
+
+    @Column(name="nom_tienda")
+    private String nomTienda;
+
+    @ManyToOne
+    @JoinColumn(name = "id_usu")
+    private Usuario usuario;
+
+    @ManyToOne
+    @JoinColumn(name = "id_distrito")
+    private Distrito distrito;
+}
+```
+
+## Store Controller
+
+The TiendaController manages all store operations:
+
+```java
+@RestController
+@RequestMapping("/tienda")
+public class TiendaController {
+    @Autowired
+    TiendaService tiendaService;
+}
+```
+
+Access store endpoints through the `/tienda` base path.
+
+## Managing Stores
+
+### Creating a New Store
+
+<Steps>
+  <Step title="Prepare Store Information">
+    Gather the required details:
+    
+    <Check>Store/business name</Check>
+    <Check>Store manager user account (must have "Tienda" role)</Check>
+    <Check>District location</Check>
+  </Step>
+  
+  <Step title="Create Store Manager Account">
+    First, ensure a user account exists for the store manager:
+    
+    ```java
+    // User must have Tienda role assigned
+    Usuario storeManager = new Usuario();
+    storeManager.setNomUsu("Manager Name");
+    storeManager.setCorreoUsu("manager@store.com");
+    storeManager.setRol(tiendaRole); // Tienda role
+    storeManager.setActivo(true);
+    ```
+    
+    <Note>
+    Each store requires a dedicated user account with the "Tienda" role for management access.
+    </Note>
+  </Step>
+  
+  <Step title="Create Store Record">
+    Create the store with all required associations:
+    
+    ```java
+    Tienda newStore = new Tienda();
+    newStore.setNomTienda("Green Market");
+    newStore.setUsuario(storeManager);
+    newStore.setDistrito(selectedDistrict);
+    ```
+  </Step>
+  
+  <Step title="Verify Store Creation">
+    Confirm the store is accessible:
+    - Store appears in store listings
+    - Manager can log in with Tienda role
+    - District association is correct
+  </Step>
+</Steps>
+
+### Viewing Stores
+
+<Tabs>
+  <Tab title="All Stores">
+    List all registered partner stores:
+    
+    ```sql
+    SELECT 
+      t.id_tienda,
+      t.nom_tienda,
+      d.nombre_distrito,
+      u.nom_usu,
+      u.correo_usu
+    FROM tb_tienda t
+    JOIN tb_distrito d ON t.id_distrito = d.id_distrito
+    JOIN tb_usuario u ON t.id_usu = u.id_usu
+    ORDER BY t.nom_tienda;
+    ```
+  </Tab>
+  
+  <Tab title="By District">
+    Organize stores by geographic location:
+    
+    ```sql
+    SELECT d.nombre_distrito, COUNT(*) as store_count
+    FROM tb_tienda t
+    JOIN tb_distrito d ON t.id_distrito = d.id_distrito
+    GROUP BY d.nombre_distrito
+    ORDER BY store_count DESC;
+    ```
+  </Tab>
+  
+  <Tab title="By Manager">
+    View which users manage stores:
+    
+    ```sql
+    SELECT 
+      u.nom_usu,
+      u.correo_usu,
+      t.nom_tienda
+    FROM tb_usuario u
+    JOIN tb_tienda t ON u.id_usu = t.id_usu
+    WHERE u.ROL = (SELECT id_rol FROM tb_rol WHERE descripcion = 'Tienda');
+    ```
+  </Tab>
+</Tabs>
+
+### Updating Store Information
+
+<Accordion title="Store Name">
+  Update the store business name:
+  
+  ```java
+  tienda.setNomTienda("New Store Name");
+  ```
+  
+  Use cases:
+  - Rebranding
+  - Correction of spelling errors
+  - Business name changes
+</Accordion>
+
+<Accordion title="Store Location">
+  Change the district assignment:
+  
+  ```java
+  tienda.setDistrito(newDistrict);
+  ```
+  
+  <Warning>
+  Changing store location affects geographic filters and user search results. Verify the new district is correct.
+  </Warning>
+</Accordion>
+
+<Accordion title="Store Manager">
+  Reassign store to a different manager:
+  
+  ```java
+  // Ensure new manager has Tienda role
+  tienda.setUsuario(newStoreManager);
+  ```
+  
+  <Note>
+  The new manager must have an existing user account with the "Tienda" role assigned.
+  </Note>
+</Accordion>
+
+## Store-User Relationship
+
+### Manager Association
+
+Each store is linked to exactly one user account (the store manager):
+
+```java
+@ManyToOne
+@JoinColumn(name = "id_usu")
+private Usuario usuario;
+```
+
+**Key Points:**
+- One user can manage multiple stores
+- Managers must have "Tienda" role
+- Manager login grants access to store management features
+- User's account settings affect store access
+
+### Manager Responsibilities
+
+Store managers with "Tienda" role can:
+
+<CardGroup cols={2}>
+  <Card title="Manage Coupons" icon="ticket">
+    Create and manage coupons for their store
+  </Card>
+  <Card title="View Redemptions" icon="receipt">
+    Track coupon usage and redemptions
+  </Card>
+  <Card title="Update Store Info" icon="pen-to-square">
+    Modify store details and settings
+  </Card>
+  <Card title="View Analytics" icon="chart-line">
+    Access store performance metrics
+  </Card>
+</CardGroup>
+
+## Store-District Relationship
+
+### Geographic Organization
+
+Stores are associated with districts for location-based features:
+
+```java
+@ManyToOne
+@JoinColumn(name = "id_distrito")
+private Distrito distrito;
+```
+
+**Benefits:**
+- Users can filter stores by location
+- Geographic analytics and reporting
+- District-specific coupon offerings
+- Municipal partnership tracking
+
+### District-Based Features
+
+<Steps>
+  <Step title="User Search">
+    Users can find stores in their district:
+    - Filter by current location
+    - Show nearby stores
+    - Display district boundaries
+  </Step>
+  
+  <Step title="Municipal Partnerships">
+    Track stores by municipal district:
+    - Partnership agreements by district
+    - Coverage gap analysis
+    - Expansion planning
+  </Step>
+  
+  <Step title="Geographic Analytics">
+    Analyze store distribution:
+    - Stores per district
+    - Coverage density
+    - User accessibility metrics
+  </Step>
+</Steps>
+
+## Store-Coupon Relationship
+
+### Coupon Association
+
+Stores offer coupons that users can redeem:
+
+```java
+// In Cupon model
+@ManyToOne
+@JoinColumn(name = "id_tienda")
+private Tienda tienda;
+```
+
+Each coupon belongs to a specific store:
+- Store managers create coupons for their stores
+- Coupons are redeemable at the associated store
+- Multiple coupons can belong to one store
+
+<Note>
+See the [Coupon Management](/admin/coupons) guide for details on creating and managing store coupons.
+</Note>
+
+## Store Analytics
+
+### Key Metrics
+
+<CardGroup cols={2}>
+  <Card title="Total Stores" icon="store">
+    Count of all partner stores
+  </Card>
+  <Card title="Active Coupons" icon="tags">
+    Coupons currently available per store
+  </Card>
+  <Card title="Redemption Rate" icon="percent">
+    Coupon usage by store
+  </Card>
+  <Card title="District Coverage" icon="map">
+    Geographic distribution of stores
+  </Card>
+</CardGroup>
+
+### Reporting Queries
+
+```sql
+-- Stores with most coupons
+SELECT 
+  t.nom_tienda,
+  COUNT(c.id_cupon) as coupon_count
+FROM tb_tienda t
+LEFT JOIN tb_cupon c ON t.id_tienda = c.id_tienda
+WHERE c.activo = true
+GROUP BY t.id_tienda
+ORDER BY coupon_count DESC;
+
+-- Stores by district
+SELECT 
+  d.nombre_distrito,
+  COUNT(t.id_tienda) as store_count
+FROM tb_distrito d
+LEFT JOIN tb_tienda t ON d.id_distrito = t.id_distrito
+GROUP BY d.id_distrito
+ORDER BY store_count DESC;
+
+-- Most popular stores (by redemptions)
+SELECT 
+  t.nom_tienda,
+  COUNT(uc.id_usu_cupon) as redemption_count
+FROM tb_tienda t
+JOIN tb_cupon c ON t.id_tienda = c.id_tienda
+JOIN tb_usuario_cupon uc ON c.id_cupon = uc.id_cupon
+GROUP BY t.id_tienda
+ORDER BY redemption_count DESC
+LIMIT 10;
+```
+
+## Store Verification
+
+### Quality Control
+
+Before activating a new store, verify:
+
+<Steps>
+  <Step title="Business Validation">
+    Confirm store is a legitimate business:
+    <Check>Valid business name</Check>
+    <Check>Physical location exists</Check>
+    <Check>Contact information verified</Check>
+  </Step>
+  
+  <Step title="Manager Verification">
+    Validate the store manager:
+    <Check>Manager has appropriate role</Check>
+    <Check>Account is active</Check>
+    <Check>Valid contact information</Check>
+    <Check>Agreement signed (if applicable)</Check>
+  </Step>
+  
+  <Step title="Location Accuracy">
+    Verify district assignment:
+    <Check>District matches physical location</Check>
+    <Check>Accessible to users in that district</Check>
+  </Step>
+</Steps>
+
+## Managing Store Access
+
+### Store Manager Login
+
+Store managers access their dashboard through:
+
+1. **Login** at `/auth/login` with their credentials
+2. **Role Verification** - System confirms "Tienda" role
+3. **Redirect** to `/tienda` route for store management
+4. **Store Context** - Automatically loads their associated store(s)
+
+```typescript
+// Store module routing
+{
+  path: 'tienda',
+  loadChildren: () =>
+    import('./tienda/tienda.module').then((m) => m.TiendaModule)
+}
+```
+
+### Access Control
+
+<Warning>
+Store managers should only access their own store data. Implement proper access controls:
+</Warning>
+
+- Filter store data by logged-in user's ID
+- Prevent access to other stores' information
+- Validate ownership before updates
+- Audit all store modifications
+
+## Store Deactivation
+
+If a store needs to be removed from the platform:
+
+<Steps>
+  <Step title="Deactivate Associated Coupons">
+    Set all store coupons to inactive:
+    
+    ```sql
+    UPDATE tb_cupon
+    SET activo = false
+    WHERE id_tienda = ?;
+    ```
+  </Step>
+  
+  <Step title="Notify Users">
+    Inform users who have coupons from this store:
+    - Send notifications about closure
+    - Provide alternative redemption options
+    - Extend expiration dates if needed
+  </Step>
+  
+  <Step title="Deactivate Manager Account">
+    Disable the store manager's account:
+    
+    ```java
+    storeManager.setActivo(false);
+    ```
+  </Step>
+  
+  <Step title="Archive Store Record">
+    Consider soft delete instead of hard delete:
+    - Maintain historical data
+    - Preserve redemption history
+    - Keep analytics intact
+  </Step>
+</Steps>
+
+<Note>
+Avoid deleting store records to preserve historical redemption data and analytics.
+</Note>
+
+## Best Practices
+
+### Store Onboarding
+
+When adding new partner stores:
+
+1. **Partnership Agreement** - Formalize the relationship
+2. **Training** - Educate store managers on the platform
+3. **Initial Coupons** - Help create attractive initial offers
+4. **Marketing** - Promote the new partnership to users
+5. **Monitoring** - Track early performance metrics
+
+### Store Relationship Management
+
+- Regular communication with store managers
+- Quarterly performance reviews
+- Feedback collection on platform features
+- Support for coupon creation and optimization
+- Dispute resolution procedures
+
+### Geographic Expansion
+
+Plan store network growth:
+
+- Identify underserved districts
+- Recruit stores in target areas
+- Balance store types and categories
+- Ensure good geographic coverage
+- Monitor accessibility for users
+
+## Integration with Other Features
+
+### Coupons
+
+Stores are the primary providers of coupons:
+- Each coupon belongs to one store
+- Store managers create coupons
+- Redemptions happen at stores
+
+See [Coupon Management](/admin/coupons) for details.
+
+### Users
+
+Multiple user relationships:
+- **Managers**: Users with Tienda role who manage stores
+- **Customers**: Users who redeem coupons at stores
+
+### Districts
+
+Geographic organization:
+- Stores are assigned to districts
+- Users search stores by district
+- Analytics by geographic region
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Coupon Management" icon="ticket" href="/admin/coupons">
+    Learn how to manage store coupons
+  </Card>
+  <Card title="User Management" icon="users" href="/admin/users">
+    Manage store manager accounts
+  </Card>
+  <Card title="Report Management" icon="clipboard" href="/admin/reports">
+    Track environmental reports by district
+  </Card>
+  <Card title="Admin Overview" icon="gauge" href="/admin/overview">
+    Return to admin panel overview
+  </Card>
+</CardGroup>

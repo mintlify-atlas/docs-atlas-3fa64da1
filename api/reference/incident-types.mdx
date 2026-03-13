@@ -1,0 +1,192 @@
+---
+title: 'Incident Types'
+description: 'Retrieve available incident types for environmental reports'
+api: 'GET /incidente'
+---
+
+## Overview
+
+Get a list of all incident types (tipos de incidentes) available in the GreenGuard platform. Incident types categorize environmental reports by the nature of the issue being reported.
+
+<Info>
+  Incident types are reference data used when creating environmental reports. This data is typically static.
+</Info>
+
+## Request
+
+This endpoint requires no parameters.
+
+```bash
+GET /incidente
+```
+
+## Response
+
+<ResponseField name="incidentTypes" type="array">
+  Array of incident type objects
+  <ResponseField name="idTipoInci" type="integer">
+    Unique incident type identifier
+  </ResponseField>
+  <ResponseField name="descTipoInci" type="string">
+    Incident type description
+  </ResponseField>
+</ResponseField>
+
+## Examples
+
+<CodeGroup>
+
+```bash cURL
+curl -X GET https://api.greenguard.com/incidente \
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+```javascript JavaScript
+const response = await fetch('https://api.greenguard.com/incidente', {
+  headers: {
+    'Authorization': 'Bearer YOUR_TOKEN'
+  }
+});
+
+const incidentTypes = await response.json();
+```
+
+```python Python
+import requests
+
+response = requests.get(
+    'https://api.greenguard.com/incidente',
+    headers={'Authorization': 'Bearer YOUR_TOKEN'}
+)
+
+incident_types = response.json()
+```
+
+```java Java
+HttpClient client = HttpClient.newHttpClient();
+HttpRequest request = HttpRequest.newBuilder()
+    .uri(URI.create("https://api.greenguard.com/incidente"))
+    .header("Authorization", "Bearer YOUR_TOKEN")
+    .GET()
+    .build();
+
+HttpResponse<String> response = client.send(request, 
+    HttpResponse.BodyHandlers.ofString());
+```
+
+</CodeGroup>
+
+## Response Example
+
+```json
+[
+  {
+    "idTipoInci": 1,
+    "descTipoInci": "Acumulación de basura"
+  },
+  {
+    "idTipoInci": 2,
+    "descTipoInci": "Contaminación del agua"
+  },
+  {
+    "idTipoInci": 3,
+    "descTipoInci": "Contaminación del aire"
+  },
+  {
+    "idTipoInci": 4,
+    "descTipoInci": "Deforestación ilegal"
+  },
+  {
+    "idTipoInci": 5,
+    "descTipoInci": "Vertido ilegal"
+  },
+  {
+    "idTipoInci": 6,
+    "descTipoInci": "Ruido excesivo"
+  },
+  {
+    "idTipoInci": 7,
+    "descTipoInci": "Daño a flora/fauna"
+  },
+  {
+    "idTipoInci": 8,
+    "descTipoInci": "Otro"
+  }
+]
+```
+
+## Get Single Incident Type
+
+To retrieve a specific incident type by ID:
+
+<CodeGroup>
+
+```bash cURL
+curl -X GET https://api.greenguard.com/incidente/1 \
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+```javascript JavaScript
+const response = await fetch('https://api.greenguard.com/incidente/1', {
+  headers: {
+    'Authorization': 'Bearer YOUR_TOKEN'
+  }
+});
+
+const incidentType = await response.json();
+```
+
+</CodeGroup>
+
+### Response
+
+```json
+{
+  "idTipoInci": 1,
+  "descTipoInci": "Acumulación de basura"
+}
+```
+
+## Usage in Reports
+
+When creating an environmental report, reference an incident type using its `idTipoInci`:
+
+```json
+{
+  "titulo": "Basura en parque público",
+  "descripcion": "Gran acumulación de basura cerca del área de juegos",
+  "tipoIncidente": {
+    "idTipoInci": 1
+  },
+  "distrito": {
+    "idDistrito": 2
+  },
+  "direccion": "Parque Kennedy"
+}
+```
+
+## Data Model
+
+The incident type data structure corresponds to the `tb_tipos_incidentes` table:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id_tipo_inci` | INTEGER | Primary key, auto-increment |
+| `desc_tipo_inci` | VARCHAR | Incident type description |
+
+## Common Incident Types
+
+The platform typically includes these incident categories:
+
+- **Acumulación de basura**: Waste accumulation in public areas
+- **Contaminación del agua**: Water pollution in rivers, beaches, or water bodies
+- **Contaminación del aire**: Air quality issues, smoke, or emissions
+- **Deforestación ilegal**: Illegal tree cutting or forest clearing
+- **Vertido ilegal**: Illegal dumping of waste or hazardous materials
+- **Ruido excesivo**: Noise pollution from industrial or commercial sources
+- **Daño a flora/fauna**: Damage to plants, trees, or wildlife
+- **Otro**: Other environmental issues not covered by specific categories
+
+<Tip>
+  Present incident types in a dropdown or selection list when users create reports. This ensures consistent categorization and improves report processing.
+</Tip>

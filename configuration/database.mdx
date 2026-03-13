@@ -1,0 +1,438 @@
+---
+title: 'Database Configuration'
+description: 'Detailed database connection and optimization settings'
+---
+
+## Overview
+
+This guide provides detailed information about configuring the PostgreSQL database connection for the GreenGuard platform, including connection parameters, optimization, and troubleshooting.
+
+## Basic Configuration
+
+### Connection Properties
+
+The database connection is configured in `src/main/resources/application.properties`:
+
+```properties
+spring.datasource.url=jdbc:postgresql://localhost:5432/DB_GREENGUARDIAN
+spring.datasource.username=postgres
+spring.datasource.password=postgres
+```
+
+## Connection URL Parameters
+
+### Basic Format
+
+```
+jdbc:postgresql://[host]:[port]/[database]?[parameters]
+```
+
+### Common Parameters
+
+#### SSL Connection
+
+<Warning>
+  Always use SSL connections in production environments to encrypt data in transit.
+</Warning>
+
+```properties
+spring.datasource.url=jdbc:postgresql://localhost:5432/DB_GREENGUARDIAN?ssl=true&sslmode=require
+```
+
+SSL modes:
+- `disable` - No SSL
+- `allow` - Use SSL if available
+- `prefer` - Prefer SSL (default)
+- `require` - Require SSL
+- `verify-ca` - Require SSL with CA verification
+- `verify-full` - Require SSL with full verification
+
+#### Connection Timeout
+
+```properties
+spring.datasource.url=jdbc:postgresql://localhost:5432/DB_GREENGUARDIAN?connectTimeout=30
+```
+
+Timeout in seconds for establishing connection.
+
+#### Schema Selection
+
+```properties
+spring.datasource.url=jdbc:postgresql://localhost:5432/DB_GREENGUARDIAN?currentSchema=public
+```
+
+#### Application Name
+
+```properties
+spring.datasource.url=jdbc:postgresql://localhost:5432/DB_GREENGUARDIAN?ApplicationName=GreenGuard
+```
+
+Helps identify connections in PostgreSQL logs.
+
+### Complete Example
+
+```properties
+spring.datasource.url=jdbc:postgresql://localhost:5432/DB_GREENGUARDIAN?ssl=true&sslmode=require&connectTimeout=30&ApplicationName=GreenGuard
+```
+
+## Connection Pool Configuration
+
+### HikariCP (Default)
+
+Spring Boot uses HikariCP as the default connection pool:
+
+```properties
+# Pool size
+spring.datasource.hikari.maximum-pool-size=10
+spring.datasource.hikari.minimum-idle=5
+
+# Timeout settings (milliseconds)
+spring.datasource.hikari.connection-timeout=30000
+spring.datasource.hikari.idle-timeout=600000
+spring.datasource.hikari.max-lifetime=1800000
+
+# Connection testing
+spring.datasource.hikari.connection-test-query=SELECT 1
+
+# Leak detection
+spring.datasource.hikari.leak-detection-threshold=60000
+```
+
+### Configuration Details
+
+#### Maximum Pool Size
+
+```properties
+spring.datasource.hikari.maximum-pool-size=10
+```
+
+Maximum number of connections in the pool.
+
+**Recommendations:**
+- Development: 5-10 connections
+- Production: 20-50 connections (based on load)
+
+**Formula:** `connections = ((core_count * 2) + effective_spindle_count)`
+
+#### Minimum Idle
+
+```properties
+spring.datasource.hikari.minimum-idle=5
+```
+
+Minimum number of idle connections maintained.
+
+<Note>
+  Set equal to `maximum-pool-size` for fixed-size pool.
+</Note>
+
+#### Connection Timeout
+
+```properties
+spring.datasource.hikari.connection-timeout=30000
+```
+
+Maximum time (ms) to wait for a connection from the pool.
+
+#### Idle Timeout
+
+```properties
+spring.datasource.hikari.idle-timeout=600000
+```
+
+Maximum time (ms) a connection can sit idle before being removed.
+
+#### Max Lifetime
+
+```properties
+spring.datasource.hikari.max-lifetime=1800000
+```
+
+Maximum lifetime (ms) of a connection in the pool.
+
+<Warning>
+  Set this to less than the database's connection timeout to prevent connection failures.
+</Warning>
+
+#### Leak Detection
+
+```properties
+spring.datasource.hikari.leak-detection-threshold=60000
+```
+
+Logs a warning if a connection is not returned within this time (ms).
+
+## JPA/Hibernate Configuration
+
+### Schema Management
+
+```properties
+spring.jpa.hibernate.ddl-auto=update
+```
+
+Options:
+- `none` - No automatic schema management
+- `validate` - Validate schema against entities
+- `update` - Update schema as needed
+- `create` - Create schema (drops existing)
+- `create-drop` - Create and drop on shutdown
+
+**Environment-specific settings:**
+
+```properties
+# Development
+spring.jpa.hibernate.ddl-auto=update
+
+# Production
+spring.jpa.hibernate.ddl-auto=validate
+```
+
+### Hibernate Dialect
+
+```properties
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
+```
+
+Ensures Hibernate generates PostgreSQL-specific SQL.
+
+### SQL Logging
+
+```properties
+# Show SQL statements
+spring.jpa.show-sql=true
+
+# Format SQL for readability
+spring.jpa.properties.hibernate.format_sql=true
+
+# Show bind parameters
+logging.level.org.hibernate.type.descriptor.sql.BasicBinder=TRACE
+```
+
+<Note>
+  Disable SQL logging in production for better performance.
+</Note>
+
+### Batch Processing
+
+```properties
+spring.jpa.properties.hibernate.jdbc.batch_size=20
+spring.jpa.properties.hibernate.order_inserts=true
+spring.jpa.properties.hibernate.order_updates=true
+```
+
+Improves performance for bulk operations.
+
+### Second-Level Cache
+
+```properties
+spring.jpa.properties.hibernate.cache.use_second_level_cache=true
+spring.jpa.properties.hibernate.cache.region.factory_class=org.hibernate.cache.jcache.JCacheRegionFactory
+spring.jpa.properties.hibernate.javax.cache.provider=org.ehcache.jsr107.EhcacheCachingProvider
+```
+
+## Environment-Specific Configuration
+
+### Development
+
+```properties
+# Database
+spring.datasource.url=jdbc:postgresql://localhost:5432/DB_GREENGUARDIAN
+spring.datasource.username=postgres
+spring.datasource.password=postgres
+
+# JPA
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.format_sql=true
+
+# Connection Pool
+spring.datasource.hikari.maximum-pool-size=5
+spring.datasource.hikari.minimum-idle=2
+```
+
+### Production
+
+```properties
+# Database (use environment variables)
+spring.datasource.url=${DATABASE_URL:jdbc:postgresql://localhost:5432/DB_GREENGUARDIAN}
+spring.datasource.username=${DB_USERNAME}
+spring.datasource.password=${DB_PASSWORD}
+
+# JPA
+spring.jpa.hibernate.ddl-auto=validate
+spring.jpa.show-sql=false
+
+# Connection Pool
+spring.datasource.hikari.maximum-pool-size=20
+spring.datasource.hikari.minimum-idle=10
+spring.datasource.hikari.connection-timeout=30000
+spring.datasource.hikari.idle-timeout=600000
+spring.datasource.hikari.max-lifetime=1800000
+```
+
+## PostgreSQL Server Configuration
+
+### postgresql.conf Settings
+
+Optimize PostgreSQL for GreenGuard:
+
+```conf
+# Connection Settings
+max_connections = 100
+
+# Memory Settings
+shared_buffers = 256MB
+effective_cache_size = 1GB
+maintenance_work_mem = 64MB
+work_mem = 16MB
+
+# Checkpoint Settings
+checkpoint_completion_target = 0.9
+wal_buffers = 16MB
+
+# Query Planning
+random_page_cost = 1.1
+effective_io_concurrency = 200
+
+# Logging
+log_min_duration_statement = 1000
+log_line_prefix = '%t [%p]: [%l-1] user=%u,db=%d,app=%a,client=%h '
+```
+
+### pg_hba.conf Settings
+
+Configure authentication:
+
+```conf
+# Local connections
+local   all             all                                     trust
+
+# IPv4 local connections
+host    all             all             127.0.0.1/32            md5
+
+# IPv6 local connections
+host    all             all             ::1/128                 md5
+
+# Remote connections (production)
+host    DB_GREENGUARDIAN greenguard     0.0.0.0/0               md5
+```
+
+<Warning>
+  Restrict remote access to specific IP addresses in production.
+</Warning>
+
+## Database Indexes
+
+Ensure proper indexes for performance:
+
+```sql
+-- User table indexes
+CREATE INDEX idx_usuario_correo ON tb_usuario(correo_usu);
+CREATE INDEX idx_usuario_documento ON tb_usuario(documento_usu);
+CREATE INDEX idx_usuario_rol ON tb_usuario(id_rol);
+
+-- Report table indexes
+CREATE INDEX idx_reporte_usuario ON tb_reporte(id_usu);
+CREATE INDEX idx_reporte_estado ON tb_reporte(estado);
+CREATE INDEX idx_reporte_distrito ON tb_reporte(id_distrito);
+CREATE INDEX idx_reporte_fecha ON tb_reporte(repo_registrado);
+CREATE INDEX idx_reporte_location ON tb_reporte(latitud, longitud);
+
+-- Notification indexes
+CREATE INDEX idx_notificacion_usuario ON tb_notificacion(id_usuario);
+CREATE INDEX idx_notificacion_leida ON tb_notificacion(leida);
+
+-- Coupon indexes
+CREATE INDEX idx_cupon_tienda ON tb_cupon(id_tienda);
+CREATE INDEX idx_cupon_activo ON tb_cupon(activo);
+CREATE INDEX idx_usuario_cupon_estado ON tb_usuario_cupon(estado);
+```
+
+## Monitoring and Maintenance
+
+### Query Performance
+
+Enable query logging:
+
+```properties
+logging.level.org.hibernate.SQL=DEBUG
+logging.level.org.hibernate.stat=DEBUG
+```
+
+### Connection Pool Monitoring
+
+```properties
+spring.datasource.hikari.register-mbeans=true
+```
+
+Access metrics via JMX or Spring Boot Actuator.
+
+### Database Monitoring Queries
+
+```sql
+-- Active connections
+SELECT count(*) FROM pg_stat_activity WHERE datname = 'DB_GREENGUARDIAN';
+
+-- Long-running queries
+SELECT pid, now() - pg_stat_activity.query_start AS duration, query
+FROM pg_stat_activity
+WHERE state = 'active' AND now() - pg_stat_activity.query_start > interval '5 minutes';
+
+-- Database size
+SELECT pg_size_pretty(pg_database_size('DB_GREENGUARDIAN'));
+
+-- Table sizes
+SELECT schemaname, tablename, pg_size_pretty(pg_total_relation_size(schemaname||'.'||tablename)) AS size
+FROM pg_tables
+WHERE schemaname = 'public'
+ORDER BY pg_total_relation_size(schemaname||'.'||tablename) DESC;
+```
+
+## Troubleshooting
+
+### Connection Issues
+
+**Problem:** `Connection refused`
+
+**Solutions:**
+1. Verify PostgreSQL is running
+2. Check port 5432 is accessible
+3. Review firewall settings
+
+**Problem:** `Authentication failed`
+
+**Solutions:**
+1. Verify username and password
+2. Check `pg_hba.conf` settings
+3. Ensure user has database permissions
+
+### Performance Issues
+
+**Problem:** Slow queries
+
+**Solutions:**
+1. Analyze queries with `EXPLAIN ANALYZE`
+2. Add appropriate indexes
+3. Update table statistics: `ANALYZE tb_table_name;`
+
+**Problem:** Connection pool exhaustion
+
+**Solutions:**
+1. Increase `maximum-pool-size`
+2. Enable leak detection
+3. Review slow queries
+
+## Best Practices
+
+1. **Use Environment Variables:** Never hardcode credentials
+2. **Connection Pooling:** Configure appropriate pool sizes
+3. **Index Management:** Create indexes for frequently queried columns
+4. **Regular Maintenance:** Run `VACUUM` and `ANALYZE` regularly
+5. **Monitoring:** Track connection counts and query performance
+6. **Backups:** Implement regular backup strategy
+
+## Next Steps
+
+- [Environment Variables](/configuration/environment)
+- [Application Configuration](/configuration/application)
+- [Database Setup](/setup/database)

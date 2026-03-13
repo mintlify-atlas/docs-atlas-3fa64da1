@@ -1,0 +1,226 @@
+---
+title: 'List Incident Reports'
+description: 'Retrieve a list of incident reports with optional filtering'
+api: 'GET /reporte'
+---
+
+## Overview
+
+Retrieve a paginated list of incident reports. You can filter by status, district, incident type, date range, and user.
+
+## Query Parameters
+
+<ParamField query="page" type="integer" default="0">
+  Page number for pagination (0-indexed)
+</ParamField>
+
+<ParamField query="size" type="integer" default="20">
+  Number of reports per page
+</ParamField>
+
+<ParamField query="estado" type="string">
+  Filter by report status:
+  - `PE` - Pendiente (Pending)
+  - `EP` - En Proceso (In Process)
+  - `RE` - Resuelto (Resolved)
+  - `CA` - Cancelado (Cancelled)
+</ParamField>
+
+<ParamField query="idDistrito" type="integer">
+  Filter by district ID
+</ParamField>
+
+<ParamField query="idTipoInci" type="integer">
+  Filter by incident type ID
+</ParamField>
+
+<ParamField query="idTipoClasi" type="integer">
+  Filter by classification type ID
+</ParamField>
+
+<ParamField query="idUsu" type="integer">
+  Filter by user ID (reports created by specific user)
+</ParamField>
+
+<ParamField query="fechaInicio" type="date">
+  Filter reports from this date (format: YYYY-MM-DD)
+</ParamField>
+
+<ParamField query="fechaFin" type="date">
+  Filter reports until this date (format: YYYY-MM-DD)
+</ParamField>
+
+<ParamField query="sort" type="string" default="repoRegistado,desc">
+  Sort field and direction (e.g., "repoRegistado,desc" or "estado,asc")
+</ParamField>
+
+## Response
+
+<ResponseField name="content" type="array">
+  Array of report objects
+  <ResponseField name="idReporte" type="integer">
+    Report ID
+  </ResponseField>
+  <ResponseField name="numReport" type="string">
+    Report number
+  </ResponseField>
+  <ResponseField name="usuario" type="object">
+    User who created the report
+  </ResponseField>
+  <ResponseField name="detalleRepo" type="string">
+    Report description
+  </ResponseField>
+  <ResponseField name="imagenRepo" type="string">
+    Image URL
+  </ResponseField>
+  <ResponseField name="estado" type="string">
+    Report status (PE, EP, RE, CA)
+  </ResponseField>
+  <ResponseField name="latitud" type="decimal">
+    Latitude coordinate
+  </ResponseField>
+  <ResponseField name="longitud" type="decimal">
+    Longitude coordinate
+  </ResponseField>
+  <ResponseField name="tipoIncidente" type="object">
+    Incident type information
+  </ResponseField>
+  <ResponseField name="tipoClasificacion" type="object">
+    Classification type information
+  </ResponseField>
+  <ResponseField name="distrito" type="object">
+    District information
+  </ResponseField>
+  <ResponseField name="repoRegistado" type="datetime">
+    Registration timestamp
+  </ResponseField>
+  <ResponseField name="repoResuelto" type="datetime">
+    Resolution timestamp (null if not resolved)
+  </ResponseField>
+</ResponseField>
+
+<ResponseField name="pageable" type="object">
+  Pagination information
+  <ResponseField name="pageNumber" type="integer">
+    Current page number
+  </ResponseField>
+  <ResponseField name="pageSize" type="integer">
+    Items per page
+  </ResponseField>
+  <ResponseField name="offset" type="integer">
+    Offset from the start
+  </ResponseField>
+</ResponseField>
+
+<ResponseField name="totalElements" type="integer">
+  Total number of reports matching the filters
+</ResponseField>
+
+<ResponseField name="totalPages" type="integer">
+  Total number of pages
+</ResponseField>
+
+<ResponseField name="last" type="boolean">
+  Whether this is the last page
+</ResponseField>
+
+<ResponseField name="first" type="boolean">
+  Whether this is the first page
+</ResponseField>
+
+<ResponseField name="numberOfElements" type="integer">
+  Number of elements in the current page
+</ResponseField>
+
+## Example Request
+
+```bash
+# Get all reports
+curl -X GET "https://api.greenguard.com/reporte" \
+  -H "Authorization: Bearer YOUR_TOKEN"
+
+# Get pending reports in a specific district
+curl -X GET "https://api.greenguard.com/reporte?estado=PE&idDistrito=5&page=0&size=10" \
+  -H "Authorization: Bearer YOUR_TOKEN"
+
+# Get reports by user with date range
+curl -X GET "https://api.greenguard.com/reporte?idUsu=1&fechaInicio=2024-01-01&fechaFin=2024-03-31" \
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+## Example Response
+
+```json
+{
+  "content": [
+    {
+      "idReporte": 123,
+      "numReport": "RPT-2024-00123",
+      "usuario": {
+        "idUsu": 1,
+        "nomUsu": "Juan",
+        "apePatUsu": "Pérez",
+        "correoUsu": "juan@example.com"
+      },
+      "detalleRepo": "Basura acumulada en la esquina de la Av. Principal",
+      "imagenRepo": "https://storage.greenguard.com/images/report-123.jpg",
+      "estado": "PE",
+      "latitud": -12.0464,
+      "longitud": -77.0428,
+      "tipoIncidente": {
+        "idTipoInci": 2,
+        "descTipoInci": "Acumulación de residuos"
+      },
+      "tipoClasificacion": {
+        "idTipoClasi": 1,
+        "descTipoClasi": "Urgente"
+      },
+      "distrito": {
+        "idDistrito": 5,
+        "descDistrito": "Miraflores"
+      },
+      "repoRegistado": "2024-03-13T10:30:00",
+      "repoResuelto": null
+    },
+    {
+      "idReporte": 124,
+      "numReport": "RPT-2024-00124",
+      "usuario": {
+        "idUsu": 2,
+        "nomUsu": "María",
+        "apePatUsu": "García",
+        "correoUsu": "maria@example.com"
+      },
+      "detalleRepo": "Contenedor desbordado en parque",
+      "imagenRepo": "https://storage.greenguard.com/images/report-124.jpg",
+      "estado": "RE",
+      "latitud": -12.0512,
+      "longitud": -77.0365,
+      "tipoIncidente": {
+        "idTipoInci": 1,
+        "descTipoInci": "Contenedor lleno"
+      },
+      "tipoClasificacion": {
+        "idTipoClasi": 2,
+        "descTipoClasi": "Normal"
+      },
+      "distrito": {
+        "idDistrito": 5,
+        "descDistrito": "Miraflores"
+      },
+      "repoRegistado": "2024-03-12T14:20:00",
+      "repoResuelto": "2024-03-13T09:15:00"
+    }
+  ],
+  "pageable": {
+    "pageNumber": 0,
+    "pageSize": 20,
+    "offset": 0
+  },
+  "totalElements": 2,
+  "totalPages": 1,
+  "last": true,
+  "first": true,
+  "numberOfElements": 2
+}
+```

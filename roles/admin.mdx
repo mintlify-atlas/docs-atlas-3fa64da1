@@ -1,0 +1,666 @@
+---
+title: Admin Role
+description: Full system access to manage users, reports, stores, coupons, and platform configuration
+icon: shield
+---
+
+## Overview
+
+Administrators have comprehensive access to all GreenGuard platform functionality, overseeing users, incident reports, stores, coupons, notifications, and system configuration. This role is responsible for platform governance, data integrity, user support, and strategic management of the entire ecosystem connecting citizens, municipalities, and store partners.
+
+<Warning>
+Admin access includes sensitive capabilities like user management, data modification, and system configuration. These privileges should be granted only to trusted personnel with appropriate training.
+</Warning>
+
+## Core Responsibilities
+
+<CardGroup cols={2}>
+  <Card title="User Management" icon="users-gear">
+    Create, modify, and deactivate user accounts across all roles
+  </Card>
+  <Card title="Report Oversight" icon="clipboard-list">
+    Monitor and intervene in incident report workflows when necessary
+  </Card>
+  <Card title="Store Administration" icon="store">
+    Onboard partner stores and manage their accounts
+  </Card>
+  <Card title="Coupon Oversight" icon="ticket">
+    Review, approve, and moderate reward marketplace offerings
+  </Card>
+  <Card title="System Configuration" icon="gears">
+    Configure platform settings, categories, and operational parameters
+  </Card>
+  <Card title="Data Analytics" icon="chart-mixed">
+    Access comprehensive reporting and performance metrics
+  </Card>
+  <Card title="Notification Management" icon="bell">
+    Oversee push notification system and communication templates
+  </Card>
+  <Card title="Support & Moderation" icon="life-ring">
+    Handle user inquiries, disputes, and escalated issues
+  </Card>
+</CardGroup>
+
+## User Management
+
+### Managing All User Roles
+
+Administrators can create and manage accounts for all four platform roles:
+
+<Tabs>
+  <Tab title="Citizens">
+    **Access**: View and modify all citizen accounts.
+    
+    **Capabilities**:
+    - Create citizen accounts (bulk import or individual)
+    - View complete profile information and activity history
+    - Adjust point balances (corrections or bonuses)
+    - Deactivate accounts for policy violations
+    - Reset passwords and resolve login issues
+    - View report history and coupon redemptions
+    
+    **Use Cases**:
+    - Onboard new users during marketing campaigns
+    - Resolve customer support tickets
+    - Award bonus points for special events or milestones
+    - Investigate suspicious activity or abuse
+  </Tab>
+  <Tab title="Municipality">
+    **Access**: Create and manage municipal employee accounts.
+    
+    **Capabilities**:
+    - Provision accounts for government staff
+    - Assign district permissions and responsibilities
+    - Monitor municipality response performance
+    - Audit report handling and resolution times
+    - Provide training and support for new staff
+    
+    **Use Cases**:
+    - Onboard new municipal departments or districts
+    - Performance monitoring and accountability
+    - Grant access to seasonal or contract workers
+    - Investigate citizen complaints about service
+  </Tab>
+  <Tab title="Stores">
+    **Access**: Manage store partner accounts and businesses.
+    
+    **Capabilities**:
+    - Onboard new store partners with verification
+    - Link stores to user accounts and districts
+    - Monitor coupon offerings for policy compliance
+    - Investigate redemption fraud or disputes
+    - Deactivate problematic partners
+    
+    **Use Cases**:
+    - Partner recruitment and vetting
+    - Ensure coupons meet quality standards
+    - Resolve disputes between stores and citizens
+    - Enforce terms of service for partners
+  </Tab>
+  <Tab title="Admin">
+    **Access**: Create additional administrator accounts.
+    
+    **Capabilities**:
+    - Grant admin privileges to trusted personnel
+    - Define admin role responsibilities and scope
+    - Audit admin actions and changes
+    - Revoke admin access when staff leave
+    
+    **Critical Considerations**:
+    - Minimize number of admin accounts
+    - Document who has admin access and why
+    - Regular access reviews and revocation when appropriate
+  </Tab>
+</Tabs>
+
+### User Account Fields
+
+Administrators can view and edit all user profile attributes:
+
+| Field | Description | Admin Capabilities |
+|-------|-------------|-------------------|
+| **Name** | First name, paternal surname, maternal surname | Edit for corrections |
+| **Document ID** | National ID or equivalent | View only (sensitive) |
+| **Email** | Contact email address | Edit, verify uniqueness |
+| **Phone** | Contact phone number | Edit for updates |
+| **Password** | Encrypted authentication credential | Reset only (cannot view) |
+| **Gender** | User demographic information | Edit if incorrectly set |
+| **Profile Image** | Avatar photo | View, remove if inappropriate |
+| **Points** | Current gamification point balance | Adjust for corrections or bonuses |
+| **Role** | Assigned role (citizen, municipality, store, admin) | Change with caution |
+| **Active Status** | Whether account can access platform | Activate/deactivate |
+| **Registration Date** | Account creation timestamp | View only (audit trail) |
+| **FCM Token** | Push notification device registration | View, clear if needed |
+
+### Account Actions
+
+<AccordionGroup>
+  <Accordion title="Create User" icon="user-plus">
+    **Process**: Add new accounts individually or via bulk import.
+    
+    **Required Information**:
+    - Full name (first name and surnames)
+    - Unique document ID
+    - Unique email address
+    - Phone number
+    - Initial password (user should change on first login)
+    - Role assignment
+    - District (if applicable)
+    
+    **Best Practices**:
+    - Verify information accuracy before creation
+    - Use strong default passwords
+    - Send welcome notifications with login instructions
+    - Document reason for manual account creation
+  </Accordion>
+  <Accordion title="Modify User" icon="pen-to-square">
+    **Common Modifications**:
+    - Update contact information (email, phone)
+    - Correct name spelling or formatting
+    - Adjust point balance for errors or bonuses
+    - Change role (e.g., promote citizen to municipality staff)
+    - Update profile image if inappropriate
+    
+    **Audit Considerations**:
+    - Log all modifications with admin identity and reason
+    - Notify user of significant changes (email, role, status)
+    - Document approval for sensitive changes (point adjustments)
+  </Accordion>
+  <Accordion title="Deactivate User" icon="user-slash">
+    **Reasons for Deactivation**:
+    - Policy violations or abuse
+    - Fraudulent activity or suspicious behavior
+    - User request to close account
+    - Duplicate accounts
+    - Inactive municipality or store staff
+    
+    **Effects**:
+    - User cannot log in or access platform
+    - Existing reports and data remain for audit
+    - Points are frozen (not deleted)
+    - Coupons remain valid but cannot be redeemed
+    
+    **Reactivation**: Admins can restore access if issues are resolved.
+  </Accordion>
+  <Accordion title="Reset Password" icon="key">
+    **Process**: Generate temporary password and send secure reset link.
+    
+    **Security Measures**:
+    - Verify user identity before resetting
+    - Use secure communication channel (email)
+    - Temporary passwords expire after first use
+    - Require immediate password change on login
+    - Log all reset requests and admin actions
+  </Accordion>
+  <Accordion title="Adjust Points" icon="coins">
+    **Valid Reasons**:
+    - Correct system errors or calculation bugs
+    - Award bonus points for special events or campaigns
+    - Compensate for platform downtime or issues
+    - Resolve disputes about missing point awards
+    
+    **Documentation Required**:
+    - Clear justification for adjustment
+    - Approval from senior admin or manager
+    - Notification to affected user
+    - Audit log entry with reason and amount
+    
+    <Warning>
+    Point adjustments directly impact the gamification economy. Unauthorized or excessive adjustments undermine system integrity and citizen trust.
+    </Warning>
+  </Accordion>
+</AccordionGroup>
+
+## Report Management
+
+### Report Oversight
+
+Administrators have full access to all incident reports across the platform:
+
+<CardGroup cols={2}>
+  <Card title="View All Reports" icon="list">
+    Access complete report history with filtering by status, district, date, citizen, or incident type.
+  </Card>
+  <Card title="Modify Reports" icon="edit">
+    Edit report details, change status, reassign districts, or update classifications if needed.
+  </Card>
+  <Card title="Resolve Disputes" icon="scale-balanced">
+    Investigate citizen complaints about report handling and make corrective decisions.
+  </Card>
+  <Card title="Analytics Dashboard" icon="chart-area">
+    View platform-wide metrics on report volume, resolution times, and performance trends.
+  </Card>
+</CardGroup>
+
+### Report Intervention Scenarios
+
+<AccordionGroup>
+  <Accordion title="Stalled Reports" icon="clock">
+    **Situation**: Report has been In Process for excessive time without resolution.
+    
+    **Admin Actions**:
+    - Contact municipality to determine status
+    - Reassign to different department if needed
+    - Update citizen with explanation and new timeline
+    - Escalate to municipal management if necessary
+  </Accordion>
+  <Accordion title="Disputed Cancellations" icon="flag">
+    **Situation**: Citizen appeals a canceled report claiming it was valid.
+    
+    **Admin Actions**:
+    - Review original report details and cancellation reason
+    - Investigate municipality decision-making process
+    - Reinstate report if cancellation was inappropriate
+    - Award points if citizen was wrongly denied
+    - Provide training to municipality staff if needed
+  </Accordion>
+  <Accordion title="Duplicate Reports" icon="copy">
+    **Situation**: Multiple citizens report the same incident.
+    
+    **Admin Actions**:
+    - Identify all duplicate reports
+    - Designate one as primary, cancel others
+    - Explain duplication to affected citizens
+    - Consider awarding partial points to early duplicate reporters
+  </Accordion>
+  <Accordion title="Classification Errors" icon="triangle-exclamation">
+    **Situation**: Risk classification doesn't match incident severity.
+    
+    **Admin Actions**:
+    - Review photo and description evidence
+    - Correct classification to appropriate level
+    - Update municipality staff on classification guidelines
+    - Adjust resolution priority if needed
+  </Accordion>
+  <Accordion title="Fraudulent Reports" icon="shield-exclamation">
+    **Situation**: Suspected fake reports for point farming.
+    
+    **Admin Actions**:
+    - Investigate citizen report history and patterns
+    - Verify incident authenticity with municipality
+    - Cancel fraudulent reports without point awards
+    - Warn or deactivate abusive accounts
+    - Adjust detection algorithms if systematic fraud
+  </Accordion>
+</AccordionGroup>
+
+## Store and Coupon Management
+
+### Store Partnership Administration
+
+<Steps>
+  <Step title="Partner Onboarding">
+    Review store applications, verify business legitimacy, and create store partner accounts.
+  </Step>
+  <Step title="Profile Setup">
+    Configure store name, district, contact information, and link to owner user account.
+  </Step>
+  <Step title="Training">
+    Educate store partners on coupon creation, QR verification, and platform best practices.
+  </Step>
+  <Step title="Monitoring">
+    Regularly review store coupon offerings for quality, compliance, and citizen satisfaction.
+  </Step>
+  <Step title="Support">
+    Assist with technical issues, answer questions, and optimize store performance.
+  </Step>
+</Steps>
+
+### Coupon Moderation
+
+Administrators oversee the rewards marketplace to ensure quality:
+
+<Tabs>
+  <Tab title="Review New Coupons">
+    **Purpose**: Ensure coupons meet platform standards before citizens can redeem.
+    
+    **Quality Checks**:
+    - Discount value is clearly stated
+    - Terms and restrictions are transparent
+    - Point pricing is reasonable for offer value
+    - No misleading or deceptive language
+    - Coupon complies with local laws and regulations
+    - Category assignment is accurate
+    
+    **Actions**: Approve, request modifications, or reject coupons.
+  </Tab>
+  <Tab title="Monitor Active Coupons">
+    **Purpose**: Identify problematic offers after they're live.
+    
+    **Warning Signs**:
+    - Unusually high citizen complaints
+    - Store refusing to honor redeemed coupons
+    - Misleading descriptions vs. actual offer
+    - Excessive point cost for minimal value
+    - Terms changed after citizen redemption
+    
+    **Actions**: Investigate, contact store, modify/deactivate coupon, refund points.
+  </Tab>
+  <Tab title="Dispute Resolution">
+    **Purpose**: Handle conflicts between citizens and stores.
+    
+    **Common Disputes**:
+    - Store claims coupon was expired (citizen disagrees)
+    - QR code won't scan or validate
+    - Store won't honor terms as described
+    - Citizen wants refund for unsatisfactory offer
+    
+    **Admin Tools**:
+    - Review redemption timestamps and status
+    - Verify QR code validity and usage
+    - Check coupon terms and modifications
+    - Refund points if store at fault
+    - Warn/suspend stores for repeated violations
+  </Tab>
+</Tabs>
+
+## System Configuration
+
+### Platform Settings
+
+Administrators configure core system parameters:
+
+<CardGroup cols={2}>
+  <Card title="Districts" icon="map">
+    Define municipal districts for geographic organization of incidents and stores.
+  </Card>
+  <Card title="Incident Types" icon="list-check">
+    Manage the catalog of reportable incident categories (potholes, fallen poles, etc.).
+  </Card>
+  <Card title="Risk Classifications" icon="gauge">
+    Configure severity levels and definitions (Low, Medium, High, Critical).
+  </Card>
+  <Card title="Coupon Categories" icon="layer-group">
+    Define marketplace categories for organizing store offers.
+  </Card>
+  <Card title="Point Economy" icon="coins">
+    Set point award amounts and bonus multiplier rules.
+  </Card>
+  <Card title="Notification Types" icon="bell-concierge">
+    Configure notification templates and trigger conditions.
+  </Card>
+</CardGroup>
+
+### Configuration Management
+
+<AccordionGroup>
+  <Accordion title="Districts" icon="location-dot">
+    **Purpose**: Define geographic boundaries for incident reporting and store locations.
+    
+    **Management**:
+    - Add new districts as municipality coverage expands
+    - Update district names or descriptions
+    - Cannot delete districts with existing reports or stores
+    - Merge districts requires data migration
+    
+    **Best Practices**: Align with official municipal district boundaries for clarity.
+  </Accordion>
+  <Accordion title="Incident Types" icon="circle-exclamation">
+    **Current Types**:
+    - Potholes (Baches)
+    - Fallen Poles (Poste Caído)
+    - Broken Sidewalks (Vereda Rajada)
+    - Road Damage (Pistas con Huecos)
+    - Other Issues (Otros)
+    
+    **Management**:
+    - Add new categories as urban issues evolve
+    - Update descriptions for clarity
+    - Retire types that are no longer relevant
+    - Cannot delete types with existing reports
+  </Accordion>
+  <Accordion title="Risk Classifications" icon="triangle-exclamation">
+    **Current Levels**:
+    - Low Risk (Riesgo Bajo)
+    - Medium Risk (Riesgo Medio)
+    - High Risk (Riesgo Alto)
+    - Critical Risk (Riesgo Crítico)
+    
+    **Management**:
+    - Update classification criteria and guidelines
+    - Train municipality staff on proper usage
+    - Monitor classification distribution for consistency
+  </Accordion>
+  <Accordion title="Coupon Categories" icon="tag">
+    **Current Categories**:
+    - Food & Restaurants (Comidas)
+    - Retail & Clothing (Ropas)
+    - Groceries (Abarrotes)
+    - Electronics (Electrodomésticos)
+    
+    **Management**:
+    - Add categories to attract more store partners
+    - Rename for better citizen understanding
+    - Cannot delete categories with active coupons
+    - Recategorize existing coupons when needed
+  </Accordion>
+</AccordionGroup>
+
+## Notification System
+
+### Notification Types
+
+Administrators manage automated notification templates:
+
+| Type | Trigger | Recipient | Purpose |
+|------|---------|-----------|---------|
+| `REPORTE_PENDIENTE` | Report submitted | Citizen | Confirmation of submission |
+| `REPORTE_EN_PROCESO` | Status → In Process | Citizen | Work has begun |
+| `REPORTE_RESUELTO` | Status → Resolved | Citizen | Issue fixed, points awarded |
+| `REPORTE_CANCELADO` | Status → Canceled | Citizen | Explanation of cancellation |
+| `PUNTOS_GANADOS` | Points awarded | Citizen | Positive reinforcement |
+| `BONUS_MULTIPLO_5` | 5th, 10th, 15th report | Citizen | Bonus points celebration |
+| `CUPON_DISPONIBLE` | New coupon matches interests | Citizen | Marketplace update |
+| `CUPON_POR_VENCER` | Coupon near expiration | Citizen | Use before expiry |
+| `CUPON_VENCIDO` | Coupon expired | Citizen | Inform of expiration |
+
+### Notification Management
+
+<AccordionGroup>
+  <Accordion title="Template Editing" icon="pen-to-square">
+    Customize notification titles, messages, and content for each notification type.
+    
+    **Template Variables**:
+    - User name and details
+    - Report numbers and status
+    - Point amounts and balances
+    - Coupon names and stores
+    - Dates and timestamps
+    
+    **Best Practices**:
+    - Keep messages concise and action-oriented
+    - Include relevant details (report number, points, etc.)
+    - Maintain consistent tone and branding
+    - Test notifications before deploying changes
+  </Accordion>
+  <Accordion title="Delivery Configuration" icon="paper-plane">
+    Control when and how notifications are sent.
+    
+    **Settings**:
+    - Enable/disable specific notification types
+    - Set delivery timing rules (immediate vs. batched)
+    - Configure retry logic for failed deliveries
+    - Respect user notification preferences
+    - Monitor delivery success rates
+  </Accordion>
+  <Accordion title="Push Notification Infrastructure" icon="server">
+    Manage Firebase Cloud Messaging integration.
+    
+    **Responsibilities**:
+    - Monitor FCM token registration and updates
+    - Handle token expiration and refresh
+    - Investigate notification delivery failures
+    - Manage FCM quota and rate limits
+    - Configure priority and TTL settings
+  </Accordion>
+</AccordionGroup>
+
+## Analytics and Reporting
+
+### Platform Metrics
+
+Administrators access comprehensive performance data:
+
+<Tabs>
+  <Tab title="User Metrics">
+    - Total users by role (citizens, municipality, stores, admins)
+    - New user registration trends
+    - Active vs. inactive account ratios
+    - User engagement patterns
+    - Geographic distribution by district
+  </Tab>
+  <Tab title="Report Metrics">
+    - Total reports submitted (all-time and period)
+    - Reports by status (pending, in process, resolved, canceled)
+    - Average resolution times by district and classification
+    - Report volume trends over time
+    - Incident type distribution
+    - Peak reporting periods
+  </Tab>
+  <Tab title="Gamification Metrics">
+    - Total points awarded platform-wide
+    - Average points per citizen
+    - Point distribution patterns
+    - Bonus multiplier frequency
+    - Point redemption rates
+  </Tab>
+  <Tab title="Rewards Metrics">
+    - Active coupons in marketplace
+    - Coupon redemption rates by store and category
+    - Average points per coupon redemption
+    - Store partner growth and activity
+    - Most popular coupon categories
+    - Redemption-to-usage conversion rates
+  </Tab>
+  <Tab title="Performance Metrics">
+    - Municipality response times by district
+    - Report processing efficiency
+    - System uptime and availability
+    - API usage and performance
+    - Notification delivery success rates
+  </Tab>
+</Tabs>
+
+### Data Export
+
+Administrators can export data for external analysis:
+
+- **Report Data**: Full incident history with all attributes
+- **User Data**: Anonymized or identified user activity
+- **Financial Data**: Point economy flow and coupon valuations
+- **Performance Data**: Municipality and store metrics
+- **Audit Logs**: System changes and admin actions
+
+<Note>
+Ensure data exports comply with privacy regulations and organizational policies. Anonymize personal information when sharing externally.
+</Note>
+
+## Support and Moderation
+
+### User Support Workflows
+
+<Steps>
+  <Step title="Receive Request">
+    Support tickets arrive via email, in-app messaging, or direct contact.
+  </Step>
+  <Step title="Investigate">
+    Use admin tools to review user account, reports, coupons, and transaction history.
+  </Step>
+  <Step title="Diagnose">
+    Identify the issue: user error, system bug, policy violation, or legitimate complaint.
+  </Step>
+  <Step title="Resolve">
+    Take corrective action: adjust data, explain policy, escalate to development, or provide guidance.
+  </Step>
+  <Step title="Follow Up">
+    Confirm user satisfaction and document resolution for future reference.
+  </Step>
+</Steps>
+
+### Common Support Issues
+
+<CardGroup cols={2}>
+  <Card title="Login Problems" icon="key">
+    Reset passwords, clear FCM tokens, reactivate accounts, resolve email/document conflicts.
+  </Card>
+  <Card title="Missing Points" icon="question">
+    Verify report status, check point calculation, award missing points if system error.
+  </Card>
+  <Card title="Coupon Disputes" icon="handshake">
+    Investigate store behavior, verify QR codes, refund points if appropriate, mediate resolution.
+  </Card>
+  <Card title="Report Issues" icon="flag">
+    Review canceled reports, reinstate if valid, explain municipality decisions, escalate concerns.
+  </Card>
+</CardGroup>
+
+## Security and Compliance
+
+### Access Control
+
+<AccordionGroup>
+  <Accordion title="Admin Account Security" icon="lock">
+    - Use strong, unique passwords
+    - Enable multi-factor authentication when available
+    - Never share admin credentials
+    - Log out after each session
+    - Review admin access logs regularly
+  </Accordion>
+  <Accordion title="Data Privacy" icon="shield-halved">
+    - Access user data only when necessary for support
+    - Never share personal information externally
+    - Comply with data protection regulations (GDPR, CCPA, local laws)
+    - Anonymize data for analytics and research
+    - Document data access for auditing
+  </Accordion>
+  <Accordion title="Audit Logging" icon="file-lines">
+    All admin actions are logged:
+    - User account modifications
+    - Report status changes
+    - Point adjustments
+    - Configuration updates
+    - System setting changes
+    
+    Logs include: admin identity, timestamp, action type, affected resources, reason.
+  </Accordion>
+</AccordionGroup>
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Principle of Least Privilege" icon="user-lock">
+    Grant admin access only to personnel who genuinely need it. Consider creating limited-privilege roles for specific tasks rather than full admin access.
+  </Accordion>
+  <Accordion title="Documentation" icon="book">
+    Document all significant decisions, policy changes, and unusual interventions. Future admins will need context for understanding historical actions.
+  </Accordion>
+  <Accordion title="User-Centric Approach" icon="heart">
+    When resolving disputes, prioritize user experience and satisfaction while maintaining platform integrity. Err on the side of generosity with point awards when ambiguous.
+  </Accordion>
+  <Accordion title="Proactive Monitoring" icon="radar">
+    Regularly review platform metrics to identify issues before users complain. Look for patterns in cancellation rates, resolution times, and user engagement.
+  </Accordion>
+  <Accordion title="Fair and Consistent" icon="balance-scale">
+    Apply policies uniformly across all users and situations. Inconsistent enforcement erodes trust and creates perception of favoritism.
+  </Accordion>
+  <Accordion title="Communication" icon="comment">
+    Keep users informed about platform changes, new features, and policy updates. Transparency builds trust and reduces support burden.
+  </Accordion>
+</AccordionGroup>
+
+## Related Documentation
+
+<CardGroup cols={2}>
+  <Card title="Citizen Role" icon="user" href="/roles/citizens">
+    Understanding the citizen experience and capabilities
+  </Card>
+  <Card title="Municipality Role" icon="building" href="/roles/municipality">
+    How municipality users process and resolve reports
+  </Card>
+  <Card title="Store Role" icon="store" href="/roles/stores">
+    Store partner coupon creation and redemption workflow
+  </Card>
+  <Card title="API Reference" icon="code" href="/api/auth/overview">
+    Technical documentation for developers and integrations
+  </Card>
+</CardGroup>

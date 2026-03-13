@@ -1,0 +1,206 @@
+---
+title: 'List Notifications'
+description: 'Retrieve notifications for a specific user'
+api: 'GET /notificacion/usuario/{idUsuario}'
+---
+
+## Overview
+
+Retrieve all notifications for a specific user, including both read and unread notifications. Results can be filtered by read status and notification type.
+
+## Path Parameters
+
+<ParamField path="idUsuario" type="integer" required>
+  The ID of the user whose notifications to retrieve
+</ParamField>
+
+## Query Parameters
+
+<ParamField query="leida" type="boolean">
+  Filter by read status. Set to `true` for read notifications, `false` for unread, or omit to retrieve all
+</ParamField>
+
+<ParamField query="descartada" type="boolean">
+  Filter by dismissed status. Set to `true` for dismissed notifications, `false` for active, or omit to retrieve all
+</ParamField>
+
+<ParamField query="idTipoNotificacion" type="integer">
+  Filter by notification type ID
+</ParamField>
+
+<ParamField query="page" type="integer" default={0}>
+  Page number for pagination (zero-indexed)
+</ParamField>
+
+<ParamField query="size" type="integer" default={20}>
+  Number of notifications per page
+</ParamField>
+
+## Response
+
+<ResponseField name="content" type="array">
+  Array of notification objects
+  <ResponseField name="idNotificacion" type="integer">
+    Unique notification identifier
+  </ResponseField>
+  <ResponseField name="titulo" type="string">
+    Notification title
+  </ResponseField>
+  <ResponseField name="mensaje" type="string">
+    Notification message body
+  </ResponseField>
+  <ResponseField name="tipoNotificacion" type="object">
+    Notification type details
+    <ResponseField name="idTipoNotificacion" type="integer">
+      Type ID
+    </ResponseField>
+    <ResponseField name="descTipoNotificacion" type="string">
+      Type description
+    </ResponseField>
+  </ResponseField>
+  <ResponseField name="reporte" type="object">
+    Related report (if applicable)
+    <ResponseField name="idReporte" type="integer">
+      Report ID
+    </ResponseField>
+  </ResponseField>
+  <ResponseField name="cupon" type="object">
+    Related coupon (if applicable)
+    <ResponseField name="idCupon" type="integer">
+      Coupon ID
+    </ResponseField>
+  </ResponseField>
+  <ResponseField name="leida" type="boolean">
+    Whether the notification has been read
+  </ResponseField>
+  <ResponseField name="descartada" type="boolean">
+    Whether the notification has been dismissed
+  </ResponseField>
+</ResponseField>
+
+<ResponseField name="totalElements" type="integer">
+  Total number of notifications matching the criteria
+</ResponseField>
+
+<ResponseField name="totalPages" type="integer">
+  Total number of pages available
+</ResponseField>
+
+<ResponseField name="size" type="integer">
+  Number of items per page
+</ResponseField>
+
+<ResponseField name="number" type="integer">
+  Current page number (zero-indexed)
+</ResponseField>
+
+## Examples
+
+<CodeGroup>
+
+```bash Get All Notifications
+curl -X GET https://api.greenguard.com/notificacion/usuario/123 \
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+```bash Get Unread Notifications
+curl -X GET "https://api.greenguard.com/notificacion/usuario/123?leida=false" \
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+```bash Get Notifications by Type
+curl -X GET "https://api.greenguard.com/notificacion/usuario/123?idTipoNotificacion=1&page=0&size=10" \
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+```javascript JavaScript
+// Get unread notifications
+const response = await fetch(
+  'https://api.greenguard.com/notificacion/usuario/123?leida=false',
+  {
+    headers: {
+      'Authorization': 'Bearer YOUR_TOKEN'
+    }
+  }
+);
+
+const notifications = await response.json();
+```
+
+```python Python
+import requests
+
+# Get unread notifications
+response = requests.get(
+    'https://api.greenguard.com/notificacion/usuario/123',
+    params={'leida': False, 'page': 0, 'size': 20},
+    headers={'Authorization': 'Bearer YOUR_TOKEN'}
+)
+
+notifications = response.json()
+```
+
+</CodeGroup>
+
+## Response Example
+
+```json
+{
+  "content": [
+    {
+      "idNotificacion": 789,
+      "titulo": "Reporte Actualizado",
+      "mensaje": "Tu reporte ha sido procesado por las autoridades",
+      "tipoNotificacion": {
+        "idTipoNotificacion": 1,
+        "descTipoNotificacion": "Actualización de Reporte"
+      },
+      "reporte": {
+        "idReporte": 456
+      },
+      "leida": false,
+      "descartada": false
+    },
+    {
+      "idNotificacion": 790,
+      "titulo": "Nuevo Cupón Disponible",
+      "mensaje": "Tienes un cupón de descuento disponible",
+      "tipoNotificacion": {
+        "idTipoNotificacion": 2,
+        "descTipoNotificacion": "Cupón"
+      },
+      "cupon": {
+        "idCupon": 101
+      },
+      "leida": false,
+      "descartada": false
+    }
+  ],
+  "totalElements": 15,
+  "totalPages": 2,
+  "size": 20,
+  "number": 0
+}
+```
+
+## Mark as Read
+
+To mark a notification as read, use the update endpoint:
+
+```bash
+curl -X PUT https://api.greenguard.com/notificacion/789/read \
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+## Mark as Dismissed
+
+To dismiss a notification:
+
+```bash
+curl -X PUT https://api.greenguard.com/notificacion/789/dismiss \
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+<Tip>
+  Use pagination parameters to optimize performance when dealing with users who have many notifications.
+</Tip>

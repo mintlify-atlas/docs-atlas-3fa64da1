@@ -1,0 +1,366 @@
+---
+title: 'Application Configuration'
+description: 'Configure Spring Boot application settings'
+---
+
+## Overview
+
+The GreenGuard backend application is configured through the `application.properties` file located in `src/main/resources/`. This guide covers all configuration options.
+
+## Configuration File
+
+The main configuration file is `src/main/resources/application.properties`:
+
+```properties
+spring.application.name=GreenGuard-Web
+spring.datasource.url=jdbc:postgresql://localhost:5432/DB_GREENGUARDIAN
+spring.datasource.username=postgres
+spring.datasource.password=postgres
+
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
+```
+
+## Application Settings
+
+### Application Name
+
+Defines the name of the Spring Boot application:
+
+```properties
+spring.application.name=GreenGuard-Web
+```
+
+This name appears in:
+- Application logs
+- Spring Boot Admin (if configured)
+- Actuator endpoints
+
+## Database Configuration
+
+### DataSource URL
+
+Specifies the PostgreSQL database connection string:
+
+```properties
+spring.datasource.url=jdbc:postgresql://localhost:5432/DB_GREENGUARDIAN
+```
+
+**Format:** `jdbc:postgresql://[host]:[port]/[database]`
+
+- **host:** Database server address (default: `localhost`)
+- **port:** PostgreSQL port (default: `5432`)
+- **database:** Database name (`DB_GREENGUARDIAN`)
+
+**Examples:**
+
+```properties
+# Local database
+spring.datasource.url=jdbc:postgresql://localhost:5432/DB_GREENGUARDIAN
+
+# Remote database
+spring.datasource.url=jdbc:postgresql://192.168.1.100:5432/DB_GREENGUARDIAN
+
+# Cloud database with SSL
+spring.datasource.url=jdbc:postgresql://db.example.com:5432/DB_GREENGUARDIAN?ssl=true&sslmode=require
+```
+
+### Database Credentials
+
+<Warning>
+  Never commit database credentials to version control. Use environment variables for sensitive information.
+</Warning>
+
+```properties
+spring.datasource.username=postgres
+spring.datasource.password=postgres
+```
+
+For better security, use environment variables:
+
+```properties
+spring.datasource.username=${DB_USERNAME:postgres}
+spring.datasource.password=${DB_PASSWORD:postgres}
+```
+
+See [Environment Variables](/configuration/environment) for details.
+
+## JPA/Hibernate Configuration
+
+### DDL Auto Generation
+
+```properties
+spring.jpa.hibernate.ddl-auto=update
+```
+
+Controls how Hibernate manages the database schema:
+
+- `none` - No schema management
+- `validate` - Validate schema, make no changes
+- `update` - Update schema (recommended for development)
+- `create` - Create schema, destroying previous data
+- `create-drop` - Create schema, drop on application shutdown
+
+<Warning>
+  Use `update` for development and `validate` for production. Never use `create` or `create-drop` in production.
+</Warning>
+
+**Recommended settings:**
+
+```properties
+# Development
+spring.jpa.hibernate.ddl-auto=update
+
+# Production
+spring.jpa.hibernate.ddl-auto=validate
+```
+
+### SQL Logging
+
+```properties
+spring.jpa.show-sql=true
+```
+
+Enables SQL query logging to console:
+
+- `true` - Log all SQL statements (useful for debugging)
+- `false` - Disable SQL logging (recommended for production)
+
+**Enhanced SQL logging:**
+
+```properties
+# Show SQL
+spring.jpa.show-sql=true
+
+# Format SQL for readability
+spring.jpa.properties.hibernate.format_sql=true
+
+# Show bind parameters
+logging.level.org.hibernate.type.descriptor.sql.BasicBinder=TRACE
+```
+
+### Database Dialect
+
+```properties
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
+```
+
+Specifies the SQL dialect for PostgreSQL. This is automatically detected but can be explicitly set.
+
+**Available PostgreSQL dialects:**
+
+- `org.hibernate.dialect.PostgreSQLDialect` - General PostgreSQL
+- `org.hibernate.dialect.PostgreSQL95Dialect` - PostgreSQL 9.5+
+- `org.hibernate.dialect.PostgreSQL10Dialect` - PostgreSQL 10+
+
+## Server Configuration
+
+### Server Port
+
+Change the default port (8080):
+
+```properties
+server.port=8080
+```
+
+### Context Path
+
+Add a context path to all endpoints:
+
+```properties
+server.servlet.context-path=/api
+```
+
+Endpoints will be accessible at `http://localhost:8080/api/...`
+
+### Session Timeout
+
+```properties
+server.servlet.session.timeout=30m
+```
+
+## Logging Configuration
+
+### Log Levels
+
+```properties
+# Root level
+logging.level.root=INFO
+
+# Application package
+logging.level.com.Cibertec.GreenGuard=DEBUG
+
+# Spring Framework
+logging.level.org.springframework.web=DEBUG
+
+# Hibernate SQL
+logging.level.org.hibernate.SQL=DEBUG
+logging.level.org.hibernate.type.descriptor.sql.BasicBinder=TRACE
+```
+
+### Log File
+
+```properties
+logging.file.name=logs/greenguard.log
+logging.file.max-size=10MB
+logging.file.max-history=30
+```
+
+## Connection Pool Configuration
+
+### HikariCP Settings
+
+Spring Boot uses HikariCP by default:
+
+```properties
+# Maximum pool size
+spring.datasource.hikari.maximum-pool-size=10
+
+# Minimum idle connections
+spring.datasource.hikari.minimum-idle=5
+
+# Connection timeout (milliseconds)
+spring.datasource.hikari.connection-timeout=30000
+
+# Idle timeout (milliseconds)
+spring.datasource.hikari.idle-timeout=600000
+
+# Max lifetime (milliseconds)
+spring.datasource.hikari.max-lifetime=1800000
+```
+
+## CORS Configuration
+
+If your frontend runs on a different port, configure CORS in Java code:
+
+```java
+@Configuration
+public class WebConfig implements WebMvcConfigurer {
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/**")
+                .allowedOrigins("http://localhost:4200")
+                .allowedMethods("GET", "POST", "PUT", "DELETE")
+                .allowCredentials(true);
+    }
+}
+```
+
+## Profile-Specific Configuration
+
+### Multiple Environments
+
+Create separate property files for different environments:
+
+- `application.properties` - Common settings
+- `application-dev.properties` - Development settings
+- `application-prod.properties` - Production settings
+
+**application-dev.properties:**
+
+```properties
+spring.jpa.show-sql=true
+spring.jpa.hibernate.ddl-auto=update
+logging.level.com.Cibertec.GreenGuard=DEBUG
+```
+
+**application-prod.properties:**
+
+```properties
+spring.jpa.show-sql=false
+spring.jpa.hibernate.ddl-auto=validate
+logging.level.com.Cibertec.GreenGuard=INFO
+```
+
+### Activate Profile
+
+```properties
+spring.profiles.active=dev
+```
+
+Or via command line:
+
+```bash
+java -jar greenguard.jar --spring.profiles.active=prod
+```
+
+## Complete Configuration Example
+
+### Development Configuration
+
+```properties
+# Application
+spring.application.name=GreenGuard-Web
+spring.profiles.active=dev
+
+# Server
+server.port=8080
+server.servlet.context-path=/api
+
+# Database
+spring.datasource.url=jdbc:postgresql://localhost:5432/DB_GREENGUARDIAN
+spring.datasource.username=${DB_USERNAME:postgres}
+spring.datasource.password=${DB_PASSWORD:postgres}
+
+# JPA/Hibernate
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
+spring.jpa.properties.hibernate.format_sql=true
+
+# Connection Pool
+spring.datasource.hikari.maximum-pool-size=10
+spring.datasource.hikari.minimum-idle=5
+
+# Logging
+logging.level.root=INFO
+logging.level.com.Cibertec.GreenGuard=DEBUG
+logging.level.org.hibernate.SQL=DEBUG
+logging.file.name=logs/greenguard.log
+```
+
+### Production Configuration
+
+```properties
+# Application
+spring.application.name=GreenGuard-Web
+spring.profiles.active=prod
+
+# Server
+server.port=8080
+
+# Database
+spring.datasource.url=${DATABASE_URL}
+spring.datasource.username=${DB_USERNAME}
+spring.datasource.password=${DB_PASSWORD}
+
+# JPA/Hibernate
+spring.jpa.hibernate.ddl-auto=validate
+spring.jpa.show-sql=false
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
+
+# Connection Pool
+spring.datasource.hikari.maximum-pool-size=20
+spring.datasource.hikari.minimum-idle=10
+spring.datasource.hikari.connection-timeout=30000
+
+# Logging
+logging.level.root=WARN
+logging.level.com.Cibertec.GreenGuard=INFO
+logging.file.name=/var/log/greenguard/app.log
+```
+
+## Best Practices
+
+1. **Externalize Credentials:** Use environment variables for sensitive data
+2. **Use Profiles:** Separate configurations for development and production
+3. **Connection Pooling:** Configure appropriate pool sizes for your load
+4. **Logging:** Use appropriate log levels for each environment
+5. **Schema Management:** Use `validate` in production, `update` in development
+
+## Next Steps
+
+- [Database Configuration](/configuration/database)
+- [Environment Variables](/configuration/environment)
+- Review Spring Boot documentation for advanced configuration options

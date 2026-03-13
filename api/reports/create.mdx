@@ -1,0 +1,184 @@
+---
+title: 'Create Incident Report'
+description: 'Create a new incident report in the GreenGuard system'
+api: 'POST /reporte'
+---
+
+## Overview
+
+Create a new incident report with details including location, type, classification, and supporting media. Reports are automatically assigned a unique report number and set to pending status.
+
+## Request Body
+
+<ParamField body="idUsu" type="integer" required>
+  The ID of the user creating the report
+</ParamField>
+
+<ParamField body="detalleRepo" type="string" required>
+  Detailed description of the incident being reported
+</ParamField>
+
+<ParamField body="imagenRepo" type="string">
+  URL or path to the incident image
+</ParamField>
+
+<ParamField body="estado" type="string" default="PE">
+  Report status. Possible values:
+  - `PE` - Pendiente (Pending)
+  - `EP` - En Proceso (In Process)
+  - `RE` - Resuelto (Resolved)
+  - `CA` - Cancelado (Cancelled)
+</ParamField>
+
+<ParamField body="latitud" type="decimal" required>
+  Latitude coordinate of the incident location (e.g., -12.0464)
+</ParamField>
+
+<ParamField body="longitud" type="decimal" required>
+  Longitude coordinate of the incident location (e.g., -77.0428)
+</ParamField>
+
+<ParamField body="idTipoInci" type="integer" required>
+  The ID of the incident type (from tipo_incidentes table)
+</ParamField>
+
+<ParamField body="idTipoClasi" type="integer" required>
+  The ID of the classification type (from tipo_clasificacion table)
+</ParamField>
+
+<ParamField body="idDistrito" type="integer" required>
+  The ID of the district where the incident occurred
+</ParamField>
+
+## Response
+
+<ResponseField name="idReporte" type="integer">
+  Unique identifier for the created report
+</ResponseField>
+
+<ResponseField name="numReport" type="string">
+  Auto-generated report number
+</ResponseField>
+
+<ResponseField name="usuario" type="object">
+  User information
+  <ResponseField name="idUsu" type="integer">
+    User ID
+  </ResponseField>
+  <ResponseField name="nomUsu" type="string">
+    User first name
+  </ResponseField>
+  <ResponseField name="correoUsu" type="string">
+    User email
+  </ResponseField>
+</ResponseField>
+
+<ResponseField name="detalleRepo" type="string">
+  Incident description
+</ResponseField>
+
+<ResponseField name="imagenRepo" type="string">
+  Image URL
+</ResponseField>
+
+<ResponseField name="estado" type="string">
+  Report status (PE, EP, RE, or CA)
+</ResponseField>
+
+<ResponseField name="latitud" type="decimal">
+  Latitude coordinate
+</ResponseField>
+
+<ResponseField name="longitud" type="decimal">
+  Longitude coordinate
+</ResponseField>
+
+<ResponseField name="tipoIncidente" type="object">
+  Incident type details
+  <ResponseField name="idTipoInci" type="integer">
+    Incident type ID
+  </ResponseField>
+  <ResponseField name="descTipoInci" type="string">
+    Incident type description
+  </ResponseField>
+</ResponseField>
+
+<ResponseField name="tipoClasificacion" type="object">
+  Classification type details
+  <ResponseField name="idTipoClasi" type="integer">
+    Classification type ID
+  </ResponseField>
+  <ResponseField name="descTipoClasi" type="string">
+    Classification type description
+  </ResponseField>
+</ResponseField>
+
+<ResponseField name="distrito" type="object">
+  District information
+  <ResponseField name="idDistrito" type="integer">
+    District ID
+  </ResponseField>
+  <ResponseField name="descDistrito" type="string">
+    District name
+  </ResponseField>
+</ResponseField>
+
+<ResponseField name="repoRegistado" type="datetime">
+  Timestamp when the report was registered
+</ResponseField>
+
+<ResponseField name="repoResuelto" type="datetime">
+  Timestamp when the report was resolved (null if not resolved)
+</ResponseField>
+
+## Example Request
+
+```bash
+curl -X POST https://api.greenguard.com/reporte \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -d '{
+    "idUsu": 1,
+    "detalleRepo": "Basura acumulada en la esquina de la Av. Principal con Jr. Los Jardines",
+    "imagenRepo": "https://storage.greenguard.com/images/report-12345.jpg",
+    "estado": "PE",
+    "latitud": -12.0464,
+    "longitud": -77.0428,
+    "idTipoInci": 2,
+    "idTipoClasi": 1,
+    "idDistrito": 5
+  }'
+```
+
+## Example Response
+
+```json
+{
+  "idReporte": 123,
+  "numReport": "RPT-2024-00123",
+  "usuario": {
+    "idUsu": 1,
+    "nomUsu": "Juan",
+    "correoUsu": "juan@example.com"
+  },
+  "detalleRepo": "Basura acumulada en la esquina de la Av. Principal con Jr. Los Jardines",
+  "imagenRepo": "https://storage.greenguard.com/images/report-12345.jpg",
+  "estado": "PE",
+  "latitud": -12.0464,
+  "longitud": -77.0428,
+  "tipoIncidente": {
+    "idTipoInci": 2,
+    "descTipoInci": "Acumulación de residuos"
+  },
+  "tipoClasificacion": {
+    "idTipoClasi": 1,
+    "descTipoClasi": "Urgente"
+  },
+  "distrito": {
+    "idDistrito": 5,
+    "descDistrito": "Miraflores"
+  },
+  "repoRegistado": "2024-03-13T10:30:00",
+  "repoResuelto": null
+}
+```

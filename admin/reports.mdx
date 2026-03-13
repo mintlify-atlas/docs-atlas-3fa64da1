@@ -1,0 +1,525 @@
+---
+title: 'Report Management'
+description: 'Manage and resolve environmental incident reports in GreenGuard'
+---
+
+The report management system allows administrators and municipal staff to review, process, and resolve environmental incident reports submitted by users across the platform.
+
+## Report Data Model
+
+Environmental reports are stored in the `tb_reporte` table with comprehensive tracking:
+
+### Report Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `idReporte` | Integer | Unique report identifier (auto-generated) |
+| `numReport` | String | Report number for reference |
+| `usuario` | Usuario | User who submitted the report (FK) |
+| `detalleRepo` | String | Detailed description of the incident |
+| `imagenRepo` | String | Image URL/path of the incident |
+| `estado` | EstadoReporte | Current report status (enum) |
+| `latitud` | BigDecimal | Latitude coordinate |
+| `longitud` | BigDecimal | Longitude coordinate |
+| `tipoIncidente` | TipoIncidentes | Type of environmental incident (FK) |
+| `tipoClasificacion` | TipoClasificacion | Classification category (FK) |
+| `distrito` | Distrito | District/location (FK) |
+| `repoRegistado` | LocalDateTime | Report submission timestamp |
+| `repoResuelto` | LocalDateTime | Resolution timestamp |
+
+## Report Status Workflow
+
+Reports progress through defined states tracked in the `EstadoReporte` enum:
+
+<Steps>
+  <Step title="PE - Pendiente (Pending)">
+    **Initial Status**
+    
+    New reports start in pending state awaiting review:
+    - Recently submitted by users
+    - Not yet assigned or reviewed
+    - Awaiting administrator triage
+    
+    ```java
+    // Initial state
+    PE, //pendiente
+    ```
+  </Step>
+  
+  <Step title="EP - En Proceso (In Progress)">
+    **Active Processing**
+    
+    Report is being actively worked on:
+    - Assigned to municipal staff
+    - Investigation underway
+    - Resolution in progress
+    
+    ```java
+    EP, //En Proceso
+    ```
+  </Step>
+  
+  <Step title="RE - Resuelto (Resolved)">
+    **Completed**
+    
+    Report has been successfully resolved:
+    - Issue addressed and fixed
+    - Resolution timestamp recorded
+    - User can be notified
+    - Points awarded to reporter
+    
+    ```java
+    RE, //Resuelto
+    ```
+  </Step>
+  
+  <Step title="CA - Cancelado (Canceled)">
+    **Canceled/Invalid**
+    
+    Report was canceled or deemed invalid:
+    - Duplicate report
+    - Insufficient information
+    - Out of jurisdiction
+    - False report
+    
+    ```java
+    CA //Cancelado
+    ```
+  </Step>
+</Steps>
+
+## Managing Reports
+
+### Report Controller
+
+The ReporteController handles all report operations:
+
+```java
+@RestController
+@RequestMapping("/reporte")
+public class ReporteController {
+    @Autowired
+    ReporteService reporteService;
+}
+```
+
+Access report endpoints at `/reporte` base path.
+
+### Viewing Reports
+
+<Tabs>
+  <Tab title="All Reports">
+    View complete report list with filters:
+    - Status filter (PE, EP, RE, CA)
+    - Date range selection
+    - District filter
+    - Incident type filter
+    - User filter
+  </Tab>
+  
+  <Tab title="Pending Reports">
+    Focus on reports needing attention:
+    
+    ```sql
+    SELECT * FROM tb_reporte 
+    WHERE estado = 'PE'
+    ORDER BY repo_registado DESC;
+    ```
+  </Tab>
+  
+  <Tab title="In Progress">
+    Track active resolution efforts:
+    
+    ```sql
+    SELECT * FROM tb_reporte 
+    WHERE estado = 'EP'
+    ORDER BY repo_registado ASC;
+    ```
+  </Tab>
+  
+  <Tab title="By District">
+    Geographic organization:
+    
+    ```sql
+    SELECT d.nombre_distrito, COUNT(*) as report_count
+    FROM tb_reporte r
+    JOIN tb_distrito d ON r.id_distrito = d.id_distrito
+    GROUP BY d.nombre_distrito;
+    ```
+  </Tab>
+</Tabs>
+
+### Processing New Reports
+
+When a new report is submitted, follow this workflow:
+
+<Steps>
+  <Step title="Review Report Details">
+    Examine the submitted information:
+    
+    **Key Information**
+    - Reporter: `usuario.nomUsu` (user full name)
+    - Description: `detalleRepo`
+    - Location: `latitud`, `longitud`, `distrito`
+    - Image: `imagenRepo` (visual evidence)
+    - Type: `tipoIncidente` (incident category)
+    - Classification: `tipoClasificacion`
+    - Submission date: `repoRegistado`
+  </Step>
+  
+  <Step title="Validate Report">
+    Verify the report is legitimate:
+    
+    <Check>Description is clear and detailed</Check>
+    <Check>Location coordinates are valid</Check>
+    <Check>Image shows the reported incident</Check>
+    <Check>Incident type matches the description</Check>
+    <Check>Not a duplicate of existing report</Check>
+  </Step>
+  
+  <Step title="Assign Classification">
+    Categorize using `tipoClasificacion`:
+    - Urgency level
+    - Resource requirements
+    - Responsible department
+  </Step>
+  
+  <Step title="Update Status">
+    Move to appropriate status:
+    
+    ```java
+    // Update to In Progress
+    reporte.setEstado(EstadoReporte.EP);
+    ```
+    
+    Or cancel if invalid:
+    
+    ```java
+    // Cancel invalid report
+    reporte.setEstado(EstadoReporte.CA);
+    ```
+  </Step>
+</Steps>
+
+### Resolving Reports
+
+To mark a report as resolved:
+
+<Steps>
+  <Step title="Verify Resolution">
+    Confirm the incident has been addressed:
+    - Physical inspection completed
+    - Issue remediated
+    - Documentation collected
+  </Step>
+  
+  <Step title="Update Status to Resolved">
+    Change status and record timestamp:
+    
+    ```java
+    reporte.setEstado(EstadoReporte.RE);
+    reporte.setRepoResuelto(LocalDateTime.now());
+    ```
+  </Step>
+  
+  <Step title="Award Points to Reporter">
+    Credit the user who submitted the report:
+    
+    ```java
+    Usuario reporter = reporte.getUsuario();
+    int currentPoints = reporter.getPuntosUsu();
+    reporter.setPuntosUsu(currentPoints + pointsEarned);
+    ```
+    
+    <Note>
+    Points awarded vary based on incident type and resolution complexity.
+    </Note>
+  </Step>
+  
+  <Step title="Send Notification">
+    Notify the user of resolution:
+    - Use FCM token for push notification
+    - Include resolution details
+    - Show points awarded
+  </Step>
+</Steps>
+
+## Report Location Data
+
+### Geographic Coordinates
+
+Reports include precise location data:
+
+```java
+@Column(name="latitud")
+private BigDecimal latitud;
+
+@Column(name="longitud")
+private BigDecimal longitud;
+```
+
+**Use Cases:**
+- Map visualization of incidents
+- District-based assignment
+- Geographic pattern analysis
+- Resource allocation planning
+
+### District Association
+
+Each report is linked to a district:
+
+```java
+@ManyToOne
+@JoinColumn(name = "id_distrito")
+private Distrito distrito;
+```
+
+This enables:
+- Municipal jurisdiction routing
+- District-specific reporting
+- Local resource assignment
+- Geographic analytics
+
+## Incident Types and Classifications
+
+### Incident Types
+
+The `tipoIncidente` categorizes the environmental issue:
+
+```java
+@ManyToOne
+@JoinColumn(name = "id_tipo_inci")
+private TipoIncidentes tipoIncidente;
+```
+
+Common incident types:
+- Illegal dumping
+- Air pollution
+- Water contamination
+- Noise pollution
+- Deforestation
+- Wildlife disturbance
+
+### Classifications
+
+The `tipoClasificacion` provides additional categorization:
+
+```java
+@ManyToOne
+@JoinColumn(name = "id_tipo_clasi")
+private TipoClasificacion tipoClasificacion;
+```
+
+Classifications help with:
+- Priority assignment
+- Resource allocation
+- Response time targets
+- Statistical analysis
+
+## Report Images
+
+### Image Management
+
+Reports include photographic evidence:
+
+```java
+@Column(name="imagen_repo")
+private String imagenRepo;
+```
+
+<Warning>
+Ensure report images are:
+- Properly stored and accessible
+- Compressed for efficient loading
+- Backed up securely
+- Handled per privacy policies
+</Warning>
+
+**Best Practices:**
+- Verify image URLs are accessible
+- Provide image viewing in admin interface
+- Allow comparison of before/after images
+- Store original and thumbnail versions
+
+## Report Analytics
+
+### Key Metrics
+
+<CardGroup cols={2}>
+  <Card title="Total Reports" icon="clipboard">
+    Overall count of all submissions
+  </Card>
+  <Card title="Pending Reports" icon="clock">
+    Reports awaiting action (PE status)
+  </Card>
+  <Card title="Resolution Rate" icon="check-circle">
+    Percentage of resolved reports
+  </Card>
+  <Card title="Average Resolution Time" icon="hourglass">
+    Time from submission to resolution
+  </Card>
+</CardGroup>
+
+### Reporting Queries
+
+```sql
+-- Resolution time analysis
+SELECT 
+  AVG(TIMESTAMPDIFF(HOUR, repo_registado, repo_resuelto)) as avg_hours
+FROM tb_reporte
+WHERE estado = 'RE' AND repo_resuelto IS NOT NULL;
+
+-- Reports by status
+SELECT estado, COUNT(*) as count
+FROM tb_reporte
+GROUP BY estado;
+
+-- Most active reporters
+SELECT u.nom_usu, u.ape_pat_usu, COUNT(r.id_reporte) as report_count
+FROM tb_usuario u
+JOIN tb_reporte r ON u.id_usu = r.id_usu
+GROUP BY u.id_usu
+ORDER BY report_count DESC
+LIMIT 10;
+```
+
+## Report Timeline Tracking
+
+### Registration and Resolution Timestamps
+
+```java
+@Column(name="repo_registrado")
+private LocalDateTime repoRegistado;
+
+@Column(name="repo_resuelto")
+private LocalDateTime repoResuelto;
+```
+
+Track the complete report lifecycle:
+- **Submission**: `repoRegistado` captures initial report time
+- **Resolution**: `repoResuelto` records completion time
+- **Duration**: Calculate time difference for metrics
+
+<Note>
+The `repoResuelto` field is only populated when status changes to `RE` (Resuelto).
+</Note>
+
+## User Reporting History
+
+### Viewing User Reports
+
+Access all reports from a specific user:
+
+```java
+@ManyToOne
+@JoinColumn(name = "id_usu")
+private Usuario usuario;
+```
+
+**Use Cases:**
+- Verify user engagement
+- Identify power users
+- Detect abuse patterns
+- Calculate points earned
+
+### Reporter Reputation
+
+Consider tracking:
+- Total reports submitted
+- Resolution success rate
+- Average report quality
+- Community impact score
+
+## Bulk Operations
+
+### Common Bulk Actions
+
+<Accordion title="Bulk Status Updates">
+  Update multiple reports simultaneously:
+  - Mark similar incidents as duplicates
+  - Batch assign to municipal staff
+  - Bulk resolution for related issues
+</Accordion>
+
+<Accordion title="District Assignment">
+  Automatically assign reports based on location:
+  
+  ```sql
+  UPDATE tb_reporte
+  SET id_distrito = ?
+  WHERE latitud BETWEEN ? AND ?
+    AND longitud BETWEEN ? AND ?;
+  ```
+</Accordion>
+
+<Accordion title="Batch Notifications">
+  Send notifications for multiple resolved reports:
+  - Collect all resolved reports
+  - Group by user
+  - Send consolidated notification
+</Accordion>
+
+## Integration with Notifications
+
+### Notification Triggers
+
+Reports trigger notifications at key stages:
+
+1. **Report Submitted** - Confirm receipt to user
+2. **Status Changed to EP** - Notify user work has started
+3. **Report Resolved** - Notify completion and points awarded
+4. **Report Canceled** - Explain cancellation reason
+
+Use the NotificacionController for sending:
+
+```java
+@RestController
+@RequestMapping("/notificacion")
+public class NotificacionController {
+    @Autowired
+    NotificacionService notificacionService;
+}
+```
+
+## Best Practices
+
+<Warning>
+Follow these guidelines for effective report management:
+</Warning>
+
+### Response Times
+
+- **Pending → In Progress**: Within 24 hours
+- **In Progress → Resolved**: Based on incident type (1-30 days)
+- **High Priority**: Immediate response required
+
+### Quality Control
+
+- Verify all field data before status changes
+- Require evidence for resolutions
+- Document cancellation reasons
+- Maintain audit trail
+
+### User Communication
+
+- Provide status update notifications
+- Explain cancellation decisions
+- Confirm resolutions with evidence
+- Thank users for environmental stewardship
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="User Management" icon="users" href="/admin/users">
+    Manage user accounts and reporter profiles
+  </Card>
+  <Card title="Store Management" icon="store" href="/admin/stores">
+    Oversee partner stores
+  </Card>
+  <Card title="Coupon Management" icon="ticket" href="/admin/coupons">
+    Configure point rewards and coupons
+  </Card>
+  <Card title="Access Control" icon="shield" href="/admin/access">
+    Configure role-based permissions
+  </Card>
+</CardGroup>

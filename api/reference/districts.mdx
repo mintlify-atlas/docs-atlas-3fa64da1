@@ -1,0 +1,176 @@
+---
+title: 'Districts Reference'
+description: 'Retrieve available districts for location-based features'
+api: 'GET /distrito'
+---
+
+## Overview
+
+Get a list of all districts (distritos) available in the GreenGuard platform. Districts are used for organizing reports, stores, and other location-based data.
+
+<Info>
+  Districts are reference data that typically remain static. Consider caching this data in your application.
+</Info>
+
+## Request
+
+This endpoint requires no parameters.
+
+```bash
+GET /distrito
+```
+
+## Response
+
+<ResponseField name="districts" type="array">
+  Array of district objects
+  <ResponseField name="idDistrito" type="integer">
+    Unique district identifier
+  </ResponseField>
+  <ResponseField name="descDistrito" type="string">
+    District name/description
+  </ResponseField>
+</ResponseField>
+
+## Examples
+
+<CodeGroup>
+
+```bash cURL
+curl -X GET https://api.greenguard.com/distrito \
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+```javascript JavaScript
+const response = await fetch('https://api.greenguard.com/distrito', {
+  headers: {
+    'Authorization': 'Bearer YOUR_TOKEN'
+  }
+});
+
+const districts = await response.json();
+```
+
+```python Python
+import requests
+
+response = requests.get(
+    'https://api.greenguard.com/distrito',
+    headers={'Authorization': 'Bearer YOUR_TOKEN'}
+)
+
+districts = response.json()
+```
+
+```java Java
+HttpClient client = HttpClient.newHttpClient();
+HttpRequest request = HttpRequest.newBuilder()
+    .uri(URI.create("https://api.greenguard.com/distrito"))
+    .header("Authorization", "Bearer YOUR_TOKEN")
+    .GET()
+    .build();
+
+HttpResponse<String> response = client.send(request, 
+    HttpResponse.BodyHandlers.ofString());
+```
+
+</CodeGroup>
+
+## Response Example
+
+```json
+[
+  {
+    "idDistrito": 1,
+    "descDistrito": "Lima"
+  },
+  {
+    "idDistrito": 2,
+    "descDistrito": "Miraflores"
+  },
+  {
+    "idDistrito": 3,
+    "descDistrito": "San Isidro"
+  },
+  {
+    "idDistrito": 4,
+    "descDistrito": "Surco"
+  },
+  {
+    "idDistrito": 5,
+    "descDistrito": "La Molina"
+  },
+  {
+    "idDistrito": 6,
+    "descDistrito": "San Borja"
+  },
+  {
+    "idDistrito": 7,
+    "descDistrito": "Barranco"
+  },
+  {
+    "idDistrito": 8,
+    "descDistrito": "Chorrillos"
+  }
+]
+```
+
+## Get Single District
+
+To retrieve a specific district by ID:
+
+<CodeGroup>
+
+```bash cURL
+curl -X GET https://api.greenguard.com/distrito/1 \
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+```javascript JavaScript
+const response = await fetch('https://api.greenguard.com/distrito/1', {
+  headers: {
+    'Authorization': 'Bearer YOUR_TOKEN'
+  }
+});
+
+const district = await response.json();
+```
+
+</CodeGroup>
+
+### Response
+
+```json
+{
+  "idDistrito": 1,
+  "descDistrito": "Lima"
+}
+```
+
+## Usage in Reports
+
+When creating a report, reference a district using its `idDistrito`:
+
+```json
+{
+  "titulo": "Basura acumulada",
+  "descripcion": "Acumulación de basura en la esquina",
+  "distrito": {
+    "idDistrito": 2
+  },
+  "direccion": "Av. Larco 1234"
+}
+```
+
+## Data Model
+
+The district data structure corresponds to the `tb_distrito` table:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id_distrito` | INTEGER | Primary key, auto-increment |
+| `desc_distrito` | VARCHAR | District name |
+
+<Tip>
+  Cache district data locally to reduce API calls. Districts rarely change and can be refreshed periodically (e.g., daily or on app start).
+</Tip>

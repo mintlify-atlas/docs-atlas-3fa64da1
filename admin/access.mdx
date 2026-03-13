@@ -1,0 +1,203 @@
+---
+title: 'Accessing the Admin Panel'
+description: 'How to access and navigate the GreenGuard admin panel'
+---
+
+The GreenGuard admin panel provides centralized management capabilities for authorized users. This guide covers accessing the panel, authentication requirements, and navigation basics.
+
+## Prerequisites
+
+Before accessing the admin panel, ensure you have:
+
+<Check>Admin, Municipalidad, or Tienda role assigned to your account</Check>
+<Check>Valid login credentials (email and password)</Check>
+<Check>Active account status in the system</Check>
+
+<Warning>
+Users with the "Cliente" role do not have access to admin features and will be redirected to the customer interface.
+</Warning>
+
+## Accessing the Admin Panel
+
+<Steps>
+  <Step title="Navigate to Login">
+    Go to the authentication page at `/auth/login`
+  </Step>
+  
+  <Step title="Enter Credentials">
+    Provide your registered email address and password
+    
+    ```typescript
+    // Authentication handled by AuthController
+    POST /auth/login
+    {
+      "correoUsu": "admin@greenguard.com",
+      "passwordUsu": "your-password"
+    }
+    ```
+  </Step>
+  
+  <Step title="Role Verification">
+    The system validates your role and permissions. Users with admin roles are granted access to the admin module.
+  </Step>
+  
+  <Step title="Access Admin Route">
+    Once authenticated, navigate to `/admin` to access the admin panel
+    
+    ```typescript
+    // Admin module lazy-loaded on access
+    {
+      path: 'admin',
+      loadChildren: () =>
+        import('./admin/admin.module').then((m) => m.AdminModule)
+    }
+    ```
+  </Step>
+</Steps>
+
+## Navigation Structure
+
+The admin panel follows Angular's routing architecture with lazy-loaded modules:
+
+### Main Routes
+
+| Route | Module | Purpose |
+|-------|--------|---------|
+| `/auth` | AuthModule | Authentication and login |
+| `/admin` | AdminModule | Admin panel and management features |
+| `/municipalidad` | MunicipalidadModule | Municipal staff interface |
+| `/tienda` | TiendaModule | Store management interface |
+| `/cliente` | ClienteModule | Customer interface |
+
+### Default Behavior
+
+- **Authenticated users**: Redirected to `/cliente/index` by default
+- **Unauthenticated users**: Redirected to `/auth/login`
+- **Unknown routes**: Redirect to `/auth/login`
+
+```typescript
+// Default routing configuration
+{ path: '', redirectTo: 'cliente/index', pathMatch: 'full' },
+{ path: '**', redirectTo: 'auth/login' }
+```
+
+## User Session Management
+
+### Session Data
+
+When authenticated, the following user information is available:
+
+- User ID (`idUsu`)
+- Full name (`nomUsu`, `apePatUsu`, `apeMatUsu`)
+- Email address (`correoUsu`)
+- Role assignment (`rol`)
+- Active status (`activo`)
+- Points balance (`puntosUsu`)
+- Profile image (`imagenUSU`)
+
+### FCM Token Management
+
+For push notifications, the system manages Firebase Cloud Messaging tokens:
+
+```java
+@Column(name="FCM_TOKEN")
+private String fmcToken;
+
+@Column(name="FCM_TOKEN_FECHA")
+private LocalDateTime fmcTokenFecha;
+```
+
+## Access Control by Role
+
+Different roles have access to different admin features:
+
+<Tabs>
+  <Tab title="Admin">
+    **Full Access**
+    - All user management operations
+    - All report management operations
+    - Store and coupon management
+    - System configuration
+  </Tab>
+  
+  <Tab title="Municipalidad">
+    **Municipal Access**
+    - View and manage environmental reports
+    - Update report statuses
+    - Assign reports to staff
+    - View user data (limited)
+  </Tab>
+  
+  <Tab title="Tienda">
+    **Store Manager Access**
+    - Manage own store information
+    - Create and manage coupons
+    - View coupon redemptions
+    - Update store details
+  </Tab>
+</Tabs>
+
+<Note>
+Role-based access control is enforced at both the frontend routing level and backend API level for security.
+</Note>
+
+## Troubleshooting Access Issues
+
+### Cannot Access Admin Panel
+
+If you cannot access the admin panel:
+
+<Steps>
+  <Step title="Verify Account Status">
+    Ensure your account is active (`activo = true` in `tb_usuario`)
+  </Step>
+  
+  <Step title="Check Role Assignment">
+    Confirm you have an appropriate role assigned in the `ROL` field
+  </Step>
+  
+  <Step title="Clear Browser Cache">
+    Clear cookies and local storage, then log in again
+  </Step>
+  
+  <Step title="Contact Administrator">
+    If issues persist, contact a system administrator for role verification
+  </Step>
+</Steps>
+
+### Common Error Messages
+
+| Error | Cause | Solution |
+|-------|-------|----------|
+| "Invalid credentials" | Wrong email or password | Verify login details |
+| "Access denied" | Insufficient permissions | Check role assignment |
+| "Account inactive" | Account disabled | Contact administrator |
+
+## Security Best Practices
+
+<Warning>
+Always follow these security practices when accessing the admin panel:
+</Warning>
+
+- **Never share** your admin credentials
+- **Log out** when finished with admin tasks
+- **Use strong passwords** with mixed characters
+- **Report suspicious activity** immediately
+- **Access only** from secure networks
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="User Management" icon="users" href="/admin/users">
+    Learn how to manage user accounts and roles
+  </Card>
+  <Card title="Report Management" icon="clipboard" href="/admin/reports">
+    Process and resolve environmental reports
+  </Card>
+  <Card title="Store Management" icon="store" href="/admin/stores">
+    Manage partner stores
+  </Card>
+  <Card title="Coupon Management" icon="ticket" href="/admin/coupons">
+    Create and manage reward coupons
+  </Card>
+</CardGroup>

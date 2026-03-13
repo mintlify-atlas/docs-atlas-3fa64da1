@@ -1,0 +1,329 @@
+---
+title: 'Incident Reporting'
+description: 'Comprehensive guide to reporting environmental incidents on the GreenGuard platform'
+---
+
+## Overview
+
+Incident reporting is the core feature of GreenGuard, enabling citizens to document and report environmental issues directly to municipal authorities. Every validated report helps improve community safety and earns you rewards points.
+
+## Report Structure
+
+GreenGuard uses a comprehensive data model to capture all relevant incident information:
+
+```java
+@Entity
+@Table(name = "tb_reporte")
+public class Reporte {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name="id_reporte")
+    private Integer idReporte;
+    
+    @Column(name="num_report")
+    private String numReport;              // Unique tracking number
+    
+    @ManyToOne
+    @JoinColumn(name = "id_usu")
+    private Usuario usuario;               // Reporter's account
+    
+    @Column(name="detalle_repo")
+    private String detalleRepo;            // Detailed description
+    
+    @Column(name="imagen_repo")
+    private String imagenRepo;             // Photo evidence URL
+    
+    @Enumerated(EnumType.STRING)
+    @Column(name="estado")
+    private EstadoReporte estado;          // Current status
+    
+    @Column(name="latitud")
+    private BigDecimal latitud;            // GPS latitude
+    
+    @Column(name="longitud")
+    private BigDecimal longitud;           // GPS longitude
+    
+    @ManyToOne
+    @JoinColumn(name = "id_tipo_inci")
+    private TipoIncidentes tipoIncidente;  // Incident category
+    
+    @ManyToOne
+    @JoinColumn(name = "id_tipo_clasi")
+    private TipoClasificacion tipoClasificacion; // Severity level
+    
+    @ManyToOne
+    @JoinColumn(name = "id_distrito")
+    private Distrito distrito;             // District location
+    
+    @Column(name="repo_registrado")
+    private LocalDateTime repoRegistado;   // Submission timestamp
+    
+    @Column(name="repo_resuelto")
+    private LocalDateTime repoResuelto;    // Resolution timestamp
+}
+```
+
+## Creating a Report
+
+<Steps>
+  <Step title="Choose Incident Type">
+    Select the appropriate category for your report. The system supports multiple incident types through the `TipoIncidentes` entity:
+
+    ```java
+    @Entity
+    @Table(name = "tb_tipos_incidentes")
+    public class TipoIncidentes {
+        @Column(name="desc_tipo_inci")
+        private String descTipoInci;  // Incident type description
+    }
+    ```
+
+    Common incident types include:
+    - **Illegal Dumping** - Unauthorized waste disposal
+    - **Accumulated Trash** - Uncollected garbage accumulation
+    - **Damaged Infrastructure** - Broken public facilities
+    - **Environmental Hazards** - Pollution or dangerous conditions
+    - **Abandoned Vehicles** - Vehicles left on public property
+    - **Public Space Issues** - Parks, sidewalks, or common areas
+  </Step>
+
+  <Step title="Capture Location Data">
+    Accurate location information is critical for municipal response teams.
+
+    **Required Location Fields:**
+    - **Latitude** (`BigDecimal latitud`) - Precise GPS coordinate
+    - **Longitude** (`BigDecimal longitud`) - Precise GPS coordinate
+    - **District** (`Distrito distrito`) - Administrative district
+
+    ```java
+    @Entity
+    @Table(name = "tb_distrito")
+    public class Distrito {
+        @Column(name="desc_distrito")
+        private String descDistrito;  // District name
+    }
+    ```
+
+    <Note>
+      Enable location services on your device for automatic GPS coordinate capture. This ensures reports are routed to the correct municipal department.
+    </Note>
+  </Step>
+
+  <Step title="Add Photo Evidence">
+    Visual documentation significantly improves report processing speed and validation.
+
+    **Photo Requirements:**
+    - Clear, well-lit images
+    - Shows the full extent of the issue
+    - Includes surrounding context for location verification
+    - Stored as URL in `imagenRepo` field
+
+    <Warning>
+      Do not include personally identifiable information (faces, license plates) in your photos unless necessary for the report.
+    </Warning>
+  </Step>
+
+  <Step title="Write Detailed Description">
+    Provide a comprehensive description in the `detalleRepo` field:
+
+    **Good Description Example:**
+    > "Large pile of construction debris dumped on the corner of Main Street and 5th Avenue. Includes broken concrete, wood planks, and metal scraps. Has been here for approximately 3 days. Blocking pedestrian access to sidewalk."
+
+    **What to Include:**
+    - Specific location details
+    - Type and quantity of materials/damage
+    - How long the issue has existed
+    - Any safety hazards or impacts
+    - Time-sensitive factors
+  </Step>
+
+  <Step title="Set Classification Level">
+    Assign a severity classification to help prioritize municipal response:
+
+    ```java
+    @ManyToOne
+    @JoinColumn(name = "id_tipo_clasi")
+    private TipoClasificacion tipoClasificacion;
+    ```
+
+    Classification levels typically include:
+    - **Critical** - Immediate safety hazard
+    - **High** - Significant environmental or health risk
+    - **Medium** - Noticeable issue requiring attention
+    - **Low** - Minor cosmetic or maintenance issue
+  </Step>
+
+  <Step title="Submit Report">
+    Once all fields are completed, submit your report via:
+
+    ```http
+    POST /reporte/create
+    Content-Type: application/json
+
+    {
+      "usuario": { "idUsu": 123 },
+      "detalleRepo": "Detailed description...",
+      "imagenRepo": "https://storage.example.com/photo.jpg",
+      "latitud": -12.046374,
+      "longitud": -77.042793,
+      "tipoIncidente": { "idTipoInci": 2 },
+      "tipoClasificacion": { "idTipoClasi": 3 },
+      "distrito": { "idDistrito": 15 }
+    }
+    ```
+
+    The system automatically:
+    - Generates a unique `numReport` tracking number
+    - Sets initial status to `PE` (Pendiente/Pending)
+    - Records `repoRegistado` timestamp
+    - Sends confirmation notification to your FCM token
+  </Step>
+</Steps>
+
+## Report Status Lifecycle
+
+Every report moves through a defined status progression:
+
+```java
+public enum EstadoReporte {
+    PE,  // Pendiente - Submitted, awaiting review
+    EP,  // En Proceso - Municipality actively working on it
+    RE,  // Resuelto - Issue resolved and verified
+    CA   // Cancelado - Report cancelled or invalid
+}
+```
+
+<CardGroup cols={2}>
+  <Card title="PE - Pendiente" icon="clock" color="#2d8659">
+    **Initial State**
+    
+    Your report has been received and is queued for municipal review. Average review time: 24-48 hours.
+  </Card>
+  <Card title="EP - En Proceso" icon="gear" color="#2d8659">
+    **Active Processing**
+    
+    Municipality has assigned the issue to a response team. Work is underway to resolve the incident.
+  </Card>
+  <Card title="RE - Resuelto" icon="check-circle" color="#2d8659">
+    **Resolved**
+    
+    Issue has been addressed and verified. You earn points and receive a resolution notification.
+  </Card>
+  <Card title="CA - Cancelado" icon="times-circle" color="#2d8659">
+    **Cancelled**
+    
+    Report was invalid, duplicate, or cancelled. No points awarded.
+  </Card>
+</CardGroup>
+
+## Tracking Your Reports
+
+### View All Reports
+
+Access your report history through:
+
+```http
+GET /reporte/usuario/{idUsu}
+```
+
+Returns all reports submitted by your user account, sorted by `repoRegistado` timestamp.
+
+### Check Report Status
+
+Monitor individual report progress:
+
+```http
+GET /reporte/{numReport}
+```
+
+Response includes:
+- Current `estado` status
+- `repoRegistado` submission timestamp
+- `repoResuelto` resolution timestamp (if applicable)
+- Municipal notes or updates
+
+### Notification Updates
+
+You receive push notifications for:
+- Report submission confirmation
+- Status changes (PE → EP → RE)
+- Resolution completion
+- Any municipal comments or requests for clarification
+
+<Note>
+  Enable push notifications to receive real-time updates. See [Notifications Documentation](/features/notifications) for configuration details.
+</Note>
+
+## Best Practices
+
+### For Faster Processing
+
+1. **Accurate GPS Coordinates** - Allow location access for precise positioning
+2. **Clear Photos** - Multiple angles if necessary
+3. **Detailed Descriptions** - Include all relevant context
+4. **Correct Classification** - Helps route to appropriate department
+5. **Timely Submission** - Report issues as soon as discovered
+
+### For Maximum Points
+
+1. **Complete All Fields** - Thorough reports earn more points
+2. **High-Quality Evidence** - Clear documentation gets prioritized
+3. **Original Reports** - First reporter of an issue earns full points
+4. **Valid Classifications** - Accurate severity assessment
+5. **Follow Through** - Respond to any municipal inquiries promptly
+
+### What to Avoid
+
+<Warning>
+  **Do Not Report:**
+  - Emergencies (call emergency services instead)
+  - Duplicate incidents already reported
+  - Issues on private property without permission
+  - False or exaggerated problems
+  - Personal disputes or complaints
+</Warning>
+
+## API Reference
+
+### Report Endpoints
+
+The `ReporteController` exposes these endpoints:
+
+```java
+@RestController
+@RequestMapping("/reporte")
+public class ReporteController {
+    @Autowired
+    ReporteService reporteService;
+    
+    // Create new report
+    // POST /reporte/create
+    
+    // Get report by number
+    // GET /reporte/{numReport}
+    
+    // Get user's reports
+    // GET /reporte/usuario/{idUsu}
+    
+    // Update report status (municipality only)
+    // PUT /reporte/{id}/estado
+}
+```
+
+## Related Features
+
+<CardGroup cols={3}>
+  <Card title="Gamification" icon="trophy" href="/features/gamification">
+    Learn how reports earn you points
+  </Card>
+  <Card title="Notifications" icon="bell" href="/features/notifications">
+    Configure report status alerts
+  </Card>
+  <Card title="Rewards" icon="gift" href="/features/rewards">
+    Redeem points earned from reports
+  </Card>
+</CardGroup>
+
+## Support
+
+If you encounter issues with report submission or need to update an existing report, contact your municipal environmental office or use the in-app support feature.

@@ -1,0 +1,295 @@
+---
+title: Citizen Role
+description: Report urban incidents, earn points through gamification, and redeem rewards from partner stores
+icon: user
+---
+
+## Overview
+
+Citizens are the primary users of GreenGuard who report urban incidents, track their resolution progress, and participate in the platform's gamification system. By reporting issues like potholes, fallen poles, broken sidewalks, and other infrastructure problems, citizens earn points that can be redeemed for rewards from partner stores.
+
+<Note>
+Citizens automatically earn points for each validated incident report, with bonus multipliers awarded for consistent reporting behavior.
+</Note>
+
+## Core Capabilities
+
+<CardGroup cols={2}>
+  <Card title="Report Incidents" icon="triangle-exclamation">
+    Submit geolocation-based incident reports with photo evidence
+  </Card>
+  <Card title="Track Reports" icon="map-location-dot">
+    Monitor the status of submitted reports in real-time
+  </Card>
+  <Card title="Earn Points" icon="coins">
+    Accumulate points for validated reports and active participation
+  </Card>
+  <Card title="Redeem Rewards" icon="gift">
+    Exchange points for coupons from partner stores
+  </Card>
+</CardGroup>
+
+## Reporting Incidents
+
+### How to Submit a Report
+
+Citizens can report urban incidents through the mobile application following these steps:
+
+<Steps>
+  <Step title="Capture Evidence">
+    Take a photo of the incident with your device camera. The image helps municipalities assess severity and prioritize resolution.
+  </Step>
+  <Step title="Add Location">
+    The app automatically captures GPS coordinates (latitude and longitude) to pinpoint the exact location of the incident.
+  </Step>
+  <Step title="Describe the Issue">
+    Provide a detailed description (up to 150 characters) explaining the problem and any relevant context.
+  </Step>
+  <Step title="Classify Incident">
+    Select the incident type from predefined categories like potholes, fallen poles, broken sidewalks, road damage, or others.
+  </Step>
+  <Step title="Submit Report">
+    Submit your report to receive a unique report number for tracking purposes.
+  </Step>
+</Steps>
+
+### Report Information
+
+Each incident report includes:
+
+| Field | Description |
+|-------|-------------|
+| **Report Number** | Unique identifier for tracking (e.g., `RPT-20260313-0001`) |
+| **Location** | GPS coordinates and district information |
+| **Photo** | Visual evidence of the incident |
+| **Description** | Detailed explanation of the issue |
+| **Incident Type** | Category like potholes, fallen poles, broken sidewalks |
+| **Risk Classification** | Severity level assigned by municipality (Low, Medium, High, Critical) |
+| **Status** | Current state: Pending, In Process, Resolved, or Canceled |
+| **Timestamps** | Report submission and resolution dates |
+
+### Incident Types
+
+Citizens can report various types of urban incidents:
+
+<AccordionGroup>
+  <Accordion title="Potholes" icon="road">
+    Road damage and pavement deterioration that poses risks to vehicles and pedestrians.
+  </Accordion>
+  <Accordion title="Fallen Poles" icon="bolt">
+    Electrical or street light poles that have fallen or are leaning dangerously.
+  </Accordion>
+  <Accordion title="Broken Sidewalks" icon="person-walking">
+    Cracked, uneven, or damaged pedestrian walkways that create tripping hazards.
+  </Accordion>
+  <Accordion title="Road Damage" icon="car-burst">
+    Large pits, broken asphalt, or significant road surface issues.
+  </Accordion>
+  <Accordion title="Other Issues" icon="circle-exclamation">
+    Any urban infrastructure problem not covered by predefined categories.
+  </Accordion>
+</AccordionGroup>
+
+## Report Status Tracking
+
+Citizens can monitor their reports through four distinct status stages:
+
+<Steps>
+  <Step title="Pending (PE)" icon="clock">
+    The report has been submitted and is awaiting municipality review. You'll receive notifications when status changes.
+  </Step>
+  <Step title="In Process (EP)" icon="hammer">
+    Municipality has acknowledged the report and assigned teams to address the incident.
+  </Step>
+  <Step title="Resolved (RE)" icon="circle-check">
+    The incident has been successfully addressed and closed. Points are awarded upon resolution.
+  </Step>
+  <Step title="Canceled (CA)" icon="circle-xmark">
+    The report was canceled due to duplication, incorrect information, or other reasons.
+  </Step>
+</Steps>
+
+### Push Notifications
+
+Citizens receive real-time Firebase Cloud Messaging (FCM) notifications for:
+
+- **Report Status Updates**: When your report status changes from Pending to In Process or Resolved
+- **Points Earned**: Confirmation of points awarded for resolved reports
+- **Bonus Multipliers**: Special notifications when you receive bonus points for milestone reports (every 5th report)
+- **Coupon Updates**: Alerts about new coupons available in the rewards marketplace
+
+<Note>
+Enable push notifications in your device settings to stay informed about your report progress and reward opportunities.
+</Note>
+
+## Gamification System
+
+### Earning Points
+
+Citizens accumulate points through active participation in the platform:
+
+<CardGroup cols={2}>
+  <Card title="Report Resolution" icon="circle-check">
+    Earn base points when municipalities resolve your submitted reports
+  </Card>
+  <Card title="Bonus Multipliers" icon="sparkles">
+    Receive bonus points every 5th report as an incentive for consistent participation
+  </Card>
+</CardGroup>
+
+**Point Balance**: Your current point total is displayed in your user profile and updates in real-time as you earn or spend points.
+
+### Viewing Point History
+
+Track your point accumulation and spending:
+
+- **Current Balance**: Total available points for redemption
+- **Points Earned**: Lifetime points from all resolved reports
+- **Points Spent**: Total points redeemed for coupons
+- **Recent Activity**: Chronological list of point transactions
+
+## Rewards Marketplace
+
+### Browsing Coupons
+
+Citizens can explore available coupons from partner stores, organized by categories:
+
+<Tabs>
+  <Tab title="Food & Restaurants">
+    Discounts on meals, beverages, and dining experiences at local restaurants
+  </Tab>
+  <Tab title="Retail & Clothing">
+    Savings on apparel, accessories, and fashion items from partner stores
+  </Tab>
+  <Tab title="Groceries">
+    Coupons for supermarkets, produce, and household essentials
+  </Tab>
+  <Tab title="Electronics">
+    Discounts on appliances, gadgets, and electronic devices
+  </Tab>
+</Tabs>
+
+### Coupon Information
+
+Each coupon displays:
+
+| Detail | Description |
+|--------|-------------|
+| **Name** | Coupon title and offer description |
+| **Store** | Partner store offering the discount |
+| **Category** | Product or service type |
+| **Points Required** | Cost in points to redeem the coupon |
+| **Discount Details** | Specific terms and value of the offer |
+| **Availability** | Active status and expiration information |
+
+### Redeeming Coupons
+
+<Steps>
+  <Step title="Select Coupon">
+    Browse the rewards marketplace and choose a coupon that interests you.
+  </Step>
+  <Step title="Confirm Redemption">
+    Verify you have sufficient points and confirm the redemption.
+  </Step>
+  <Step title="Receive QR Code">
+    You'll receive a unique QR verification code and coupon code upon redemption.
+  </Step>
+  <Step title="Visit Store">
+    Present the QR code at the partner store to redeem your discount.
+  </Step>
+  <Step title="Complete Transaction">
+    Store verifies and scans your QR code to complete the redemption.
+  </Step>
+</Steps>
+
+### Managing Your Coupons
+
+Your redeemed coupons have three possible states:
+
+<CardGroup cols={3}>
+  <Card title="Active (AC)" icon="circle-check" color="#10b981">
+    Coupon is valid and ready to use at the partner store
+  </Card>
+  <Card title="Redeemed (CA)" icon="check-double" color="#6366f1">
+    You've successfully used the coupon at the store
+  </Card>
+  <Card title="Expired (VE)" icon="circle-xmark" color="#ef4444">
+    Coupon has passed its expiration date
+  </Card>
+</CardGroup>
+
+<Warning>
+Coupons typically expire after a set period from redemption date. Use them promptly to avoid losing your points investment.
+</Warning>
+
+## User Profile Management
+
+### Account Information
+
+Citizens can manage their profile details:
+
+- **Personal Information**: Name, surname, document ID
+- **Contact Details**: Email address and phone number
+- **Gender**: Profile demographics
+- **Profile Photo**: Optional avatar image
+- **Account Status**: Active status indicator
+- **Registration Date**: Account creation timestamp
+
+### Notification Preferences
+
+Configure how you receive updates:
+
+- **Push Notifications**: Enable/disable FCM notifications
+- **Notification Types**: Choose which events trigger alerts
+- **FCM Token Management**: Automatically managed device registration
+
+## District-Based Reporting
+
+GreenGuard organizes incidents by district to help municipalities manage regional issues:
+
+- Reports are automatically tagged with district information based on GPS coordinates
+- Citizens can view incident patterns and hot spots in their neighborhood
+- Municipality response times may vary by district based on resource allocation
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Take Clear Photos" icon="camera">
+    Capture well-lit, focused images that clearly show the incident. Include context like street signs or nearby landmarks when possible.
+  </Accordion>
+  <Accordion title="Provide Accurate Locations" icon="location-dot">
+    Ensure GPS is enabled for precise incident placement. Accurate locations help municipalities respond faster.
+  </Accordion>
+  <Accordion title="Write Detailed Descriptions" icon="pen">
+    Include specific details about the incident, potential hazards, and any relevant timing information.
+  </Accordion>
+  <Accordion title="Avoid Duplicate Reports" icon="copy">
+    Check existing reports in your area before submitting. Duplicate reports may be canceled without point awards.
+  </Accordion>
+  <Accordion title="Monitor Your Reports" icon="bell">
+    Stay engaged by tracking your report status and responding to any municipality requests for clarification.
+  </Accordion>
+</AccordionGroup>
+
+## Getting Started
+
+<Card title="Start Reporting" icon="play" href="/features/incident-reporting">
+  Learn more about the incident reporting system and how to maximize your impact on community safety.
+</Card>
+
+## Related Documentation
+
+<CardGroup cols={2}>
+  <Card title="Municipality Role" icon="building" href="/roles/municipality">
+    How municipalities review and resolve citizen reports
+  </Card>
+  <Card title="Store Role" icon="store" href="/roles/stores">
+    How partner stores create and manage reward coupons
+  </Card>
+  <Card title="API Reference" icon="code" href="/api/auth/overview">
+    Technical documentation for developers
+  </Card>
+  <Card title="Gamification System" icon="trophy" href="/features/gamification">
+    Deep dive into the points and rewards system
+  </Card>
+</CardGroup>

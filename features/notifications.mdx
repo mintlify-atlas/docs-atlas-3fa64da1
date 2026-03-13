@@ -1,0 +1,561 @@
+---
+title: 'Push Notifications'
+description: 'Configure and manage Firebase Cloud Messaging (FCM) notifications to stay updated on reports, rewards, and community activity'
+---
+
+## Overview
+
+GreenGuard uses Firebase Cloud Messaging (FCM) to deliver real-time push notifications about your incident reports, reward redemptions, and community achievements. Stay informed without constantly checking the app.
+
+## FCM Token Management
+
+### How FCM Works
+
+When you register for notifications, GreenGuard stores your device's FCM token:
+
+```java
+@Entity
+@Table(name = "tb_usuario")
+public class Usuario {
+    @Column(name="FCM_TOKEN")
+    private String fmcToken;  // Your device's unique FCM token
+    
+    @Column(name="FCM_TOKEN_FECHA")
+    private LocalDateTime fmcTokenFecha;  // Token registration timestamp
+}
+```
+
+**Token Characteristics:**
+- Unique per device
+- May refresh periodically (handled automatically by FCM)
+- Linked to your user account
+- Supports multiple devices per user
+- Required for receiving push notifications
+
+### Registering Your Device
+
+When you first enable notifications or install the app on a new device:
+
+<Steps>
+  <Step title="Request Permission">
+    The app requests notification permissions from your device operating system.
+    
+    **iOS:** Displays system permission dialog
+    **Android:** Automatically granted for most app types
+  </Step>
+  
+  <Step title="Obtain FCM Token">
+    Firebase SDK generates a unique token for your device:
+    
+    ```typescript
+    // Client-side FCM token retrieval
+    import { getMessaging, getToken } from 'firebase/messaging';
+    
+    const messaging = getMessaging();
+    const fcmToken = await getToken(messaging, {
+      vapidKey: 'YOUR_VAPID_KEY'
+    });
+    ```
+  </Step>
+  
+  <Step title="Register with Backend">
+    The app sends your FCM token to GreenGuard servers:
+    
+    ```http
+    POST /usuario/{idUsu}/fcm-token
+    Content-Type: application/json
+    
+    {
+      "fmcToken": "eA7X9B...",
+      "fmcTokenFecha": "2024-03-13T10:30:00"
+    }
+    ```
+    
+    The server updates your user record with the new token.
+  </Step>
+  
+  <Step title="Receive Notifications">
+    Your device is now registered to receive push notifications for:
+    - Report status updates
+    - Points awarded
+    - Coupon redemptions
+    - System announcements
+  </Step>
+</Steps>
+
+<Note>
+  If you reinstall the app or switch devices, you'll need to re-register for notifications. This happens automatically when you log in.
+</Note>
+
+## Notification Types
+
+GreenGuard sends structured notifications through the `Notificacion` entity:
+
+```java
+@Entity
+@Table(name = "tb_tipo_notificacion")
+public class Notificacion {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_notificacion")
+    private Integer idNotificacion;
+    
+    @ManyToOne
+    @JoinColumn(name = "id_usuario")
+    private Usuario usuario;  // Recipient
+    
+    @ManyToOne
+    @JoinColumn(name = "id_tipo_notificacion")
+    private TipoNotificacion tipoNotificacion;  // Category
+    
+    @Column(name = "titulo")
+    private String titulo;  // Notification title
+    
+    @Column(name = "mensaje")
+    private String mensaje;  // Notification body
+    
+    @ManyToOne
+    @JoinColumn(name = "id_reporte")
+    private Reporte reporte;  // Associated report (if applicable)
+    
+    @ManyToOne
+    @JoinColumn(name = "id_usuario_cupon")
+    private UsuarioCupon usuarioCupon;  // Associated coupon (if applicable)
+    
+    @ManyToOne
+    @JoinColumn(name = "id_cupon")
+    private Cupon cupon;  // Coupon details (if applicable)
+    
+    @Column(name = "leida")
+    private Boolean leida;  // Read status
+    
+    @Column(name = "descartada")
+    private Boolean descartada;  // Dismissed by user
+}
+```
+
+### Report Notifications
+
+Receive updates about your incident reports:
+
+<CardGroup cols={2}>
+  <Card title="Report Received" icon="inbox" color="#2d8659">
+    **When:** Report submitted (PE status)
+    
+    Confirms your report was received and assigned a tracking number.
+    
+    ```json
+    {
+      "titulo": "Report Received",
+      "mensaje": "Your report #R2024-0312 has been submitted successfully",
+      "reporte": { "numReport": "R2024-0312" }
+    }
+    ```
+  </Card>
+  
+  <Card title="In Progress" icon="gear" color="#2d8659">
+    **When:** Status changes to EP
+    
+    Municipality has assigned your report and begun work.
+    
+    ```json
+    {
+      "titulo": "Report In Progress",
+      "mensaje": "Municipality is now working on report #R2024-0312",
+      "reporte": { "numReport": "R2024-0312" }
+    }
+    ```
+  </Card>
+  
+  <Card title="Resolved" icon="check-circle" color="#2d8659">
+    **When:** Status changes to RE
+    
+    Issue has been resolved. You've earned points!
+    
+    ```json
+    {
+      "titulo": "Report Resolved!",
+      "mensaje": "Report #R2024-0312 has been resolved. You earned 150 points!",
+      "reporte": { "numReport": "R2024-0312" }
+    }
+    ```
+  </Card>
+  
+  <Card title="Cancelled" icon="times-circle" color="#2d8659">
+    **When:** Status changes to CA
+    
+    Report was cancelled with explanation.
+    
+    ```json
+    {
+      "titulo": "Report Cancelled",
+      "mensaje": "Report #R2024-0312 was cancelled: Duplicate of existing report",
+      "reporte": { "numReport": "R2024-0312" }
+    }
+    ```
+  </Card>
+</CardGroup>
+
+### Reward Notifications
+
+Stay updated on points and coupon redemptions:
+
+**Points Awarded**
+```json
+{
+  "titulo": "Points Earned!",
+  "mensaje": "You earned 150 points for report #R2024-0312",
+  "reporte": { "numReport": "R2024-0312" }
+}
+```
+
+**Coupon Redeemed**
+```json
+{
+  "titulo": "Coupon Redeemed",
+  "mensaje": "You've redeemed: 20% off at EcoStore. Check your coupons for details.",
+  "usuarioCupon": { "idUsuarioCupon": 456 },
+  "cupon": { "nombreCupon": "EcoStore 20% Off" }
+}
+```
+
+**Coupon Expiring**
+```json
+{
+  "titulo": "Coupon Expiring Soon",
+  "mensaje": "Your coupon '20% off at EcoStore' expires in 3 days!",
+  "usuarioCupon": { "idUsuarioCupon": 456 }
+}
+```
+
+### Achievement Notifications
+
+**Milestone Reached**
+```json
+{
+  "titulo": "Achievement Unlocked!",
+  "mensaje": "You've reached 1,000 points and earned the Guardian badge!"
+}
+```
+
+**Leaderboard Update**
+```json
+{
+  "titulo": "Top 100!",
+  "mensaje": "You're now ranked #87 in your district leaderboard!"
+}
+```
+
+## Managing Notifications
+
+### Viewing Notification History
+
+Access all your notifications:
+
+```http
+GET /notificacion/usuario/{idUsu}
+```
+
+Returns all notifications ordered by most recent first, with fields:
+- `titulo` - Notification title
+- `mensaje` - Full message content
+- `leida` - Whether you've read it
+- `descartada` - Whether you've dismissed it
+- Associated report, coupon, or other data
+
+### Marking as Read
+
+Update read status when you view a notification:
+
+```http
+PUT /notificacion/{idNotificacion}/leer
+```
+
+Sets `leida = true` for the notification.
+
+### Dismissing Notifications
+
+Remove notifications from your active list:
+
+```http
+PUT /notificacion/{idNotificacion}/descartar
+```
+
+Sets `descartada = true`. Dismissed notifications are hidden from default views but remain in history.
+
+### Unread Count
+
+Get badge count for app icon:
+
+```http
+GET /notificacion/usuario/{idUsu}/no-leidas/count
+```
+
+Returns count of notifications where `leida = false AND descartada = false`.
+
+## Notification Controller
+
+The backend manages notifications through:
+
+```java
+@RestController
+@RequestMapping("/notificacion")
+public class NotificacionController {
+    @Autowired
+    NotificacionService notificacionService;
+    
+    // Get user's notifications
+    // GET /notificacion/usuario/{idUsu}
+    
+    // Mark notification as read
+    // PUT /notificacion/{id}/leer
+    
+    // Dismiss notification
+    // PUT /notificacion/{id}/descartar
+    
+    // Get unread count
+    // GET /notificacion/usuario/{idUsu}/no-leidas/count
+    
+    // Send notification (internal/admin only)
+    // POST /notificacion/enviar
+}
+```
+
+## Sending Notifications (Backend)
+
+When the system needs to notify users, it:
+
+<Steps>
+  <Step title="Create Notification Record">
+    Store notification in database:
+    
+    ```java
+    Notificacion notif = new Notificacion();
+    notif.setUsuario(usuario);
+    notif.setTitulo("Report Resolved!");
+    notif.setMensaje("Report #" + reporte.getNumReport() + " has been resolved.");
+    notif.setReporte(reporte);
+    notif.setLeida(false);
+    notif.setDescartada(false);
+    notificacionService.save(notif);
+    ```
+  </Step>
+  
+  <Step title="Retrieve User's FCM Token">
+    Get the registered device token:
+    
+    ```java
+    String fcmToken = usuario.getFmcToken();
+    if (fcmToken == null || fcmToken.isEmpty()) {
+        // User hasn't enabled notifications
+        return;
+    }
+    ```
+  </Step>
+  
+  <Step title="Send via FCM">
+    Use Firebase Admin SDK to deliver:
+    
+    ```java
+    Message message = Message.builder()
+        .setToken(fcmToken)
+        .setNotification(Notification.builder()
+            .setTitle(notif.getTitulo())
+            .setBody(notif.getMensaje())
+            .build())
+        .putData("notificationId", notif.getIdNotificacion().toString())
+        .putData("reportId", reporte.getIdReporte().toString())
+        .build();
+    
+    String response = FirebaseMessaging.getInstance().send(message);
+    ```
+  </Step>
+  
+  <Step title="Handle Delivery">
+    User's device receives the notification:
+    - Displays in notification tray
+    - May trigger sound/vibration
+    - App can handle data payload when tapped
+  </Step>
+</Steps>
+
+## Client-Side Implementation
+
+### Receiving Notifications
+
+Handle incoming messages in your app:
+
+```typescript
+import { getMessaging, onMessage } from 'firebase/messaging';
+
+const messaging = getMessaging();
+
+// Handle foreground messages
+onMessage(messaging, (payload) => {
+  console.log('Message received:', payload);
+  
+  const { title, body } = payload.notification;
+  const { notificationId, reportId } = payload.data;
+  
+  // Display in-app notification
+  showInAppNotification(title, body);
+  
+  // Update notification badge
+  updateNotificationCount();
+  
+  // Navigate to report if user taps
+  if (reportId) {
+    navigateToReport(reportId);
+  }
+});
+```
+
+### Background Notifications
+
+Handle notifications when app is in background:
+
+```typescript
+// In your service worker (firebase-messaging-sw.js)
+importScripts('https://www.gstatic.com/firebasejs/9.x/firebase-app-compat.js');
+importScripts('https://www.gstatic.com/firebasejs/9.x/firebase-messaging-compat.js');
+
+firebase.initializeApp({
+  // Your Firebase config
+});
+
+const messaging = firebase.messaging();
+
+messaging.onBackgroundMessage((payload) => {
+  console.log('Background message:', payload);
+  
+  const notificationTitle = payload.notification.title;
+  const notificationOptions = {
+    body: payload.notification.body,
+    icon: '/logo.png',
+    badge: '/badge.png',
+    data: payload.data
+  };
+  
+  self.registration.showNotification(notificationTitle, notificationOptions);
+});
+```
+
+## Notification Preferences
+
+### User Settings
+
+Users can configure notification preferences:
+
+```java
+// Potential settings stored in user profile
+private boolean notifReportUpdates = true;   // Report status changes
+private boolean notifPoints = true;          // Points awarded
+private boolean notifCoupons = true;         // Coupon redemptions/expiry
+private boolean notifAchievements = true;    // Milestones and badges
+private boolean notifCommunity = false;      // Community announcements
+```
+
+**Configuration Endpoint:**
+```http
+PUT /usuario/{idUsu}/notificaciones/preferencias
+Content-Type: application/json
+
+{
+  "reportUpdates": true,
+  "points": true,
+  "coupons": true,
+  "achievements": true,
+  "community": false
+}
+```
+
+## Troubleshooting
+
+### Not Receiving Notifications
+
+<Steps>
+  <Step title="Check Token Registration">
+    Verify your FCM token is stored:
+    
+    ```http
+    GET /usuario/{idUsu}
+    ```
+    
+    Ensure `fmcToken` is not null and `fmcTokenFecha` is recent.
+  </Step>
+  
+  <Step title="Verify Device Permissions">
+    - **iOS:** Settings → GreenGuard → Notifications → Allow Notifications
+    - **Android:** Settings → Apps → GreenGuard → Notifications → Enabled
+  </Step>
+  
+  <Step title="Check Network Connectivity">
+    FCM requires active internet connection. Verify device is online.
+  </Step>
+  
+  <Step title="Token Refresh">
+    If token is old (>60 days), refresh it:
+    
+    ```typescript
+    // Force token refresh
+    await messaging.deleteToken();
+    const newToken = await getToken(messaging);
+    // Re-register with backend
+    ```
+  </Step>
+  
+  <Step title="Check Notification Settings">
+    Verify you haven't disabled specific notification types in app settings.
+  </Step>
+</Steps>
+
+### Delayed Notifications
+
+<Note>
+  FCM notifications may experience delays due to:
+  - Device battery optimization settings
+  - Background data restrictions
+  - Network congestion
+  - Device in low-power mode
+</Note>
+
+**Solutions:**
+- Disable battery optimization for GreenGuard
+- Allow background data usage
+- Keep app open or recently active
+
+## Best Practices
+
+### For Users
+
+1. **Keep App Updated** - Ensure latest version for optimal FCM integration
+2. **Grant Permissions** - Allow notification and background data access
+3. **Manage Preferences** - Disable notification types you don't want
+4. **Mark as Read** - Keep notification list organized
+5. **Multiple Devices** - Each device needs separate FCM registration
+
+### For Developers
+
+1. **Token Validation** - Check token validity before sending
+2. **Error Handling** - Handle FCM delivery failures gracefully
+3. **Rate Limiting** - Don't spam users with excessive notifications
+4. **Meaningful Content** - Include actionable information in messages
+5. **Data Payloads** - Use custom data for deep linking and context
+
+<Warning>
+  Never send sensitive information (passwords, full payment details) via push notifications. They may be visible on lock screens.
+</Warning>
+
+## Related Features
+
+<CardGroup cols={3}>
+  <Card title="Incident Reporting" icon="flag" href="/features/incident-reporting">
+    Learn what triggers report notifications
+  </Card>
+  <Card title="Gamification" icon="trophy" href="/features/gamification">
+    Understand achievement notifications
+  </Card>
+  <Card title="Rewards" icon="gift" href="/features/rewards">
+    Configure coupon expiry alerts
+  </Card>
+</CardGroup>

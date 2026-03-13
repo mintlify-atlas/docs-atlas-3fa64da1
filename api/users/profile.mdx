@@ -1,0 +1,123 @@
+---
+title: 'Get User Profile'
+description: 'Retrieve detailed information about a specific user profile'
+api: 'GET /usuario/{id}'
+---
+
+## Overview
+
+This endpoint retrieves the complete profile information for a specific user, including their points balance, registration details, and role information.
+
+## Path Parameters
+
+<ParamField path="id" type="integer" required>
+  The unique identifier of the user (idUsu)
+</ParamField>
+
+## Response
+
+<ResponseField name="idUsu" type="integer">
+  Unique identifier for the user
+</ResponseField>
+
+<ResponseField name="nomUsu" type="string">
+  User's first name
+</ResponseField>
+
+<ResponseField name="apePatUsu" type="string">
+  User's paternal surname
+</ResponseField>
+
+<ResponseField name="apeMatUsu" type="string">
+  User's maternal surname
+</ResponseField>
+
+<ResponseField name="documentoUsu" type="string">
+  User's identification document number
+</ResponseField>
+
+<ResponseField name="correoUsu" type="string">
+  User's email address
+</ResponseField>
+
+<ResponseField name="telefonoUsu" type="string">
+  User's phone number
+</ResponseField>
+
+<ResponseField name="generoUsu" type="string">
+  User's gender
+</ResponseField>
+
+<ResponseField name="imagenUSU" type="string">
+  URL or path to user's profile image
+</ResponseField>
+
+<ResponseField name="registroUsu" type="datetime">
+  Timestamp when the user registered (ISO 8601 format)
+</ResponseField>
+
+<ResponseField name="puntosUsu" type="integer">
+  User's current points balance. Points are earned through platform activities and can be redeemed for coupons.
+</ResponseField>
+
+<ResponseField name="rol" type="object">
+  User's role information
+  <ResponseField name="idRol" type="integer">
+    Role identifier
+  </ResponseField>
+  <ResponseField name="descripcion" type="string">
+    Role description
+  </ResponseField>
+</ResponseField>
+
+<ResponseField name="activo" type="boolean">
+  Whether the user account is active
+</ResponseField>
+
+<ResponseField name="fmcToken" type="string">
+  Firebase Cloud Messaging token for push notifications
+</ResponseField>
+
+<ResponseField name="fmcTokenFecha" type="datetime">
+  Timestamp when the FCM token was last updated (ISO 8601 format)
+</ResponseField>
+
+## Example Request
+
+```bash
+curl -X GET "https://api.greenguard.com/usuario/123" \
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+## Example Response
+
+```json
+{
+  "idUsu": 123,
+  "nomUsu": "Juan",
+  "apePatUsu": "García",
+  "apeMatUsu": "López",
+  "documentoUsu": "12345678",
+  "correoUsu": "juan.garcia@example.com",
+  "telefonoUsu": "+51987654321",
+  "generoUsu": "M",
+  "imagenUSU": "/images/profiles/123.jpg",
+  "registroUsu": "2024-01-15T10:30:00",
+  "puntosUsu": 450,
+  "rol": {
+    "idRol": 1,
+    "descripcion": "Usuario"
+  },
+  "activo": true,
+  "fmcToken": "dGhpc19pc19hX3Rva2VuX2V4YW1wbGU",
+  "fmcTokenFecha": "2024-03-10T14:20:00"
+}
+```
+
+## Points System
+
+The `puntosUsu` field represents the user's accumulated points:
+- Points are earned through environmental actions and reporting incidents
+- Points can be redeemed for coupons in the platform
+- Each coupon has a `puntosRequeridos` value that must be met to redeem
+- Points balance is updated after each redemption

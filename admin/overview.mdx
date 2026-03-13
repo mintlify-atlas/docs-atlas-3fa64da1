@@ -1,0 +1,102 @@
+---
+title: 'Admin Panel Overview'
+description: 'Overview of the GreenGuard admin panel and its core features'
+---
+
+The GreenGuard admin panel is a comprehensive management interface for platform administrators to oversee users, environmental reports, stores, and coupon programs. Built with Angular and powered by a Spring Boot backend, it provides centralized control over all platform operations.
+
+## Key Features
+
+The admin panel provides the following core capabilities:
+
+<CardGroup cols={2}>
+  <Card title="User Management" icon="users">
+    Manage user accounts, roles, and permissions across the platform
+  </Card>
+  <Card title="Report Management" icon="file-check">
+    Review, process, and resolve environmental incident reports
+  </Card>
+  <Card title="Store Management" icon="store">
+    Oversee partner stores and their locations
+  </Card>
+  <Card title="Coupon Management" icon="ticket">
+    Create and manage reward coupons for the points system
+  </Card>
+</CardGroup>
+
+## Admin Roles
+
+GreenGuard supports role-based access control through the `tb_rol` system:
+
+- **Admin** - Full system access with all permissions
+- **Municipalidad** - Municipal staff with report management capabilities
+- **Tienda** - Store managers with coupon and store management access
+- **Cliente** - Regular users (non-admin)
+
+<Note>
+Role assignments are managed through the user management interface and determine which admin features are accessible to each user.
+</Note>
+
+## Platform Architecture
+
+The admin panel is built on a modern stack:
+
+- **Frontend**: Angular 17+ with lazy-loaded modules
+- **Backend**: Spring Boot REST API
+- **Database**: MySQL with JPA/Hibernate
+- **Authentication**: Role-based access control
+
+### Module Structure
+
+The admin interface is organized into lazy-loaded modules for optimal performance:
+
+```typescript
+// Admin module loaded on /admin route
+{
+  path: 'admin',
+  loadChildren: () =>
+    import('./admin/admin.module').then((m) => m.AdminModule),
+}
+```
+
+## Data Models
+
+The admin panel manages several key entities:
+
+| Entity | Description | Key Fields |
+|--------|-------------|------------|
+| Usuario | User accounts | Name, email, role, points, active status |
+| Reporte | Environmental reports | Type, status, location, images |
+| Tienda | Partner stores | Name, location, owner |
+| Cupon | Reward coupons | Name, points required, store, active status |
+
+## Getting Started
+
+<Steps>
+  <Step title="Access Requirements">
+    Ensure you have an admin role assigned to your account
+  </Step>
+  <Step title="Navigate to Admin Panel">
+    Access the panel at `/admin` route after authentication
+  </Step>
+  <Step title="Explore Features">
+    Navigate through user, report, store, and coupon management sections
+  </Step>
+</Steps>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Access Admin Panel" icon="right-to-bracket" href="/admin/access">
+    Learn how to access and navigate the admin interface
+  </Card>
+  <Card title="Manage Users" icon="user-gear" href="/admin/users">
+    User account and role management
+  </Card>
+  <Card title="Manage Reports" icon="clipboard-list" href="/admin/reports">
+    Process environmental incident reports
+  </Card>
+  <Card title="Manage Stores" icon="shop" href="/admin/stores">
+    Oversee partner stores
+  </Card>
+</CardGroup>

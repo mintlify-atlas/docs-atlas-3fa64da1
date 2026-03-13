@@ -1,0 +1,86 @@
+---
+title: 'Authentication Overview'
+description: 'Learn how to authenticate with the GreenGuard API'
+---
+
+## Overview
+
+The GreenGuard API uses a simple authentication system to secure endpoints and manage user access. All authentication endpoints are located under the `/auth` base path.
+
+## Authentication Flow
+
+The typical authentication flow for GreenGuard involves:
+
+1. **Registration**: New users create an account with their personal information
+2. **Login**: Existing users authenticate with their credentials
+3. **Access**: Authenticated users receive access to protected resources
+
+## Base URL
+
+All authentication endpoints are prefixed with:
+
+```
+/auth
+```
+
+## User Roles
+
+GreenGuard supports role-based access control. Users are assigned one of the following roles during registration:
+
+- **User**: Standard user with basic permissions
+- **Admin**: Administrative user with elevated permissions
+- **Moderator**: User with content moderation capabilities
+
+The role is stored in the `tb_rol` table and linked to each user account.
+
+## Security Considerations
+
+- Passwords are stored securely using encryption
+- User accounts can be activated/deactivated using the `activo` flag
+- Each user has a unique identifier (`idUsu`)
+- Email addresses (`correoUsu`) must be unique across the system
+
+## Available Endpoints
+
+<CardGroup cols={2}>
+  <Card title="Login" icon="right-to-bracket" href="/api/auth/login">
+    Authenticate existing users
+  </Card>
+  <Card title="Register" icon="user-plus" href="/api/auth/register">
+    Create new user accounts
+  </Card>
+</CardGroup>
+
+## User Profile Fields
+
+When working with authentication, you'll interact with the following user fields:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `idUsu` | Integer | Unique user identifier |
+| `nomUsu` | String | User's first name |
+| `apePatUsu` | String | User's paternal surname |
+| `apeMatUsu` | String | User's maternal surname |
+| `documentoUsu` | String | User's identification document |
+| `correoUsu` | String | User's email address |
+| `passwordUsu` | String | User's encrypted password |
+| `telefonoUsu` | String | User's phone number |
+| `generoUsu` | String | User's gender |
+| `imagenUSU` | String | User's profile image URL |
+| `registroUsu` | DateTime | Registration timestamp |
+| `puntosUsu` | Integer | User's reward points |
+| `rol` | Object | User's role object |
+| `activo` | Boolean | Account activation status |
+| `fmcToken` | String | Firebase Cloud Messaging token |
+| `fmcTokenFecha` | DateTime | FCM token creation date |
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Login Documentation" icon="book" href="/api/auth/login">
+    View detailed login endpoint documentation
+  </Card>
+  <Card title="Register Documentation" icon="book" href="/api/auth/register">
+    View detailed registration endpoint documentation
+  </Card>
+</CardGroup>

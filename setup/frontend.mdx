@@ -1,0 +1,340 @@
+---
+title: 'Frontend Setup'
+description: 'Step-by-step guide to setting up the Angular frontend'
+---
+
+## Overview
+
+The GreenGuard frontend is built with Angular 19.2.0, providing a modern and responsive user interface for the platform.
+
+## Prerequisites
+
+Before proceeding, ensure you have:
+
+- Node.js 18.x or higher installed
+- npm 9.x or higher
+- Angular CLI 19.2.4
+- Backend server running (see [Backend Setup](/setup/backend))
+
+## Technology Stack
+
+- **Framework:** Angular 19.2.0
+- **Language:** TypeScript 5.7.2
+- **Build Tool:** Angular CLI 19.2.4
+- **State Management:** RxJS 7.8.0
+- **Testing:** Jasmine 5.6.0 + Karma 6.4.0
+
+## Installation Steps
+
+<Steps>
+  <Step title="Navigate to Angular Directory">
+    Navigate to the Angular frontend directory:
+
+    ```bash
+    cd angular
+    ```
+  </Step>
+
+  <Step title="Install Dependencies">
+    Install all required npm packages:
+
+    <CodeGroup>
+    ```bash npm
+    npm install
+    ```
+
+    ```bash yarn
+    yarn install
+    ```
+
+    ```bash pnpm
+    pnpm install
+    ```
+    </CodeGroup>
+
+    This will install all dependencies listed in `package.json`, including:
+    - Angular core libraries (19.2.0)
+    - RxJS for reactive programming
+    - TypeScript compiler
+    - Development and build tools
+  </Step>
+
+  <Step title="Configure API Endpoint">
+    Update the API endpoint to connect to your backend server.
+
+    Create or update the environment configuration file `src/environments/environment.ts`:
+
+    ```typescript
+    export const environment = {
+      production: false,
+      apiUrl: 'http://localhost:8080/api'
+    };
+    ```
+
+    <Note>
+      Ensure the `apiUrl` matches your backend server address and port.
+    </Note>
+  </Step>
+
+  <Step title="Start Development Server">
+    Launch the Angular development server:
+
+    <CodeGroup>
+    ```bash npm
+    npm start
+    ```
+
+    ```bash Angular CLI
+    ng serve
+    ```
+
+    ```bash yarn
+    yarn start
+    ```
+    </CodeGroup>
+
+    The application will be available at `http://localhost:4200`
+
+    <Note>
+      The development server features hot module replacement (HMR), automatically reloading when you make changes.
+    </Note>
+  </Step>
+
+  <Step title="Verify the Installation">
+    Open your browser and navigate to:
+
+    ```
+    http://localhost:4200
+    ```
+
+    You should see the GreenGuard application interface.
+  </Step>
+</Steps>
+
+## Project Structure
+
+```
+angular/
+├── src/
+│   ├── app/
+│   │   ├── components/       # Reusable UI components
+│   │   ├── services/         # API and business logic services
+│   │   ├── models/           # TypeScript interfaces and types
+│   │   ├── guards/           # Route guards
+│   │   └── app.component.ts  # Root component
+│   ├── assets/               # Static assets (images, icons)
+│   ├── environments/         # Environment configurations
+│   ├── styles.css            # Global styles
+│   └── index.html            # Main HTML file
+├── public/                   # Public assets
+├── angular.json              # Angular CLI configuration
+├── package.json              # npm dependencies
+├── tsconfig.json             # TypeScript configuration
+└── tsconfig.app.json         # App-specific TypeScript config
+```
+
+## Key Dependencies
+
+### Angular Core Packages
+
+Core Angular framework libraries (version 19.2.0):
+
+```json
+{
+  "@angular/common": "^19.2.0",
+  "@angular/compiler": "^19.2.0",
+  "@angular/core": "^19.2.0",
+  "@angular/forms": "^19.2.0",
+  "@angular/platform-browser": "^19.2.0",
+  "@angular/platform-browser-dynamic": "^19.2.0",
+  "@angular/router": "^19.2.0"
+}
+```
+
+### RxJS
+
+Reactive Extensions for JavaScript:
+
+```json
+{
+  "rxjs": "~7.8.0"
+}
+```
+
+### Zone.js
+
+Execution context for Angular's change detection:
+
+```json
+{
+  "zone.js": "~0.15.0"
+}
+```
+
+## Development Commands
+
+### Start Development Server
+
+<CodeGroup>
+```bash npm
+npm start
+```
+
+```bash ng
+ng serve
+```
+</CodeGroup>
+
+Starts the dev server on `http://localhost:4200`
+
+### Build for Production
+
+<CodeGroup>
+```bash npm
+npm run build
+```
+
+```bash ng
+ng build
+```
+</CodeGroup>
+
+Builds the application to `dist/angular` directory with production optimizations.
+
+### Run Tests
+
+<CodeGroup>
+```bash npm
+npm test
+```
+
+```bash ng
+ng test
+```
+</CodeGroup>
+
+Executes unit tests using Karma and Jasmine.
+
+### Watch Mode for Development
+
+<CodeGroup>
+```bash npm
+npm run watch
+```
+
+```bash ng
+ng build --watch --configuration development
+```
+</CodeGroup>
+
+Builds in watch mode for continuous development.
+
+## Build Configuration
+
+### Development Build
+
+Optimized for development with source maps and faster builds:
+
+```json
+{
+  "optimization": false,
+  "extractLicenses": false,
+  "sourceMap": true
+}
+```
+
+### Production Build
+
+<Warning>
+  Production builds include optimizations that may take longer but result in smaller bundle sizes.
+</Warning>
+
+Production configuration includes:
+- Code minification and uglification
+- Tree shaking to remove unused code
+- AOT (Ahead-of-Time) compilation
+- Output hashing for cache busting
+
+Budget limits:
+- Initial bundle: 1MB maximum
+- Component styles: 8kB maximum
+
+## Troubleshooting
+
+### Port Already in Use
+
+If port 4200 is already in use, specify a different port:
+
+```bash
+ng serve --port 4201
+```
+
+### Module Not Found Errors
+
+Clear node_modules and reinstall:
+
+<CodeGroup>
+```bash npm
+rm -rf node_modules package-lock.json
+npm install
+```
+
+```bash yarn
+rm -rf node_modules yarn.lock
+yarn install
+```
+</CodeGroup>
+
+### TypeScript Compilation Errors
+
+Ensure you're using the correct TypeScript version (5.7.2):
+
+```bash
+npm list typescript
+```
+
+If incorrect, reinstall dependencies:
+
+```bash
+npm install
+```
+
+### API Connection Issues
+
+1. Verify the backend server is running on the configured port
+2. Check CORS configuration in the backend
+3. Confirm the `apiUrl` in environment configuration is correct
+4. Check browser console for detailed error messages
+
+### Build Performance Issues
+
+For faster development builds:
+
+1. Use `ng serve` instead of `ng build --watch`
+2. Enable incremental builds in `tsconfig.json`
+3. Increase Node.js memory limit:
+   ```bash
+   export NODE_OPTIONS=--max_old_space_size=4096
+   ```
+
+## Browser Compatibility
+
+The application supports:
+
+- Chrome (latest)
+- Firefox (latest)
+- Safari (latest)
+- Edge (latest)
+
+<Note>
+  Internet Explorer is not supported. Angular 19 requires modern browser features.
+</Note>
+
+## Next Steps
+
+After successfully setting up the frontend:
+
+1. [Configure Environment Variables](/configuration/environment)
+2. Explore the application features
+3. Review the API documentation
+4. Set up testing environment

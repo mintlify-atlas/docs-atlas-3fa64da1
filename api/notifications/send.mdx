@@ -1,0 +1,171 @@
+---
+title: 'Send Notification'
+description: 'Send a push notification to a user via Firebase Cloud Messaging (FCM)'
+api: 'POST /notificacion/send'
+---
+
+## Overview
+
+Send a notification to a specific user through Firebase Cloud Messaging. The notification will be delivered to the user's registered device using their FCM token.
+
+<Note>
+  Users must have a valid FCM token registered in their profile. The token is stored in the `fmcToken` field of the user record.
+</Note>
+
+## Request
+
+<ParamField body="idUsuario" type="integer" required>
+  The ID of the user to receive the notification
+</ParamField>
+
+<ParamField body="titulo" type="string" required>
+  The notification title (displayed prominently in the notification)
+</ParamField>
+
+<ParamField body="mensaje" type="string" required>
+  The notification message body
+</ParamField>
+
+<ParamField body="idTipoNotificacion" type="integer" required>
+  The type of notification being sent (e.g., report update, coupon alert)
+</ParamField>
+
+<ParamField body="idReporte" type="integer">
+  Optional reference to a report if the notification is related to a specific report
+</ParamField>
+
+<ParamField body="idUsuarioCupon" type="integer">
+  Optional reference to a user coupon if the notification is related to a coupon redemption
+</ParamField>
+
+<ParamField body="idCupon" type="integer">
+  Optional reference to a coupon if the notification is related to a coupon offer
+</ParamField>
+
+## Response
+
+<ResponseField name="idNotificacion" type="integer">
+  The unique identifier of the created notification record
+</ResponseField>
+
+<ResponseField name="usuario" type="object">
+  User information
+  <ResponseField name="idUsu" type="integer">
+    User ID
+  </ResponseField>
+  <ResponseField name="nomUsu" type="string">
+    User first name
+  </ResponseField>
+  <ResponseField name="fmcToken" type="string">
+    FCM token used to send the notification
+  </ResponseField>
+</ResponseField>
+
+<ResponseField name="titulo" type="string">
+  The notification title
+</ResponseField>
+
+<ResponseField name="mensaje" type="string">
+  The notification message
+</ResponseField>
+
+<ResponseField name="leida" type="boolean" default={false}>
+  Whether the notification has been read
+</ResponseField>
+
+<ResponseField name="descartada" type="boolean" default={false}>
+  Whether the notification has been dismissed
+</ResponseField>
+
+## FCM Token Management
+
+The system uses Firebase Cloud Messaging tokens for push notifications. These tokens are managed in the user profile:
+
+- **Token Field**: `fmcToken` in the `tb_usuario` table
+- **Token Date**: `fmcTokenFecha` tracks when the token was last updated
+- **Token Lifecycle**: Tokens should be refreshed when the app is reinstalled or when FCM invalidates them
+
+<CodeGroup>
+
+```bash cURL
+curl -X POST https://api.greenguard.com/notificacion/send \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -d '{
+    "idUsuario": 123,
+    "titulo": "Reporte Actualizado",
+    "mensaje": "Tu reporte ha sido procesado por las autoridades",
+    "idTipoNotificacion": 1,
+    "idReporte": 456
+  }'
+```
+
+```javascript JavaScript
+const response = await fetch('https://api.greenguard.com/notificacion/send', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer YOUR_TOKEN'
+  },
+  body: JSON.stringify({
+    idUsuario: 123,
+    titulo: 'Reporte Actualizado',
+    mensaje: 'Tu reporte ha sido procesado por las autoridades',
+    idTipoNotificacion: 1,
+    idReporte: 456
+  })
+});
+
+const notification = await response.json();
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    'https://api.greenguard.com/notificacion/send',
+    headers={
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer YOUR_TOKEN'
+    },
+    json={
+        'idUsuario': 123,
+        'titulo': 'Reporte Actualizado',
+        'mensaje': 'Tu reporte ha sido procesado por las autoridades',
+        'idTipoNotificacion': 1,
+        'idReporte': 456
+    }
+)
+
+notification = response.json()
+```
+
+</CodeGroup>
+
+## Response Example
+
+```json
+{
+  "idNotificacion": 789,
+  "usuario": {
+    "idUsu": 123,
+    "nomUsu": "Juan",
+    "fmcToken": "eX1a2b3c4d5e6f7g8h9i0..."
+  },
+  "tipoNotificacion": {
+    "idTipoNotificacion": 1,
+    "descTipoNotificacion": "Actualización de Reporte"
+  },
+  "titulo": "Reporte Actualizado",
+  "mensaje": "Tu reporte ha sido procesado por las autoridades",
+  "reporte": {
+    "idReporte": 456
+  },
+  "leida": false,
+  "descartada": false
+}
+```
+
+<Warning>
+  Notifications will fail if the user does not have a valid FCM token registered. Ensure users complete device registration before attempting to send notifications.
+</Warning>

@@ -1,0 +1,441 @@
+---
+title: 'Database Setup'
+description: 'Step-by-step guide to setting up the PostgreSQL database'
+---
+
+## Overview
+
+GreenGuard uses PostgreSQL as its primary database. This guide walks you through installing PostgreSQL, creating the database, and initializing the schema.
+
+## Prerequisites
+
+- PostgreSQL 12 or higher installed
+- Database client (psql, pgAdmin, or similar)
+- Access to SQL initialization scripts in `DataBase/` directory
+
+## Database Overview
+
+The GreenGuard database (`DB_GREENGUARDIAN`) includes tables for:
+
+- User management and roles
+- Incident reporting and tracking
+- Location data (districts)
+- Points and rewards system
+- Coupon management
+- Store information
+- Push notifications
+
+## Installation Steps
+
+<Steps>
+  <Step title="Install PostgreSQL">
+    Install PostgreSQL on your system:
+
+    <CodeGroup>
+    ```bash Ubuntu/Debian
+    sudo apt update
+    sudo apt install postgresql postgresql-contrib
+    ```
+
+    ```bash macOS (Homebrew)
+    brew install postgresql
+    brew services start postgresql
+    ```
+
+    ```bash Windows
+    # Download installer from https://www.postgresql.org/download/windows/
+    # Run the installer and follow the setup wizard
+    ```
+    </CodeGroup>
+
+    <Note>
+      During installation, remember the password you set for the `postgres` superuser.
+    </Note>
+  </Step>
+
+  <Step title="Start PostgreSQL Service">
+    Ensure PostgreSQL is running:
+
+    <CodeGroup>
+    ```bash Ubuntu/Debian
+    sudo service postgresql start
+    sudo service postgresql status
+    ```
+
+    ```bash macOS
+    brew services start postgresql
+    ```
+
+    ```bash Windows
+    # PostgreSQL should start automatically as a Windows service
+    # Check Services.msc for "postgresql-x64-XX" service
+    ```
+    </CodeGroup>
+  </Step>
+
+  <Step title="Connect to PostgreSQL">
+    Connect to PostgreSQL using the psql command-line tool:
+
+    ```bash
+    psql -U postgres
+    ```
+
+    Enter the password you set during installation.
+  </Step>
+
+  <Step title="Create Database">
+    Create the GreenGuard database:
+
+    ```sql
+    CREATE DATABASE DB_GREENGUARDIAN;
+    ```
+
+    Verify the database was created:
+
+    ```sql
+    \l
+    ```
+
+    Connect to the new database:
+
+    ```sql
+    \c DB_GREENGUARDIAN
+    ```
+  </Step>
+
+  <Step title="Initialize Database Schema">
+    <Warning>
+      Execute the table creation script before inserting data to avoid foreign key constraint errors.
+    </Warning>
+
+    Run the table creation script located at `DataBase/DB_GREENGUARD_TABLES.sql`:
+
+    ```bash
+    psql -U postgres -d DB_GREENGUARDIAN -f DataBase/DB_GREENGUARD_TABLES.sql
+    ```
+
+    Or from within psql:
+
+    ```sql
+    \i /path/to/DataBase/DB_GREENGUARD_TABLES.sql
+    ```
+  </Step>
+
+  <Step title="Insert Initial Data">
+    Load the initial data from `DataBase/DB_GREENGUARD_DATA.sql`:
+
+    ```bash
+    psql -U postgres -d DB_GREENGUARDIAN -f DataBase/DB_GREENGUARD_DATA.sql
+    ```
+
+    Or from within psql:
+
+    ```sql
+    \i /path/to/DataBase/DB_GREENGUARD_DATA.sql
+    ```
+
+    This will insert default notification types.
+  </Step>
+
+  <Step title="Verify Installation">
+    Verify tables were created successfully:
+
+    ```sql
+    \dt
+    ```
+
+    Check notification types were inserted:
+
+    ```sql
+    SELECT * FROM tb_tipo_notificacion;
+    ```
+
+    You should see 9 notification types.
+  </Step>
+</Steps>
+
+## Database Schema
+
+### Core Tables
+
+#### tb_rol
+User roles and permissions.
+
+```sql
+CREATE TABLE tb_rol(
+    id_rol SERIAL PRIMARY KEY,
+    descripcion VARCHAR(20) NOT NULL
+);
+```
+
+#### tb_usuario
+User accounts and profiles.
+
+```sql
+CREATE TABLE tb_usuario(
+    id_usu SERIAL PRIMARY KEY,
+    nom_usu VARCHAR(30) NOT NULL,
+    ape_pat_usu VARCHAR(30) NOT NULL,
+    ape_mat_usu VARCHAR(30) NOT NULL,
+    documento_usu VARCHAR(10) NOT NULL UNIQUE,
+    correo_usu VARCHAR(50) NOT NULL UNIQUE,
+    password_usu VARCHAR(150) NOT NULL,
+    telefono_usu VARCHAR(20) NOT NULL,
+    genero_usu CHAR(1) CHECK (genero_usu IN ('F','M')),
+    imagen_usu VARCHAR(150),
+    registro_usu DATE DEFAULT CURRENT_DATE,
+    puntos_usu INT DEFAULT 0,
+    id_rol INT,
+    activo BOOLEAN DEFAULT TRUE,
+    FCM_TOKEN VARCHAR(500) NULL,
+    FCM_TOKEN_FECHA TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_rol) REFERENCES tb_rol(id_rol)
+);
+```
+
+#### tb_distrito
+Geographic districts for incident location.
+
+```sql
+CREATE TABLE tb_distrito(
+    id_distrito SERIAL PRIMARY KEY,
+    desc_distrito VARCHAR(50) NOT NULL
+);
+```
+
+#### tb_tipos_incidentes
+Types of incidents that can be reported.
+
+```sql
+CREATE TABLE tb_tipos_incidentes(
+    id_tipo_inci SERIAL PRIMARY KEY,
+    desc_tipo_inci VARCHAR(30) NOT NULL
+);
+```
+
+Examples: Potholes, fallen poles, cracked sidewalks, damaged roads, etc.
+
+#### tb_tipo_clasificacion
+Risk classification levels.
+
+```sql
+CREATE TABLE tb_tipo_clasificacion(
+    id_tipo_clasi SERIAL PRIMARY KEY,
+    desc_tipo_clasi VARCHAR(30) NOT NULL
+);
+```
+
+Levels: Low risk, Medium risk, High risk, Critical risk
+
+#### tb_reporte
+Incident reports with geolocation.
+
+```sql
+CREATE TABLE tb_reporte(
+    id_reporte SERIAL PRIMARY KEY,
+    num_report VARCHAR(50) NOT NULL UNIQUE,
+    id_usu INT,
+    detalle_repo VARCHAR(150) NOT NULL,
+    imagen_repo VARCHAR(120) NULL,
+    estado CHAR(2) CHECK (estado IN ('PE','EP','RE','CA')),
+    latitud NUMERIC(10,6) NOT NULL,
+    longitud NUMERIC(10,6) NOT NULL,
+    id_tipo_inci INT,
+    id_tipo_clasi INT,
+    id_distrito INT,
+    repo_registrado TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    repo_resuelto TIMESTAMP NULL,
+    FOREIGN KEY (id_distrito) REFERENCES tb_distrito(id_distrito),
+    FOREIGN KEY (id_tipo_inci) REFERENCES tb_tipos_incidentes(id_tipo_inci),
+    FOREIGN KEY (id_tipo_clasi) REFERENCES tb_tipo_clasificacion(id_tipo_clasi),
+    FOREIGN KEY (id_usu) REFERENCES tb_usuario(id_usu)
+);
+```
+
+Status codes:
+- `PE` - Pending
+- `EP` - In Progress
+- `RE` - Resolved
+- `CA` - Cancelled
+
+### Rewards System Tables
+
+#### tb_categoria
+Product/service categories for coupons.
+
+```sql
+CREATE TABLE tb_categoria(
+    id_cate SERIAL PRIMARY KEY,
+    desc_cate VARCHAR(20) NOT NULL
+);
+```
+
+#### tb_tienda
+Stores offering coupons.
+
+```sql
+CREATE TABLE tb_tienda(
+    id_tienda SERIAL PRIMARY KEY,
+    nom_tienda VARCHAR(50) NOT NULL,
+    id_usu INT REFERENCES tb_usuario(id_usu),
+    id_distrito INT REFERENCES tb_distrito(id_distrito)
+);
+```
+
+#### tb_cupon
+Available coupons and rewards.
+
+```sql
+CREATE TABLE tb_cupon(
+    id_cupon SERIAL PRIMARY KEY,
+    nombre_cupon VARCHAR(50) NOT NULL,
+    desc_cupon VARCHAR(50) NOT NULL,
+    id_cate INT REFERENCES tb_categoria(id_cate),
+    cod_cupon VARCHAR(20) NOT NULL,
+    puntos_requeridos INT NOT NULL,
+    id_tienda INT REFERENCES tb_tienda(id_tienda),
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    activo BOOLEAN DEFAULT TRUE
+);
+```
+
+#### tb_usuario_cupon
+User coupon redemptions and usage.
+
+```sql
+CREATE TABLE tb_usuario_cupon(
+    id_usuario_cupon SERIAL PRIMARY KEY,
+    id_cupon INT REFERENCES tb_cupon(id_cupon),
+    id_usuario INT REFERENCES tb_usuario(id_usu),
+    codigo_cupon VARCHAR(20) NOT NULL UNIQUE,
+    qr_verification_code VARCHAR(150) NOT NULL UNIQUE,
+    fecha_canje TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    canjeado BOOLEAN DEFAULT FALSE,
+    fecha_uso TIMESTAMP NULL,
+    estado char(2) CHECK (estado in('AC','VE','CA')) DEFAULT 'CA'
+);
+```
+
+Status codes:
+- `AC` - Active
+- `VE` - Expired
+- `CA` - Redeemed
+
+### Notification Tables
+
+#### tb_tipo_notificacion
+Notification type definitions.
+
+```sql
+CREATE TABLE tb_tipo_notificacion(
+    id_tipo_notificacion SERIAL PRIMARY KEY,
+    descripcion VARCHAR(50) not null
+);
+```
+
+#### tb_notificacion
+User notifications.
+
+```sql
+CREATE TABLE tb_notificacion(
+    id_notificacion SERIAL PRIMARY KEY,
+    id_usuario INT NOT NULL REFERENCES tb_usuario(id_usu),
+    id_tipo_notificacion INT REFERENCES tb_tipo_notificacion,
+    titulo VARCHAR(100) NOT NULL,
+    mensaje VARCHAR(250) NOT NULL,
+    id_reporte INT NULL REFERENCES tb_reporte(id_reporte),
+    id_usuario_cupon INT NULL REFERENCES tb_usuario_cupon(id_usuario_cupon),
+    id_cupon INT NULL REFERENCES tb_cupon(id_cupon),
+    leida BOOLEAN DEFAULT FALSE,
+    descartada BOOLEAN DEFAULT FALSE
+);
+```
+
+## Initial Data
+
+### Notification Types
+
+The following notification types are pre-configured:
+
+1. `REPORTE_PENDIENTE` - Report pending
+2. `REPORTE_EN_PROCESO` - Report in progress
+3. `REPORTE_RESUELTO` - Report resolved
+4. `REPORTE_CANCELADO` - Report cancelled
+5. `PUNTOS_GANADOS` - Points earned
+6. `BONUS_MULTIPLO_5` - Bonus for multiple of 5 reports
+7. `CUPON_DISPONIBLE` - Coupon available
+8. `CUPON_POR_VENCER` - Coupon expiring soon
+9. `CUPON_VENCIDO` - Coupon expired
+
+## Database Configuration
+
+See [Database Configuration](/configuration/database) for details on connecting your application to the database.
+
+## Backup and Restore
+
+### Create Backup
+
+```bash
+pg_dump -U postgres DB_GREENGUARDIAN > backup.sql
+```
+
+### Restore from Backup
+
+```bash
+psql -U postgres DB_GREENGUARDIAN < backup.sql
+```
+
+## Troubleshooting
+
+### Connection Refused
+
+Check if PostgreSQL is running:
+
+```bash
+sudo service postgresql status
+```
+
+Verify PostgreSQL is listening on port 5432:
+
+```bash
+sudo netstat -plnt | grep 5432
+```
+
+### Authentication Failed
+
+1. Check `pg_hba.conf` file for authentication settings
+2. Verify username and password are correct
+3. Try resetting the postgres user password:
+
+```bash
+sudo -u postgres psql
+\password postgres
+```
+
+### Foreign Key Constraint Violations
+
+<Warning>
+  Always run `DB_GREENGUARD_TABLES.sql` before `DB_GREENGUARD_DATA.sql` to ensure tables exist before inserting data.
+</Warning>
+
+If you encounter foreign key errors:
+
+1. Drop the database and recreate it
+2. Run scripts in correct order
+3. Check that referenced records exist before inserting dependent data
+
+### Disk Space Issues
+
+Check database size:
+
+```sql
+SELECT pg_size_pretty(pg_database_size('DB_GREENGUARDIAN'));
+```
+
+## Next Steps
+
+After setting up the database:
+
+1. [Configure Database Connection](/configuration/database)
+2. [Set Up Backend](/setup/backend)
+3. Test database connectivity from the application

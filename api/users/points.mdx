@@ -1,0 +1,152 @@
+---
+title: 'Manage User Points'
+description: 'Get and update user points balance'
+---
+
+## Get User Points
+
+Retrieve the current points balance for a user.
+
+<CodeGroup>
+```bash GET
+curl -X GET "https://api.greenguard.com/usuario/{id}/puntos" \
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
+</CodeGroup>
+
+### Path Parameters
+
+<ParamField path="id" type="integer" required>
+  The unique identifier of the user
+</ParamField>
+
+### Response
+
+<ResponseField name="idUsu" type="integer">
+  User identifier
+</ResponseField>
+
+<ResponseField name="puntosUsu" type="integer">
+  Current points balance
+</ResponseField>
+
+### Example Response
+
+```json
+{
+  "idUsu": 123,
+  "puntosUsu": 450
+}
+```
+
+## Update User Points
+
+Add or subtract points from a user's balance.
+
+<CodeGroup>
+```bash POST
+curl -X POST "https://api.greenguard.com/usuario/{id}/puntos" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "puntos": 50,
+    "accion": "agregar",
+    "motivo": "Reporte de incidente aprobado"
+  }'
+```
+</CodeGroup>
+
+### Path Parameters
+
+<ParamField path="id" type="integer" required>
+  The unique identifier of the user
+</ParamField>
+
+### Request Body
+
+<ParamField body="puntos" type="integer" required>
+  Number of points to add or subtract (must be positive)
+</ParamField>
+
+<ParamField body="accion" type="string" required>
+  Action to perform: `agregar` (add) or `restar` (subtract)
+</ParamField>
+
+<ParamField body="motivo" type="string">
+  Reason for the points change (for audit purposes)
+</ParamField>
+
+### Response
+
+<ResponseField name="idUsu" type="integer">
+  User identifier
+</ResponseField>
+
+<ResponseField name="puntosAnteriores" type="integer">
+  Points balance before the update
+</ResponseField>
+
+<ResponseField name="puntosNuevos" type="integer">
+  Points balance after the update
+</ResponseField>
+
+<ResponseField name="cambio" type="integer">
+  Number of points changed
+</ResponseField>
+
+### Example Response
+
+```json
+{
+  "idUsu": 123,
+  "puntosAnteriores": 450,
+  "puntosNuevos": 500,
+  "cambio": 50
+}
+```
+
+## Points System Rules
+
+The GreenGuard points system works as follows:
+
+### Earning Points
+- **Report Verification**: Users earn points when their environmental incident reports are verified and approved
+- **Community Actions**: Participating in environmental activities
+- **Sustained Engagement**: Regular platform usage and contributions
+
+### Using Points
+- Points are spent when redeeming coupons
+- Each coupon has a `puntosRequeridos` field indicating the cost
+- Users must have sufficient points to redeem a coupon
+- Points are deducted immediately upon successful coupon redemption
+
+### Points Balance
+- Minimum balance: 0 (cannot go negative)
+- Points are tracked in the `puntosUsu` field of the Usuario model
+- All point transactions should be logged for transparency
+
+## Example Use Cases
+
+### Award Points for Verified Report
+```bash
+curl -X POST "https://api.greenguard.com/usuario/123/puntos" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "puntos": 100,
+    "accion": "agregar",
+    "motivo": "Reporte ID #456 verificado"
+  }'
+```
+
+### Deduct Points for Coupon Redemption
+```bash
+curl -X POST "https://api.greenguard.com/usuario/123/puntos" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "puntos": 200,
+    "accion": "restar",
+    "motivo": "Canje de cupón ID #789"
+  }'
+```

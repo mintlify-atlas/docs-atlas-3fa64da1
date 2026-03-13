@@ -1,0 +1,183 @@
+---
+title: 'List Available Coupons'
+description: 'Retrieve all available coupons that users can redeem with points'
+api: 'GET /cupon'
+---
+
+## Overview
+
+This endpoint returns a list of all active coupons available for redemption in the GreenGuard platform. Users can redeem these coupons using their accumulated points.
+
+## Query Parameters
+
+<ParamField query="activo" type="boolean" default="true">
+  Filter coupons by active status
+</ParamField>
+
+<ParamField query="categoriaId" type="integer">
+  Filter coupons by category ID
+</ParamField>
+
+<ParamField query="tiendaId" type="integer">
+  Filter coupons by store/shop ID
+</ParamField>
+
+<ParamField query="maxPuntos" type="integer">
+  Filter coupons requiring at most this many points
+</ParamField>
+
+## Response
+
+Returns an array of coupon objects.
+
+<ResponseField name="idCupon" type="integer">
+  Unique identifier for the coupon
+</ResponseField>
+
+<ResponseField name="nombreCupon" type="string">
+  Name of the coupon
+</ResponseField>
+
+<ResponseField name="descCupon" type="string">
+  Detailed description of the coupon offer
+</ResponseField>
+
+<ResponseField name="categoria" type="object">
+  Category information
+  <ResponseField name="idCate" type="integer">
+    Category identifier
+  </ResponseField>
+  <ResponseField name="descCate" type="string">
+    Category description
+  </ResponseField>
+</ResponseField>
+
+<ResponseField name="codCupon" type="string">
+  Coupon code template or base code
+</ResponseField>
+
+<ResponseField name="puntosRequeridos" type="integer">
+  Number of points required to redeem this coupon. Users must have at least this many points in their `puntosUsu` balance to redeem.
+</ResponseField>
+
+<ResponseField name="tienda" type="object">
+  Store/shop information
+  <ResponseField name="idTienda" type="integer">
+    Store identifier
+  </ResponseField>
+  <ResponseField name="nomTienda" type="string">
+    Store name
+  </ResponseField>
+  <ResponseField name="distrito" type="object">
+    District information
+    <ResponseField name="idDistrito" type="integer">
+      District identifier
+    </ResponseField>
+  </ResponseField>
+</ResponseField>
+
+<ResponseField name="fechaCreacion" type="datetime">
+  When the coupon was created (ISO 8601 format)
+</ResponseField>
+
+<ResponseField name="activo" type="boolean">
+  Whether the coupon is currently active and available for redemption
+</ResponseField>
+
+## Example Request
+
+```bash
+curl -X GET "https://api.greenguard.com/cupon?activo=true" \
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+## Example Response
+
+```json
+[
+  {
+    "idCupon": 1,
+    "nombreCupon": "20% de descuento en productos ecológicos",
+    "descCupon": "Obtén un 20% de descuento en todos los productos ecológicos de nuestra tienda",
+    "categoria": {
+      "idCate": 1,
+      "descCate": "Descuentos"
+    },
+    "codCupon": "ECO20",
+    "puntosRequeridos": 200,
+    "tienda": {
+      "idTienda": 5,
+      "nomTienda": "EcoMercado San Isidro",
+      "distrito": {
+        "idDistrito": 10
+      }
+    },
+    "fechaCreacion": "2024-02-01T09:00:00",
+    "activo": true
+  },
+  {
+    "idCupon": 2,
+    "nombreCupon": "Café gratis en EcoCafé",
+    "descCupon": "Disfruta de un café americano gratis en cualquier sucursal de EcoCafé",
+    "categoria": {
+      "idCate": 2,
+      "descCate": "Alimentos y Bebidas"
+    },
+    "codCupon": "CAFEGRATIS",
+    "puntosRequeridos": 100,
+    "tienda": {
+      "idTienda": 8,
+      "nomTienda": "EcoCafé Miraflores",
+      "distrito": {
+        "idDistrito": 15
+      }
+    },
+    "fechaCreacion": "2024-02-15T10:30:00",
+    "activo": true
+  }
+]
+```
+
+## Filter by User's Points
+
+To show only coupons a specific user can afford:
+
+```bash
+curl -X GET "https://api.greenguard.com/cupon?activo=true&maxPuntos=500" \
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+This will return only coupons with `puntosRequeridos <= 500`.
+
+## Filter by Category
+
+To show coupons from a specific category:
+
+```bash
+curl -X GET "https://api.greenguard.com/cupon?activo=true&categoriaId=1" \
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+## Filter by Store
+
+To show coupons from a specific store:
+
+```bash
+curl -X GET "https://api.greenguard.com/cupon?activo=true&tiendaId=5" \
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+## Points System Integration
+
+The `puntosRequeridos` field is crucial for the points redemption system:
+- Compare this value with the user's `puntosUsu` balance
+- Users can only redeem coupons where `puntosUsu >= puntosRequeridos`
+- Display affordable coupons prominently in the UI
+- Show "Not enough points" messaging for coupons the user cannot afford
+
+## Coupon Availability
+
+A coupon is available for redemption when:
+- `activo` is `true`
+- User has sufficient points (`puntosUsu >= puntosRequeridos`)
+- Store is operational (check store status if implemented)

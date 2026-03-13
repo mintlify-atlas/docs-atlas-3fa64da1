@@ -1,0 +1,259 @@
+---
+title: 'Backend Setup'
+description: 'Step-by-step guide to setting up the Spring Boot backend'
+---
+
+## Overview
+
+The GreenGuard backend is built with Spring Boot 3.5.8 and uses Java 21. This guide will walk you through setting up and running the backend application.
+
+## Prerequisites
+
+Before proceeding, ensure you have:
+
+- Java 21 installed
+- Maven 3.6+ (or use the included Maven wrapper)
+- PostgreSQL database running
+- Completed [Database Setup](/setup/database)
+
+## Technology Stack
+
+- **Framework:** Spring Boot 3.5.8
+- **Java Version:** 21
+- **Build Tool:** Maven
+- **Database:** PostgreSQL with JPA/Hibernate
+- **Key Dependencies:**
+  - Spring Data JPA
+  - Spring Web
+  - Spring Boot DevTools
+  - PostgreSQL Driver
+  - Lombok
+
+## Installation Steps
+
+<Steps>
+  <Step title="Clone the Repository">
+    Clone the GreenGuard repository to your local machine:
+
+    ```bash
+    git clone <repository-url>
+    cd GreenGuard
+    ```
+  </Step>
+
+  <Step title="Configure Application Properties">
+    Update the database connection settings in `src/main/resources/application.properties`:
+
+    ```properties
+    spring.application.name=GreenGuard-Web
+    spring.datasource.url=jdbc:postgresql://localhost:5432/DB_GREENGUARDIAN
+    spring.datasource.username=postgres
+    spring.datasource.password=postgres
+
+    spring.jpa.hibernate.ddl-auto=update
+    spring.jpa.show-sql=true
+    spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
+    ```
+
+    <Warning>
+      Update the `username` and `password` to match your PostgreSQL credentials. Never commit sensitive credentials to version control.
+    </Warning>
+
+    See [Application Configuration](/configuration/application) for detailed configuration options.
+  </Step>
+
+  <Step title="Install Dependencies">
+    Install all required dependencies using Maven:
+
+    <CodeGroup>
+    ```bash Maven
+    mvn clean install
+    ```
+
+    ```bash Maven Wrapper
+    ./mvnw clean install
+    ```
+    </CodeGroup>
+
+    This will download all dependencies defined in `pom.xml`, including:
+    - Spring Boot starters
+    - PostgreSQL driver
+    - Lombok for reducing boilerplate code
+    - Testing libraries
+  </Step>
+
+  <Step title="Build the Project">
+    Compile and package the application:
+
+    <CodeGroup>
+    ```bash Maven
+    mvn clean package
+    ```
+
+    ```bash Maven Wrapper
+    ./mvnw clean package
+    ```
+    </CodeGroup>
+
+    <Note>
+      The build process includes Lombok annotation processing. Ensure your IDE has Lombok plugin installed.
+    </Note>
+  </Step>
+
+  <Step title="Run the Application">
+    Start the Spring Boot application:
+
+    <CodeGroup>
+    ```bash Maven
+    mvn spring-boot:run
+    ```
+
+    ```bash Maven Wrapper
+    ./mvnw spring-boot:run
+    ```
+
+    ```bash JAR File
+    java -jar target/GreenGuard-0.0.1-SNAPSHOT.jar
+    ```
+    </CodeGroup>
+
+    The application will start on port 8080 by default.
+  </Step>
+
+  <Step title="Verify the Installation">
+    Check if the backend is running:
+
+    ```bash
+    curl http://localhost:8080/actuator/health
+    ```
+
+    You should see a successful response indicating the application is up and running.
+  </Step>
+</Steps>
+
+## Development Mode
+
+The backend includes Spring Boot DevTools for enhanced development experience:
+
+- **Automatic Restart:** The application automatically restarts when you change files
+- **LiveReload:** Browser auto-refresh support
+- **Enhanced Logging:** Better debugging information
+
+<Note>
+  DevTools is automatically disabled when running a packaged application (JAR/WAR).
+</Note>
+
+## Project Structure
+
+```
+GreenGuard/
+├── src/
+│   ├── main/
+│   │   ├── java/
+│   │   │   └── com/Cibertec/GreenGuard/
+│   │   │       ├── controller/    # REST API endpoints
+│   │   │       ├── model/         # JPA entities
+│   │   │       ├── repository/    # Data access layer
+│   │   │       └── service/       # Business logic
+│   │   └── resources/
+│   │       └── application.properties
+│   └── test/                      # Unit and integration tests
+├── pom.xml                        # Maven configuration
+└── mvnw                           # Maven wrapper
+```
+
+## Key Dependencies
+
+### Spring Boot Starter Data JPA
+
+Provides JPA/Hibernate support for database operations:
+
+```xml
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-data-jpa</artifactId>
+</dependency>
+```
+
+### Spring Boot Starter Web
+
+Enables RESTful web services and MVC support:
+
+```xml
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-web</artifactId>
+</dependency>
+```
+
+### PostgreSQL Driver
+
+JDBC driver for PostgreSQL database connectivity:
+
+```xml
+<dependency>
+    <groupId>org.postgresql</groupId>
+    <artifactId>postgresql</artifactId>
+    <scope>runtime</scope>
+</dependency>
+```
+
+### Lombok
+
+Reduces boilerplate code with annotations:
+
+```xml
+<dependency>
+    <groupId>org.projectlombok</groupId>
+    <artifactId>lombok</artifactId>
+    <optional>true</optional>
+</dependency>
+```
+
+<Warning>
+  Ensure your IDE has Lombok support enabled. For IntelliJ IDEA, install the Lombok plugin and enable annotation processing.
+</Warning>
+
+## Troubleshooting
+
+### Port Already in Use
+
+If port 8080 is already in use, change the port in `application.properties`:
+
+```properties
+server.port=8081
+```
+
+### Database Connection Errors
+
+1. Verify PostgreSQL is running:
+   ```bash
+   sudo service postgresql status
+   ```
+
+2. Check connection parameters in `application.properties`
+3. Ensure the database `DB_GREENGUARDIAN` exists
+4. Verify firewall settings allow connections to port 5432
+
+### Lombok Not Working
+
+1. Install Lombok plugin in your IDE
+2. Enable annotation processing:
+   - IntelliJ: Settings → Build, Execution, Deployment → Compiler → Annotation Processors
+   - Eclipse: Project Properties → Java Compiler → Annotation Processing
+
+### Build Failures
+
+Clear Maven cache and rebuild:
+
+```bash
+mvn clean install -U
+```
+
+## Next Steps
+
+After successfully setting up the backend:
+
+1. [Configure Application Settings](/configuration/application)
+2. [Set Up Frontend](/setup/frontend)
+3. [Configure Environment Variables](/configuration/environment)

@@ -1,0 +1,127 @@
+---
+title: 'Delete Incident Report'
+description: 'Delete an incident report from the system'
+api: 'DELETE /reporte/{id}'
+---
+
+## Overview
+
+Delete an existing incident report from the GreenGuard system. This action is permanent and cannot be undone.
+
+<Warning>
+  Deleting a report is a permanent action. Consider using the `CA` (Cancelled) status instead if you need to maintain a record of the report for audit purposes.
+</Warning>
+
+## Path Parameters
+
+<ParamField path="id" type="integer" required>
+  The unique identifier of the report to delete
+</ParamField>
+
+## Response
+
+### Success Response (204 No Content)
+
+When the report is successfully deleted, the API returns a `204 No Content` response with an empty body.
+
+### Error Responses
+
+<ResponseField name="status" type="integer">
+  HTTP status code
+</ResponseField>
+
+<ResponseField name="error" type="string">
+  Error type
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Error message description
+</ResponseField>
+
+<ResponseField name="timestamp" type="datetime">
+  Timestamp when the error occurred
+</ResponseField>
+
+<ResponseField name="path" type="string">
+  API endpoint path
+</ResponseField>
+
+## Example Request
+
+```bash
+curl -X DELETE https://api.greenguard.com/reporte/123 \
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+## Example Success Response
+
+```
+HTTP/1.1 204 No Content
+Date: Wed, 13 Mar 2024 10:30:00 GMT
+```
+
+## Example Error Responses
+
+### Report Not Found (404)
+
+```json
+{
+  "status": 404,
+  "error": "Not Found",
+  "message": "Report with ID 123 not found",
+  "timestamp": "2024-03-13T10:30:00",
+  "path": "/reporte/123"
+}
+```
+
+### Unauthorized (401)
+
+```json
+{
+  "status": 401,
+  "error": "Unauthorized",
+  "message": "Authentication token is missing or invalid",
+  "timestamp": "2024-03-13T10:30:00",
+  "path": "/reporte/123"
+}
+```
+
+### Forbidden (403)
+
+```json
+{
+  "status": 403,
+  "error": "Forbidden",
+  "message": "You do not have permission to delete this report",
+  "timestamp": "2024-03-13T10:30:00",
+  "path": "/reporte/123"
+}
+```
+
+## Authorization
+
+Users can typically only delete their own reports. Administrative users may have permission to delete any report. The specific permissions depend on the user's role:
+
+- **Regular Users**: Can delete only their own reports that are in `PE` (Pending) status
+- **Moderators**: Can delete any report in `PE` or `CA` (Cancelled) status
+- **Administrators**: Can delete any report regardless of status
+
+## Alternative: Cancelling Reports
+
+Instead of deleting a report, consider updating its status to `CA` (Cancelled). This maintains the report in the system for audit and tracking purposes while marking it as inactive.
+
+```bash
+# Cancel a report instead of deleting it
+curl -X PUT https://api.greenguard.com/reporte/123 \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -d '{
+    "estado": "CA"
+  }'
+```
+
+## Related Operations
+
+- [Update Report](/api/reports/update) - Modify report details or status
+- [List Reports](/api/reports/list) - View all reports with filtering
+- [Create Report](/api/reports/create) - Create a new incident report

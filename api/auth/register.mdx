@@ -1,0 +1,415 @@
+---
+title: 'Register'
+description: 'Create a new user account in the GreenGuard platform'
+api: 'POST /auth/register'
+---
+
+## Overview
+
+The registration endpoint creates a new user account in the GreenGuard system. It accepts user profile information and creates a record in the database with default values for points and activation status.
+
+## Endpoint
+
+```
+POST /auth/register
+```
+
+## Request Body
+
+<ParamField body="nomUsu" type="string" required>
+  User's first name
+  
+  Example: `Juan`
+</ParamField>
+
+<ParamField body="apePatUsu" type="string" required>
+  User's paternal surname
+  
+  Example: `Perez`
+</ParamField>
+
+<ParamField body="apeMatUsu" type="string" required>
+  User's maternal surname
+  
+  Example: `Garcia`
+</ParamField>
+
+<ParamField body="documentoUsu" type="string" required>
+  User's identification document number. Must be unique in the system.
+  
+  Example: `12345678`
+</ParamField>
+
+<ParamField body="correoUsu" type="string" required>
+  User's email address. Must be unique and valid format.
+  
+  Example: `juan.perez@example.com`
+</ParamField>
+
+<ParamField body="passwordUsu" type="string" required>
+  User's password. Should meet minimum security requirements.
+  
+  Example: `SecurePassword123!`
+</ParamField>
+
+<ParamField body="telefonoUsu" type="string" required>
+  User's phone number with country code
+  
+  Example: `+51987654321`
+</ParamField>
+
+<ParamField body="generoUsu" type="string" required>
+  User's gender. Typically "M" (Male), "F" (Female), or other options.
+  
+  Example: `M`
+</ParamField>
+
+<ParamField body="imagenUSU" type="string">
+  URL or path to user's profile image. Optional field.
+  
+  Example: `/images/profiles/default.jpg`
+</ParamField>
+
+<ParamField body="rol" type="object" required>
+  User's role assignment. Contains role identifier.
+  
+  <Expandable title="rol properties">
+    <ParamField body="idRol" type="integer" required>
+      Role identifier (e.g., 1 for "User", 2 for "Admin")
+      
+      Example: `1`
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+## Response
+
+<ResponseField name="idUsu" type="integer">
+  Unique identifier assigned to the newly created user
+</ResponseField>
+
+<ResponseField name="nomUsu" type="string">
+  User's first name
+</ResponseField>
+
+<ResponseField name="apePatUsu" type="string">
+  User's paternal surname
+</ResponseField>
+
+<ResponseField name="apeMatUsu" type="string">
+  User's maternal surname
+</ResponseField>
+
+<ResponseField name="documentoUsu" type="string">
+  User's identification document number
+</ResponseField>
+
+<ResponseField name="correoUsu" type="string">
+  User's email address
+</ResponseField>
+
+<ResponseField name="telefonoUsu" type="string">
+  User's phone number
+</ResponseField>
+
+<ResponseField name="generoUsu" type="string">
+  User's gender
+</ResponseField>
+
+<ResponseField name="imagenUSU" type="string">
+  URL or path to user's profile image
+</ResponseField>
+
+<ResponseField name="registroUsu" type="datetime">
+  Timestamp of when the user registered (automatically set)
+</ResponseField>
+
+<ResponseField name="puntosUsu" type="integer">
+  User's reward points (initialized to 0)
+</ResponseField>
+
+<ResponseField name="rol" type="object">
+  User's role information
+  
+  <Expandable title="rol properties">
+    <ResponseField name="idRol" type="integer">
+      Role identifier
+    </ResponseField>
+    
+    <ResponseField name="descripcion" type="string">
+      Role description
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="activo" type="boolean">
+  Account activation status (typically set to true by default)
+</ResponseField>
+
+<ResponseField name="fmcToken" type="string">
+  Firebase Cloud Messaging token (null until set)
+</ResponseField>
+
+<ResponseField name="fmcTokenFecha" type="datetime">
+  FCM token creation date (null until set)
+</ResponseField>
+
+## Example Request
+
+<CodeGroup>
+
+```bash cURL
+curl -X POST https://api.greenguard.com/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "nomUsu": "Juan",
+    "apePatUsu": "Perez",
+    "apeMatUsu": "Garcia",
+    "documentoUsu": "12345678",
+    "correoUsu": "juan.perez@example.com",
+    "passwordUsu": "SecurePassword123!",
+    "telefonoUsu": "+51987654321",
+    "generoUsu": "M",
+    "imagenUSU": "/images/profiles/default.jpg",
+    "rol": {
+      "idRol": 1
+    }
+  }'
+```
+
+```javascript JavaScript
+const response = await fetch('https://api.greenguard.com/auth/register', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({
+    nomUsu: 'Juan',
+    apePatUsu: 'Perez',
+    apeMatUsu: 'Garcia',
+    documentoUsu: '12345678',
+    correoUsu: 'juan.perez@example.com',
+    passwordUsu: 'SecurePassword123!',
+    telefonoUsu: '+51987654321',
+    generoUsu: 'M',
+    imagenUSU: '/images/profiles/default.jpg',
+    rol: {
+      idRol: 1
+    }
+  })
+});
+
+const data = await response.json();
+console.log(data);
+```
+
+```python Python
+import requests
+
+url = "https://api.greenguard.com/auth/register"
+payload = {
+    "nomUsu": "Juan",
+    "apePatUsu": "Perez",
+    "apeMatUsu": "Garcia",
+    "documentoUsu": "12345678",
+    "correoUsu": "juan.perez@example.com",
+    "passwordUsu": "SecurePassword123!",
+    "telefonoUsu": "+51987654321",
+    "generoUsu": "M",
+    "imagenUSU": "/images/profiles/default.jpg",
+    "rol": {
+        "idRol": 1
+    }
+}
+
+response = requests.post(url, json=payload)
+data = response.json()
+print(data)
+```
+
+```java Java
+import java.net.http.*;
+import java.net.URI;
+
+HttpClient client = HttpClient.newHttpClient();
+String json = """
+{
+  "nomUsu": "Juan",
+  "apePatUsu": "Perez",
+  "apeMatUsu": "Garcia",
+  "documentoUsu": "12345678",
+  "correoUsu": "juan.perez@example.com",
+  "passwordUsu": "SecurePassword123!",
+  "telefonoUsu": "+51987654321",
+  "generoUsu": "M",
+  "imagenUSU": "/images/profiles/default.jpg",
+  "rol": {
+    "idRol": 1
+  }
+}
+""";
+
+HttpRequest request = HttpRequest.newBuilder()
+    .uri(URI.create("https://api.greenguard.com/auth/register"))
+    .header("Content-Type", "application/json")
+    .POST(HttpRequest.BodyPublishers.ofString(json))
+    .build();
+
+HttpResponse<String> response = client.send(request, 
+    HttpResponse.BodyHandlers.ofString());
+System.out.println(response.body());
+```
+
+</CodeGroup>
+
+## Example Response
+
+```json 201 - Created
+{
+  "idUsu": 42,
+  "nomUsu": "Juan",
+  "apePatUsu": "Perez",
+  "apeMatUsu": "Garcia",
+  "documentoUsu": "12345678",
+  "correoUsu": "juan.perez@example.com",
+  "telefonoUsu": "+51987654321",
+  "generoUsu": "M",
+  "imagenUSU": "/images/profiles/default.jpg",
+  "registroUsu": "2024-03-13T14:30:00",
+  "puntosUsu": 0,
+  "rol": {
+    "idRol": 1,
+    "descripcion": "User"
+  },
+  "activo": true,
+  "fmcToken": null,
+  "fmcTokenFecha": null
+}
+```
+
+```json 400 - Bad Request
+{
+  "error": "Validation failed",
+  "message": "The email address is already registered",
+  "field": "correoUsu"
+}
+```
+
+```json 400 - Validation Error
+{
+  "error": "Validation failed",
+  "message": "Password does not meet security requirements",
+  "field": "passwordUsu"
+}
+```
+
+## Response Codes
+
+| Code | Description |
+|------|-------------|
+| 201 | User created successfully |
+| 400 | Bad request - validation error or duplicate data |
+| 422 | Unprocessable entity - invalid data format |
+| 500 | Internal server error |
+
+## Validation Rules
+
+The registration endpoint enforces the following validation rules:
+
+<AccordionGroup>
+  <Accordion title="Email Validation">
+    - Must be a valid email format
+    - Must be unique in the system
+    - Cannot be empty or null
+  </Accordion>
+
+  <Accordion title="Password Requirements">
+    - Minimum length of 8 characters (recommended)
+    - Should contain a mix of letters, numbers, and special characters
+    - Passwords are encrypted before storage
+  </Accordion>
+
+  <Accordion title="Document Number">
+    - Must be unique in the system
+    - Cannot be empty or null
+    - Format depends on regional requirements
+  </Accordion>
+
+  <Accordion title="Phone Number">
+    - Should include country code
+    - Must be a valid format
+  </Accordion>
+
+  <Accordion title="Role Assignment">
+    - Role ID must exist in the `tb_rol` table
+    - Typically defaults to standard "User" role (ID: 1)
+  </Accordion>
+</AccordionGroup>
+
+## Default Values
+
+When a user is registered, the following fields are automatically set:
+
+| Field | Default Value | Description |
+|-------|---------------|-------------|
+| `registroUsu` | Current timestamp | Set when the account is created |
+| `puntosUsu` | 0 | Users start with zero points |
+| `activo` | true | New accounts are active by default |
+| `fmcToken` | null | Set when user enables push notifications |
+| `fmcTokenFecha` | null | Set when FCM token is first created |
+
+## Database Storage
+
+User data is stored in the `tb_usuario` table with the following column mappings:
+
+- `id_usu` - Auto-generated unique identifier
+- `nom_usu` - First name
+- `ape_pat_usu` - Paternal surname
+- `ape_mat_usu` - Maternal surname
+- `documento_usu` - Document number
+- `correo_usu` - Email address
+- `password_usu` - Encrypted password
+- `telefono_usu` - Phone number
+- `genero_usu` - Gender
+- `imagen_usu` - Profile image path
+- `registro_usu` - Registration timestamp
+- `puntos_usu` - Reward points
+- `ROL` - Foreign key to `tb_rol` table
+- `activo` - Active status flag
+- `FCM_TOKEN` - Push notification token
+- `FCM_TOKEN_FECHA` - Token creation date
+
+## Security Considerations
+
+<Warning>
+  Always use HTTPS when transmitting registration data. Personal information and passwords must be encrypted in transit.
+</Warning>
+
+<Info>
+  Best practices for registration:
+  - Implement rate limiting to prevent spam registrations
+  - Use email verification to confirm account ownership
+  - Enforce strong password requirements
+  - Sanitize all input to prevent SQL injection
+  - Log registration attempts for security monitoring
+</Info>
+
+## Post-Registration Flow
+
+After successful registration, typical next steps include:
+
+1. **Email Verification**: Send a verification email to confirm the user's email address
+2. **Welcome Message**: Display onboarding information or tutorial
+3. **Profile Completion**: Prompt user to complete optional profile fields
+4. **Push Notification Setup**: Request permission for notifications and set `fmcToken`
+
+## Related Endpoints
+
+<CardGroup cols={2}>
+  <Card title="Login" icon="right-to-bracket" href="/api/auth/login">
+    Authenticate with newly created account
+  </Card>
+  <Card title="Authentication Overview" icon="shield" href="/api/auth/overview">
+    Learn more about GreenGuard authentication
+  </Card>
+</CardGroup>

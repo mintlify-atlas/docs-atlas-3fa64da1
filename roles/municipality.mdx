@@ -1,0 +1,343 @@
+---
+title: Municipality Role
+description: Review, classify, and resolve citizen-reported incidents to improve urban infrastructure
+icon: building
+---
+
+## Overview
+
+Municipality users are government officials and municipal workers responsible for reviewing citizen incident reports, assigning risk classifications, managing resolution workflows, and communicating with citizens about progress. This role is central to GreenGuard's mission of improving urban safety and infrastructure.
+
+<Note>
+Municipality actions directly impact citizen engagement. Timely responses and transparent communication encourage continued participation in the platform.
+</Note>
+
+## Core Responsibilities
+
+<CardGroup cols={2}>
+  <Card title="Review Reports" icon="clipboard-check">
+    Evaluate incoming citizen incident reports for validity and severity
+  </Card>
+  <Card title="Classify Incidents" icon="layer-group">
+    Assign risk levels (Low, Medium, High, Critical) based on assessment
+  </Card>
+  <Card title="Manage Workflow" icon="arrows-rotate">
+    Update report status from Pending to In Process to Resolved
+  </Card>
+  <Card title="Track Districts" icon="map-location">
+    Monitor and respond to incidents across different municipal districts
+  </Card>
+</CardGroup>
+
+## Incident Management Workflow
+
+### Report Review Process
+
+Municipality users follow a structured workflow to process citizen reports:
+
+<Steps>
+  <Step title="Receive Report" icon="inbox">
+    New incident reports appear in the pending queue with citizen-provided details, photos, and GPS coordinates.
+  </Step>
+  <Step title="Assess Severity" icon="gauge-high">
+    Review the incident photo, description, and location to determine the risk level and impact on public safety.
+  </Step>
+  <Step title="Assign Classification" icon="tag">
+    Set the risk classification: Low, Medium, High, or Critical based on urgency and potential danger.
+  </Step>
+  <Step title="Update Status" icon="arrow-right">
+    Move the report from Pending (PE) to In Process (EP) once work crews are assigned.
+  </Step>
+  <Step title="Coordinate Resolution" icon="users-gear">
+    Work with municipal departments to address the incident according to priority.
+  </Step>
+  <Step title="Mark Resolved" icon="circle-check">
+    Update status to Resolved (RE) once the incident has been successfully addressed, triggering citizen point awards.
+  </Step>
+</Steps>
+
+### Report Status Management
+
+Municipality users control four report status states:
+
+<Tabs>
+  <Tab title="Pending (PE)">
+    **Initial State**: Reports submitted by citizens awaiting municipal review.
+    
+    **Actions**:
+    - Review incident details and photos
+    - Verify GPS location and district assignment
+    - Assess validity (not duplicate, contains sufficient information)
+    - Assign risk classification
+    - Either move to In Process or Cancel
+  </Tab>
+  <Tab title="In Process (EP)">
+    **Active Work State**: Municipality has acknowledged the report and dispatched teams.
+    
+    **Actions**:
+    - Coordinate with maintenance crews
+    - Track work progress
+    - Update citizens on expected resolution timeframes
+    - Document work activities
+    - Move to Resolved when complete
+  </Tab>
+  <Tab title="Resolved (RE)">
+    **Completed State**: Incident has been successfully addressed and closed.
+    
+    **Outcomes**:
+    - Citizen receives points for the validated report
+    - Resolution timestamp is recorded
+    - Report becomes part of historical data
+    - Performance metrics are updated
+  </Tab>
+  <Tab title="Canceled (CA)">
+    **Rejected State**: Report was invalid, duplicate, or cannot be processed.
+    
+    **Reasons for Cancellation**:
+    - Duplicate of existing report
+    - Insufficient or incorrect information
+    - Outside municipal jurisdiction
+    - Not a valid infrastructure issue
+    - Citizen may not receive points
+  </Tab>
+</Tabs>
+
+## Risk Classification System
+
+Municipality users assign risk classifications to prioritize incident resolution:
+
+### Classification Levels
+
+<CardGroup cols={2}>
+  <Card title="Low Risk" icon="circle" color="#10b981">
+    Minor cosmetic issues with no immediate safety impact. Examples: small cracks, faded paint, minor debris.
+  </Card>
+  <Card title="Medium Risk" icon="triangle" color="#f59e0b">
+    Noticeable problems requiring attention within weeks. Examples: moderate potholes, uneven sidewalks, damaged signs.
+  </Card>
+  <Card title="High Risk" icon="diamond" color="#ef4444">
+    Significant hazards requiring urgent response within days. Examples: large potholes, broken streetlights, major sidewalk damage.
+  </Card>
+  <Card title="Critical Risk" icon="hexagon" color="#991b1b">
+    Immediate dangers requiring emergency response within hours. Examples: fallen poles, exposed electrical hazards, major structural failures.
+  </Card>
+</CardGroup>
+
+### Classification Guidelines
+
+When assigning risk levels, municipality users should consider:
+
+| Factor | Low | Medium | High | Critical |
+|--------|-----|--------|------|----------|
+| **Safety Impact** | Minimal | Moderate inconvenience | Serious hazard | Immediate danger |
+| **Affected Area** | Very localized | Single block | Multiple blocks | Major thoroughfare |
+| **Public Usage** | Low traffic | Moderate traffic | High traffic | Critical infrastructure |
+| **Response Time** | 30+ days | 7-30 days | 1-7 days | < 24 hours |
+| **Resource Priority** | Routine maintenance | Scheduled repair | Urgent dispatch | Emergency response |
+
+<Warning>
+Accurate risk classification is crucial for public safety and efficient resource allocation. Underestimating severity can lead to accidents, while overclassification strains emergency response resources.
+</Warning>
+
+## District-Based Management
+
+GreenGuard organizes incidents by municipal districts for efficient resource allocation:
+
+### District Features
+
+- **Geographic Organization**: Incidents automatically tagged by GPS coordinates
+- **Resource Allocation**: Assign crews and equipment by district
+- **Performance Tracking**: Monitor response times and resolution rates per district
+- **Workload Distribution**: Balance incident load across municipal departments
+
+### District Monitoring
+
+Municipality users can view district-specific data:
+
+<AccordionGroup>
+  <Accordion title="Active Incidents by District" icon="map">
+    Real-time dashboard showing pending and in-process reports for each district, helping prioritize resource deployment.
+  </Accordion>
+  <Accordion title="Resolution Metrics" icon="chart-line">
+    Track average resolution times, completion rates, and citizen satisfaction scores per district.
+  </Accordion>
+  <Accordion title="Incident Hot Spots" icon="fire">
+    Identify areas with recurring issues that may require infrastructure investment or preventive maintenance.
+  </Accordion>
+  <Accordion title="Historical Trends" icon="chart-area">
+    Analyze incident patterns over time to plan seasonal maintenance and budget allocation.
+  </Accordion>
+</AccordionGroup>
+
+## Communication with Citizens
+
+### Automatic Notifications
+
+The platform automatically sends notifications to citizens when municipality users update report status:
+
+<Steps>
+  <Step title="Report Received">
+    Citizen receives confirmation that their report entered the system (status: Pending).
+  </Step>
+  <Step title="Work Started">
+    Notification when municipality changes status to In Process with estimated resolution timeframe.
+  </Step>
+  <Step title="Issue Resolved">
+    Alert when status changes to Resolved, confirming the incident was addressed and points were awarded.
+  </Step>
+  <Step title="Report Canceled">
+    Explanation if report was canceled, with reason (duplicate, invalid, etc.).
+  </Step>
+</Steps>
+
+### Notification Types
+
+Municipality actions trigger specific Firebase Cloud Messaging notifications:
+
+| Municipality Action | Notification Type | Citizen Impact |
+|-------------------|-------------------|----------------|
+| Change to In Process | `REPORTE_EN_PROCESO` | Reassurance that work has begun |
+| Change to Resolved | `REPORTE_RESUELTO` | Satisfaction and point confirmation |
+| Change to Canceled | `REPORTE_CANCELADO` | Explanation and guidance |
+| Points Awarded | `PUNTOS_GANADOS` | Positive reinforcement |
+
+## Report Information Management
+
+### Available Report Data
+
+Municipality users have access to comprehensive incident details:
+
+| Information | Details |
+|------------|---------|
+| **Report Number** | Unique identifier for tracking and reference |
+| **Citizen Information** | Name, contact details, and reporting history |
+| **Location Data** | GPS coordinates, district, and neighborhood context |
+| **Incident Type** | Classification (potholes, fallen poles, sidewalks, etc.) |
+| **Photo Evidence** | Visual documentation uploaded by citizen |
+| **Description** | Citizen-provided explanation (up to 150 characters) |
+| **Risk Classification** | Municipality-assigned severity level |
+| **Status History** | Timeline of status changes and actions taken |
+| **Timestamps** | Report submission date and resolution date |
+
+### Data-Driven Decision Making
+
+Municipality users can leverage report data to:
+
+- **Identify Patterns**: Recognize recurring issues in specific areas
+- **Allocate Resources**: Deploy teams to high-priority districts
+- **Plan Maintenance**: Schedule preventive work based on incident clusters
+- **Measure Performance**: Track resolution times and citizen satisfaction
+- **Budget Planning**: Justify infrastructure investments with data
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Prioritize Critical Issues" icon="bolt">
+    Address high-risk and critical incidents immediately. Public safety must be the top priority, even if it means deprioritizing minor cosmetic issues.
+  </Accordion>
+  <Accordion title="Respond Promptly" icon="clock">
+    Acknowledge reports quickly by moving them to In Process status. Even if immediate resolution isn't possible, status updates reassure citizens.
+  </Accordion>
+  <Accordion title="Classify Accurately" icon="bullseye">
+    Take time to properly assess risk levels. Accurate classification ensures appropriate resource allocation and response times.
+  </Accordion>
+  <Accordion title="Document Resolution" icon="file-lines">
+    Record detailed notes about resolution activities, including dates, teams involved, and work completed for future reference.
+  </Accordion>
+  <Accordion title="Communicate Clearly" icon="message">
+    While notifications are automatic, consider adding context when canceling reports to help citizens understand the decision.
+  </Accordion>
+  <Accordion title="Monitor Trends" icon="chart-mixed">
+    Regularly review district-level data to identify systemic issues that require proactive infrastructure improvements.
+  </Accordion>
+  <Accordion title="Validate Before Closing" icon="magnifying-glass">
+    Verify that incidents are truly resolved before updating status. Premature closure erodes citizen trust.
+  </Accordion>
+</AccordionGroup>
+
+## Performance Metrics
+
+Municipality users should monitor key performance indicators:
+
+<CardGroup cols={2}>
+  <Card title="Average Resolution Time" icon="stopwatch">
+    Track how long incidents remain open, broken down by risk classification and district.
+  </Card>
+  <Card title="Report Volume" icon="chart-simple">
+    Monitor incoming report trends to anticipate resource needs and seasonal patterns.
+  </Card>
+  <Card title="Classification Distribution" icon="chart-pie">
+    Analyze the mix of low, medium, high, and critical incidents to assess infrastructure condition.
+  </Card>
+  <Card title="Cancellation Rate" icon="percent">
+    Keep cancellation rates low by encouraging citizens to submit quality reports with complete information.
+  </Card>
+</CardGroup>
+
+## Integration with Other Roles
+
+<Tabs>
+  <Tab title="Citizens">
+    Municipality responsiveness directly impacts citizen engagement. Quick status updates and efficient resolution encourage continued reporting and platform growth.
+  </Tab>
+  <Tab title="Administrators">
+    Admins oversee municipality performance, manage user accounts, and configure system parameters. They can assist with escalated issues or disputed reports.
+  </Tab>
+  <Tab title="Stores">
+    While municipalities don't directly interact with stores, the gamification system depends on municipality point awards. Timely report resolution keeps the rewards marketplace active.
+  </Tab>
+</Tabs>
+
+## Tools and Resources
+
+<CardGroup cols={2}>
+  <Card title="Report Dashboard" icon="table-list">
+    Central interface for viewing, filtering, and managing incident reports across all districts.
+  </Card>
+  <Card title="Map View" icon="map">
+    Geographic visualization of incidents with clustering and heat map capabilities.
+  </Card>
+  <Card title="Analytics Portal" icon="chart-line">
+    Performance metrics, trend analysis, and data export for reporting and planning.
+  </Card>
+  <Card title="Mobile Access" icon="mobile">
+    Field crews can update report status and upload completion photos from job sites.
+  </Card>
+</CardGroup>
+
+## Getting Started
+
+<Steps>
+  <Step title="Access the Platform">
+    Log in with your municipality credentials to access the report management dashboard.
+  </Step>
+  <Step title="Review Pending Reports">
+    Start with the pending queue, focusing on high-priority incidents first.
+  </Step>
+  <Step title="Assign Classifications">
+    Evaluate each report and assign appropriate risk levels based on the guidelines.
+  </Step>
+  <Step title="Coordinate Teams">
+    Move reports to In Process status and dispatch appropriate maintenance crews.
+  </Step>
+  <Step title="Close Resolved Issues">
+    Update status to Resolved once work is complete, triggering citizen point awards.
+  </Step>
+</Steps>
+
+## Related Documentation
+
+<CardGroup cols={2}>
+  <Card title="Citizen Role" icon="user" href="/roles/citizens">
+    Understanding how citizens report incidents and earn rewards
+  </Card>
+  <Card title="Admin Role" icon="shield" href="/roles/admin">
+    System administration and municipality user management
+  </Card>
+  <Card title="Incident Reporting System" icon="triangle-exclamation" href="/features/incident-reporting">
+    Technical details of the report workflow
+  </Card>
+  <Card title="API Reference" icon="code" href="/api/auth/overview">
+    Developer documentation for custom integrations
+  </Card>
+</CardGroup>

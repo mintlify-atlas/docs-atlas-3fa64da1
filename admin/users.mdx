@@ -1,0 +1,370 @@
+---
+title: 'User Management'
+description: 'Manage user accounts, roles, and permissions in GreenGuard'
+---
+
+The user management system allows administrators to oversee all user accounts, assign roles, manage permissions, and monitor user activity across the GreenGuard platform.
+
+## User Data Model
+
+Users in GreenGuard are stored in the `tb_usuario` table with the following structure:
+
+### Core User Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `idUsu` | Integer | Unique user identifier (auto-generated) |
+| `nomUsu` | String | First name |
+| `apePatUsu` | String | Paternal last name |
+| `apeMatUsu` | String | Maternal last name |
+| `documentoUsu` | String | Identity document number |
+| `correoUsu` | String | Email address (login credential) |
+| `passwordUsu` | String | Encrypted password |
+| `telefonoUsu` | String | Phone number |
+| `generoUsu` | String | Gender |
+| `imagenUSU` | String | Profile image URL |
+| `registroUsu` | LocalDateTime | Registration timestamp |
+| `puntosUsu` | Integer | Reward points balance |
+| `rol` | Rol | Role assignment (Foreign Key) |
+| `activo` | Boolean | Account active status |
+| `fmcToken` | String | Firebase messaging token |
+| `fmcTokenFecha` | LocalDateTime | FCM token update timestamp |
+
+## User Roles
+
+GreenGuard implements role-based access control through the `tb_rol` table:
+
+<Tabs>
+  <Tab title="Admin">
+    **Administrator Role**
+    - Full system access
+    - User management capabilities
+    - All report operations
+    - Store and coupon management
+    - System configuration
+  </Tab>
+  
+  <Tab title="Municipalidad">
+    **Municipal Staff Role**
+    - Report management and resolution
+    - Incident classification
+    - Municipal district operations
+    - Limited user data access
+  </Tab>
+  
+  <Tab title="Tienda">
+    **Store Manager Role**
+    - Store profile management
+    - Coupon creation and management
+    - Redemption tracking
+    - Store-specific analytics
+  </Tab>
+  
+  <Tab title="Cliente">
+    **Customer Role**
+    - Report environmental incidents
+    - Earn and redeem points
+    - View personal history
+    - Standard user features
+  </Tab>
+</Tabs>
+
+## Managing Users
+
+### Viewing Users
+
+The UsuarioController provides endpoints for user management:
+
+```java
+// Controller endpoint reference
+@RestController
+@RequestMapping("/usuario")
+public class UsuarioController {
+    @Autowired
+    UsuarioService usuarioService;
+}
+```
+
+<Note>
+API endpoints are accessed through the `/usuario` base path with Spring Boot REST conventions.
+</Note>
+
+### User Account Operations
+
+<Steps>
+  <Step title="Create New User">
+    Add a new user account with required information:
+    
+    - Full name (first, paternal, and maternal surnames)
+    - Valid email address
+    - Identity document number
+    - Phone number
+    - Gender
+    - Initial role assignment
+    - Set active status to `true`
+    
+    <Warning>
+    Ensure email addresses are unique across the system to prevent authentication conflicts.
+    </Warning>
+  </Step>
+  
+  <Step title="Assign Role">
+    Select the appropriate role from `tb_rol`:
+    
+    ```sql
+    -- Role assignment example
+    UPDATE tb_usuario 
+    SET ROL = (SELECT id_rol FROM tb_rol WHERE descripcion = 'Admin')
+    WHERE id_usu = ?
+    ```
+  </Step>
+  
+  <Step title="Configure Points">
+    Set initial points balance (typically `0` for new users):
+    
+    ```java
+    usuario.setPuntosUsu(0); // Initial points
+    ```
+  </Step>
+  
+  <Step title="Activate Account">
+    Enable the account by setting `activo = true`:
+    
+    ```java
+    usuario.setActivo(true); // Account active
+    ```
+  </Step>
+</Steps>
+
+### Updating User Information
+
+<Accordion title="Personal Information">
+  Update user profile details:
+  - Name fields (`nomUsu`, `apePatUsu`, `apeMatUsu`)
+  - Contact information (`telefonoUsu`, `correoUsu`)
+  - Gender (`generoUsu`)
+  - Profile image (`imagenUSU`)
+</Accordion>
+
+<Accordion title="Account Settings">
+  Modify account configuration:
+  - Password reset (`passwordUsu`)
+  - Active status (`activo`)
+  - Role change (`rol`)
+  
+  <Warning>
+  Password changes should be handled through secure password reset flows with proper encryption.
+  </Warning>
+</Accordion>
+
+<Accordion title="Points Management">
+  Adjust user points balance:
+  - Add points for completed reports
+  - Deduct points for coupon redemptions
+  - Manual adjustments when needed
+  
+  ```java
+  // Points tracking
+  usuario.setPuntosUsu(currentPoints + earnedPoints);
+  ```
+</Accordion>
+
+### Deactivating Users
+
+To deactivate a user account without deletion:
+
+<Steps>
+  <Step title="Locate User">
+    Find the user account by ID, email, or document number
+  </Step>
+  
+  <Step title="Set Inactive Status">
+    Update the active flag to `false`:
+    
+    ```java
+    usuario.setActivo(false);
+    ```
+  </Step>
+  
+  <Step title="Verify Logout">
+    Ensure the user is logged out and cannot access the system
+  </Step>
+</Steps>
+
+<Note>
+Deactivated users retain all their data and history. Setting `activo = false` prevents login without data loss.
+</Note>
+
+## User Registration Tracking
+
+### Registration Timestamp
+
+All user registrations are tracked with `registroUsu`:
+
+```java
+@Column(name="registro_usu")
+private LocalDateTime registroUsu;
+```
+
+This field automatically captures when the account was created, useful for:
+- User analytics and growth metrics
+- Account age verification
+- Registration period reports
+
+## Push Notification Management
+
+### FCM Token Handling
+
+GreenGuard supports Firebase Cloud Messaging for push notifications:
+
+```java
+@Column(name="FCM_TOKEN")
+private String fmcToken;
+
+@Column(name="FCM_TOKEN_FECHA")
+private LocalDateTime fmcTokenFecha;
+```
+
+<Steps>
+  <Step title="Token Registration">
+    When users enable notifications, their FCM token is stored
+  </Step>
+  
+  <Step title="Token Updates">
+    Tokens are refreshed periodically with timestamp tracking
+  </Step>
+  
+  <Step title="Notification Delivery">
+    Use stored tokens to send targeted notifications to users
+  </Step>
+</Steps>
+
+## User Search and Filtering
+
+### Common Search Criteria
+
+Filter users by various attributes:
+
+| Search By | Field | Example |
+|-----------|-------|---------|
+| Name | `nomUsu`, `apePatUsu` | "Juan Pérez" |
+| Email | `correoUsu` | "user@example.com" |
+| Document | `documentoUsu` | "12345678" |
+| Role | `rol` | Admin, Cliente |
+| Status | `activo` | Active/Inactive |
+| Points Range | `puntosUsu` | 100-500 points |
+
+## User Analytics
+
+### Key Metrics to Monitor
+
+<CardGroup cols={2}>
+  <Card title="Total Users" icon="users">
+    Count of all registered accounts
+  </Card>
+  <Card title="Active Users" icon="user-check">
+    Users with `activo = true`
+  </Card>
+  <Card title="Points Distribution" icon="coins">
+    Total and average points per user
+  </Card>
+  <Card title="Role Distribution" icon="user-tag">
+    Breakdown by role type
+  </Card>
+</CardGroup>
+
+### Reports Generated from Registration Data
+
+```sql
+-- Active users by role
+SELECT r.descripcion, COUNT(*) as user_count
+FROM tb_usuario u
+JOIN tb_rol r ON u.ROL = r.id_rol
+WHERE u.activo = true
+GROUP BY r.descripcion;
+
+-- Recent registrations
+SELECT COUNT(*) as new_users
+FROM tb_usuario
+WHERE registro_usu >= DATE_SUB(NOW(), INTERVAL 30 DAY);
+```
+
+## Security and Privacy
+
+<Warning>
+Always handle user data with appropriate security measures:
+</Warning>
+
+### Best Practices
+
+- **Password Security**: Never display or log passwords in plain text
+- **Data Access**: Limit user data access to authorized roles only
+- **PII Protection**: Handle personal information per privacy regulations
+- **Audit Logging**: Track all user management operations
+- **Secure Transmission**: Use HTTPS for all user data transfers
+
+### Sensitive Fields
+
+Extra care required for:
+- `passwordUsu` - Always encrypted, never displayed
+- `documentoUsu` - Personal identification number
+- `correoUsu` - Can be used for account recovery
+- `telefonoUsu` - Personal contact information
+
+## Integration with Other Features
+
+### User-Report Relationship
+
+Users create environmental reports:
+
+```java
+// In Reporte model
+@ManyToOne
+@JoinColumn(name = "id_usu")
+private Usuario usuario;
+```
+
+View a user's report history to understand their platform engagement.
+
+### User-Store Relationship
+
+Store managers are linked to their stores:
+
+```java
+// In Tienda model
+@ManyToOne
+@JoinColumn(name = "id_usu")
+private Usuario usuario;
+```
+
+Each store has an associated user account for management.
+
+### User-Coupon Redemptions
+
+Track coupon usage through `tb_usuario_cupon`:
+
+```java
+// Usuario-Cupon relationship
+@Entity
+@Table(name = "tb_usuario_cupon")
+public class UsuarioCupon {
+    // Tracks which users have redeemed which coupons
+}
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Report Management" icon="clipboard-list" href="/admin/reports">
+    Manage environmental incident reports
+  </Card>
+  <Card title="Store Management" icon="store" href="/admin/stores">
+    Oversee partner stores and assignments
+  </Card>
+  <Card title="Coupon Management" icon="ticket" href="/admin/coupons">
+    Create and manage reward coupons
+  </Card>
+  <Card title="Access Control" icon="shield" href="/admin/access">
+    Learn about role-based access
+  </Card>
+</CardGroup>

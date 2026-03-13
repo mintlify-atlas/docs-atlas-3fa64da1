@@ -1,0 +1,352 @@
+---
+title: 'Gamification System'
+description: 'Learn how GreenGuard rewards civic engagement through points, achievements, and community leaderboards'
+---
+
+## Overview
+
+GreenGuard's gamification system transforms environmental activism into an engaging, rewarding experience. Earn points for reporting incidents, climb community leaderboards, and redeem rewards that benefit both you and local businesses.
+
+## Points System
+
+### How Points Work
+
+Every user account maintains a cumulative points balance:
+
+```java
+@Entity
+@Table(name = "tb_usuario")
+public class Usuario {
+    @Column(name="puntos_usu")
+    private int puntosUsu;  // Total lifetime points earned
+    
+    @Column(name="registro_usu")
+    private LocalDateTime registroUsu;  // Account creation date
+}
+```
+
+**Key Characteristics:**
+- Points accumulate over your account lifetime
+- Never expire (unless account is inactive)
+- Visible on your profile dashboard
+- Used as currency in the rewards marketplace
+- Factor into community leaderboard rankings
+
+### Earning Points
+
+Points are awarded when your incident reports are validated and processed:
+
+<CardGroup cols={2}>
+  <Card title="Report Validation" icon="check" color="#2d8659">
+    **+50 Points**
+    
+    Base reward when your report is confirmed valid and assigned to municipality (status changes from PE to EP)
+  </Card>
+  <Card title="Issue Resolution" icon="check-double" color="#2d8659">
+    **+100 Points**
+    
+    Bonus when the issue you reported is fully resolved (status changes to RE)
+  </Card>
+  <Card title="High Priority" icon="exclamation-triangle" color="#2d8659">
+    **+50 Bonus**
+    
+    Additional points for reports classified as high priority or critical severity
+  </Card>
+  <Card title="Quality Reports" icon="star" color="#2d8659">
+    **+25 Bonus**
+    
+    Extra points for reports with complete documentation, clear photos, and detailed descriptions
+  </Card>
+</CardGroup>
+
+<Note>
+  Total points per resolved report can range from 150-225 points depending on quality, priority, and completeness.
+</Note>
+
+### Point Calculation Logic
+
+While the exact implementation may vary, the typical flow is:
+
+1. **Report Submitted** (PE status) - 0 points
+2. **Report Validated** (EP status) - +50 base points awarded
+3. **Municipality Reviews** - Quality assessment may add bonus
+4. **Issue Resolved** (RE status) - +100 completion bonus awarded
+5. **Total Updated** - `puntosUsu` incremented with final total
+
+```java
+public void awardReportPoints(Reporte reporte) {
+    Usuario usuario = reporte.getUsuario();
+    int pointsToAward = 0;
+    
+    // Base points for validated report
+    if (reporte.getEstado() == EstadoReporte.EP) {
+        pointsToAward += 50;
+    }
+    
+    // Bonus for resolution
+    if (reporte.getEstado() == EstadoReporte.RE) {
+        pointsToAward += 100;
+        
+        // Quality bonus for complete reports
+        if (isQualityReport(reporte)) {
+            pointsToAward += 25;
+        }
+        
+        // Priority bonus
+        if (isHighPriority(reporte.getTipoClasificacion())) {
+            pointsToAward += 50;
+        }
+    }
+    
+    // Update user's total points
+    usuario.setPuntosUsu(usuario.getPuntosUsu() + pointsToAward);
+}
+```
+
+## Spending Points
+
+Points serve as currency in the GreenGuard marketplace. When you redeem a coupon:
+
+```java
+@Entity
+@Table(name = "tb_cupon")
+public class Cupon {
+    @Column(name="puntos_requeridos")
+    private int puntosRequeridos;  // Points needed to redeem
+}
+```
+
+The redemption process:
+
+1. Browse available coupons in marketplace
+2. Check if you have sufficient `puntosUsu` ≥ `puntosRequeridos`
+3. Redeem coupon - points are deducted from your balance
+4. Receive coupon code for use at partner stores
+
+<Warning>
+  Points are **deducted immediately** upon coupon redemption. Make sure you plan to use the coupon before redeeming.
+</Warning>
+
+## Achievements & Milestones
+
+### Point Milestones
+
+As you accumulate points, you unlock recognition badges:
+
+| Points Earned | Badge | Status |
+|---------------|-------|--------|
+| 0 - 500 | 🌱 Seedling | Beginner civic contributor |
+| 500 - 2,000 | 🌿 Sprout | Active community member |
+| 2,000 - 5,000 | 🌳 Guardian | Dedicated environmental advocate |
+| 5,000 - 10,000 | 🏆 Champion | Elite civic leader |
+| 10,000+ | 💎 Legend | Top community contributor |
+
+### Activity Streaks
+
+Maintain consistency to earn streak bonuses:
+
+- **7-Day Streak** - Report at least one incident per week for a month
+- **Monthly Active** - Submit 10+ reports in a single month
+- **Year-Round** - Active account for 12 consecutive months
+
+Streak achievements award bonus points and special badges.
+
+## Community Leaderboards
+
+### How Rankings Work
+
+Leaderboards showcase top contributors in various categories:
+
+**Global Leaderboard**
+- Ranked by total `puntosUsu` across all users
+- Updated in real-time as points are awarded
+- Top 100 contributors displayed
+
+**District Leaderboard**
+- Filtered by `distrito` where reports are filed
+- Encourages local community engagement
+- Monthly resets to give everyone a fresh start
+
+**Monthly Leaderboard**
+- Points earned in current calendar month only
+- Resets on the 1st of each month
+- Winner receives special recognition
+
+### Leaderboard Query Example
+
+```sql
+-- Top 10 users by total points
+SELECT 
+    nom_usu,
+    ape_pat_usu,
+    puntos_usu,
+    ROW_NUMBER() OVER (ORDER BY puntos_usu DESC) as rank
+FROM tb_usuario
+WHERE activo = true
+ORDER BY puntos_usu DESC
+LIMIT 10;
+```
+
+## User Profile Statistics
+
+Your profile dashboard displays comprehensive gamification metrics:
+
+```java
+@Entity
+@Table(name = "tb_usuario")
+public class Usuario {
+    @Column(name="puntos_usu")
+    private int puntosUsu;              // Total points balance
+    
+    @Column(name="registro_usu")
+    private LocalDateTime registroUsu;  // Member since date
+    
+    // Calculated from related reports:
+    // - Total reports submitted
+    // - Reports resolved (RE status)
+    // - Average resolution time
+    // - Current streak days
+    // - Badges earned
+}
+```
+
+**Profile Statistics Include:**
+- Current points balance
+- Total points earned (lifetime)
+- Points spent on rewards
+- Total reports submitted
+- Reports resolved percentage
+- Current ranking (global & district)
+- Active streaks
+- Badges and achievements
+- Member since date
+
+## Engagement Strategies
+
+### Maximizing Your Points
+
+<Steps>
+  <Step title="Submit Quality Reports">
+    Complete all required fields, include clear photos, and write detailed descriptions to qualify for quality bonuses.
+  </Step>
+  
+  <Step title="Focus on High Priority Issues">
+    Critical and high-severity incidents earn more points when resolved.
+  </Step>
+  
+  <Step title="Maintain Consistency">
+    Build streaks by reporting regularly rather than submitting many reports at once.
+  </Step>
+  
+  <Step title="Diversify Locations">
+    Report incidents across multiple districts to qualify for district-specific achievements.
+  </Step>
+  
+  <Step title="Follow Through">
+    Respond promptly to any municipal requests for clarification to ensure reports reach resolution.
+  </Step>
+</Steps>
+
+### Strategic Reward Redemption
+
+<Note>
+  Save points for high-value coupons rather than spending immediately on small rewards. Premium coupons often offer better points-to-value ratios.
+</Note>
+
+**Redemption Strategies:**
+- **Tier System** - Low (500-1000), Medium (1000-2500), High (2500+) point coupons
+- **Seasonal Offers** - Some partner stores offer bonus value during promotions
+- **Expiration Awareness** - Redeem coupons you'll actually use before they expire
+
+## Social Features
+
+### Community Impact
+
+See your collective impact:
+
+- **Total Community Points** - Sum of all active users' `puntosUsu`
+- **Issues Resolved** - Count of reports with RE status
+- **Districts Improved** - Number of districts with active reports
+- **Response Time Trends** - Average time from PE to RE status
+
+### Friend Comparisons
+
+Compare your performance with connections:
+
+```java
+// Get ranking among friend group
+SELECT 
+    u.nom_usu,
+    u.puntos_usu,
+    RANK() OVER (ORDER BY u.puntos_usu DESC) as rank
+FROM tb_usuario u
+INNER JOIN tb_usuario_amigos ua ON u.id_usu = ua.id_amigo
+WHERE ua.id_usuario = ? AND u.activo = true;
+```
+
+## Notifications
+
+Stay updated on your gamification progress:
+
+- **Points Awarded** - Notification when report earns points
+- **Milestone Reached** - Alert when crossing point thresholds
+- **Leaderboard Change** - Update when entering top 100
+- **Streak Alert** - Reminder to maintain active streaks
+- **Achievement Unlocked** - Badge and achievement notifications
+
+See [Notifications Documentation](/features/notifications) for configuration.
+
+## API Endpoints
+
+### Points Management
+
+```http
+# Get user's current points balance
+GET /usuario/{idUsu}/puntos
+
+# Get user's points history
+GET /usuario/{idUsu}/puntos/historial
+
+# Get leaderboard rankings
+GET /leaderboard/global?limit=100
+GET /leaderboard/distrito/{idDistrito}
+GET /leaderboard/mensual
+
+# Get user statistics
+GET /usuario/{idUsu}/estadisticas
+```
+
+## Fairness & Integrity
+
+### Anti-Fraud Measures
+
+GreenGuard maintains system integrity through:
+
+- **Report Validation** - All reports reviewed before awarding points
+- **Duplicate Detection** - Similar reports flagged to prevent gaming
+- **Photo Verification** - Images checked for authenticity
+- **Location Verification** - GPS coordinates validated against district boundaries
+- **Rate Limiting** - Maximum reports per user per day
+- **Manual Review** - Suspicious patterns flagged for administrator review
+
+<Warning>
+  Fraudulent reporting results in:
+  - Point forfeiture
+  - Account suspension
+  - Ban from rewards marketplace
+  - Potential legal consequences for false reports
+</Warning>
+
+## Related Features
+
+<CardGroup cols={3}>
+  <Card title="Incident Reporting" icon="flag" href="/features/incident-reporting">
+    Learn how to submit quality reports
+  </Card>
+  <Card title="Rewards Marketplace" icon="gift" href="/features/rewards">
+    Browse and redeem your points
+  </Card>
+  <Card title="Notifications" icon="bell" href="/features/notifications">
+    Configure achievement alerts
+  </Card>
+</CardGroup>

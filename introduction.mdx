@@ -1,0 +1,117 @@
+---
+title: Welcome to GreenGuard
+description: Urban incident reporting platform with AI integration, gamification, and multi-role management for citizens, municipalities, and partner stores
+---
+
+<img
+  className="block dark:hidden"
+  src="/images/hero-light.svg"
+  alt="GreenGuard Hero Light"
+/>
+<img
+  className="hidden dark:block"
+  src="/images/hero-dark.svg"
+  alt="GreenGuard Hero Dark"
+/>
+
+## What is GreenGuard?
+
+GreenGuard is a comprehensive urban incident reporting platform that connects citizens, municipalities, and local businesses to improve community safety and infrastructure. Citizens report issues like potholes, fallen poles, and broken sidewalks, earn points through gamification, and redeem rewards from partner stores. Municipalities track and resolve incidents efficiently, while stores gain visibility and customer engagement.
+
+<CardGroup cols={2}>
+  <Card
+    title="Quick Start"
+    icon="rocket"
+    href="/quickstart"
+  >
+    Get GreenGuard up and running in minutes
+  </Card>
+  <Card
+    title="API Reference"
+    icon="code"
+    href="/api/auth/overview"
+  >
+    Explore the REST API endpoints
+  </Card>
+  <Card
+    title="Admin Panel"
+    icon="gauge"
+    href="/admin/overview"
+  >
+    Manage users, reports, and rewards
+  </Card>
+  <Card
+    title="User Roles"
+    icon="users"
+    href="/roles/citizens"
+  >
+    Understand the multi-role system
+  </Card>
+</CardGroup>
+
+## Key Features
+
+<CardGroup cols={2}>
+  <Card title="Incident Reporting" icon="triangle-exclamation">
+    Geolocation-based reporting with photo uploads, AI-powered classification, and real-time status tracking
+  </Card>
+  <Card title="Gamification System" icon="trophy">
+    Users earn points for reporting incidents and redeem them for coupons from partner stores
+  </Card>
+  <Card title="Multi-Role Platform" icon="user-group">
+    Separate interfaces for citizens, municipalities, stores, and administrators
+  </Card>
+  <Card title="Push Notifications" icon="bell">
+    Real-time FCM notifications keep users informed about incident updates
+  </Card>
+  <Card title="Admin Dashboard" icon="chart-line">
+    Angular-based panel for comprehensive system management
+  </Card>
+  <Card title="Rewards Marketplace" icon="gift">
+    Partner stores offer coupons redeemable with earned points
+  </Card>
+</CardGroup>
+
+## Technology Stack
+
+GreenGuard is built with modern, production-ready technologies:
+
+- **Backend**: Spring Boot 3.5.8 REST API with Java 21
+- **Frontend**: Angular 19.2 with standalone components
+- **Database**: PostgreSQL with JPA/Hibernate
+- **Notifications**: Firebase Cloud Messaging (FCM)
+- **AI Integration**: Incident classification and analysis
+
+## User Roles
+
+<AccordionGroup>
+  <Accordion title="Citizens" icon="user">
+    Report urban incidents with photos and geolocation, track report status, earn points, and redeem rewards from partner stores.
+  </Accordion>
+  <Accordion title="Municipality" icon="building">
+    Review and manage incident reports, update resolution status, assign classifications, and communicate with citizens.
+  </Accordion>
+  <Accordion title="Stores" icon="store">
+    Create and manage coupon offers, track redemptions, and engage with the community through rewards.
+  </Accordion>
+  <Accordion title="Admin" icon="shield">
+    Full system access to manage users, reports, stores, coupons, and platform configuration.
+  </Accordion>
+</AccordionGroup>
+
+## Get Started
+
+<CardGroup cols={2}>
+  <Card title="Installation" icon="download" href="/setup/requirements">
+    Set up the backend, frontend, and database
+  </Card>
+  <Card title="Configuration" icon="gear" href="/configuration/application">
+    Configure application settings and environment
+  </Card>
+  <Card title="Core Features" icon="sparkles" href="/features/incident-reporting">
+    Learn about incident reporting and gamification
+  </Card>
+  <Card title="Deploy" icon="cloud-arrow-up" href="/setup/backend">
+    Deploy GreenGuard to production
+  </Card>
+</CardGroup>

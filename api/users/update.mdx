@@ -1,0 +1,193 @@
+---
+title: 'Update User Profile'
+description: 'Update user profile information'
+api: 'PUT /usuario/{id}'
+---
+
+## Overview
+
+This endpoint allows updating a user's profile information. Only the fields provided in the request body will be updated.
+
+## Path Parameters
+
+<ParamField path="id" type="integer" required>
+  The unique identifier of the user to update
+</ParamField>
+
+## Request Body
+
+<ParamField body="nomUsu" type="string">
+  User's first name
+</ParamField>
+
+<ParamField body="apePatUsu" type="string">
+  User's paternal surname
+</ParamField>
+
+<ParamField body="apeMatUsu" type="string">
+  User's maternal surname
+</ParamField>
+
+<ParamField body="documentoUsu" type="string">
+  User's identification document number
+</ParamField>
+
+<ParamField body="correoUsu" type="string">
+  User's email address (must be unique)
+</ParamField>
+
+<ParamField body="telefonoUsu" type="string">
+  User's phone number
+</ParamField>
+
+<ParamField body="generoUsu" type="string">
+  User's gender
+</ParamField>
+
+<ParamField body="imagenUSU" type="string">
+  URL or path to user's profile image
+</ParamField>
+
+<ParamField body="fmcToken" type="string">
+  Firebase Cloud Messaging token for push notifications
+</ParamField>
+
+<ParamField body="activo" type="boolean">
+  Whether the user account is active (admin only)
+</ParamField>
+
+## Response
+
+<ResponseField name="idUsu" type="integer">
+  Unique identifier for the user
+</ResponseField>
+
+<ResponseField name="nomUsu" type="string">
+  Updated user's first name
+</ResponseField>
+
+<ResponseField name="apePatUsu" type="string">
+  Updated user's paternal surname
+</ResponseField>
+
+<ResponseField name="apeMatUsu" type="string">
+  Updated user's maternal surname
+</ResponseField>
+
+<ResponseField name="documentoUsu" type="string">
+  Updated user's identification document number
+</ResponseField>
+
+<ResponseField name="correoUsu" type="string">
+  Updated user's email address
+</ResponseField>
+
+<ResponseField name="telefonoUsu" type="string">
+  Updated user's phone number
+</ResponseField>
+
+<ResponseField name="generoUsu" type="string">
+  Updated user's gender
+</ResponseField>
+
+<ResponseField name="imagenUSU" type="string">
+  Updated URL or path to user's profile image
+</ResponseField>
+
+<ResponseField name="registroUsu" type="datetime">
+  Original registration timestamp (ISO 8601 format)
+</ResponseField>
+
+<ResponseField name="puntosUsu" type="integer">
+  User's current points balance
+</ResponseField>
+
+<ResponseField name="rol" type="object">
+  User's role information
+  <ResponseField name="idRol" type="integer">
+    Role identifier
+  </ResponseField>
+  <ResponseField name="descripcion" type="string">
+    Role description
+  </ResponseField>
+</ResponseField>
+
+<ResponseField name="activo" type="boolean">
+  Whether the user account is active
+</ResponseField>
+
+<ResponseField name="fmcToken" type="string">
+  Firebase Cloud Messaging token for push notifications
+</ResponseField>
+
+<ResponseField name="fmcTokenFecha" type="datetime">
+  Timestamp when the FCM token was last updated (ISO 8601 format)
+</ResponseField>
+
+## Example Request
+
+```bash
+curl -X PUT "https://api.greenguard.com/usuario/123" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "telefonoUsu": "+51999888777",
+    "imagenUSU": "/images/profiles/123_updated.jpg"
+  }'
+```
+
+## Example Response
+
+```json
+{
+  "idUsu": 123,
+  "nomUsu": "Juan",
+  "apePatUsu": "García",
+  "apeMatUsu": "López",
+  "documentoUsu": "12345678",
+  "correoUsu": "juan.garcia@example.com",
+  "telefonoUsu": "+51999888777",
+  "generoUsu": "M",
+  "imagenUSU": "/images/profiles/123_updated.jpg",
+  "registroUsu": "2024-01-15T10:30:00",
+  "puntosUsu": 450,
+  "rol": {
+    "idRol": 1,
+    "descripcion": "Usuario"
+  },
+  "activo": true,
+  "fmcToken": "dGhpc19pc19hX3Rva2VuX2V4YW1wbGU",
+  "fmcTokenFecha": "2024-03-10T14:20:00"
+}
+```
+
+## Update FCM Token
+
+To update only the Firebase Cloud Messaging token (common for mobile apps):
+
+```bash
+curl -X PUT "https://api.greenguard.com/usuario/123" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "fmcToken": "new_fcm_token_here"
+  }'
+```
+
+## Protected Fields
+
+The following fields cannot be updated through this endpoint:
+- `idUsu` - User ID is immutable
+- `registroUsu` - Registration date is set only once
+- `puntosUsu` - Use the points management endpoint instead
+- `passwordUsu` - Use the password change endpoint instead
+- `rol` - Role changes require admin privileges via separate endpoint
+- `fmcTokenFecha` - Automatically updated when fmcToken changes
+
+## Validation Rules
+
+- **correoUsu**: Must be a valid email format and unique across all users
+- **documentoUsu**: Should follow the document format for the user's country
+- **telefonoUsu**: Should include country code (e.g., +51 for Peru)
+- **generoUsu**: Typically accepts standard gender codes
+- **imagenUSU**: Should be a valid URL or file path

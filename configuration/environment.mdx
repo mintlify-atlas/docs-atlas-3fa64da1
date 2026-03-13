@@ -1,0 +1,585 @@
+---
+title: 'Environment Variables'
+description: 'Configure environment variables for GreenGuard'
+---
+
+## Overview
+
+Environment variables provide a secure way to configure the GreenGuard platform without hardcoding sensitive information. This guide covers all required and optional environment variables for both backend and frontend.
+
+## Why Use Environment Variables?
+
+<Warning>
+  Never commit sensitive information like passwords, API keys, or tokens to version control.
+</Warning>
+
+Benefits:
+- **Security:** Keep sensitive data out of source code
+- **Flexibility:** Different configurations per environment
+- **Portability:** Easy deployment across environments
+- **Best Practice:** Follow twelve-factor app methodology
+
+## Backend Environment Variables
+
+### Database Configuration
+
+#### DATABASE_URL
+
+Complete database connection URL.
+
+```bash
+export DATABASE_URL="jdbc:postgresql://localhost:5432/DB_GREENGUARDIAN"
+```
+
+**Format:** `jdbc:postgresql://[host]:[port]/[database]`
+
+#### DB_USERNAME
+
+Database username for authentication.
+
+```bash
+export DB_USERNAME="postgres"
+```
+
+<Note>
+  Create a dedicated database user with limited permissions for production.
+</Note>
+
+#### DB_PASSWORD
+
+Database password for authentication.
+
+```bash
+export DB_PASSWORD="your_secure_password"
+```
+
+<Warning>
+  Use strong passwords with mixed case, numbers, and special characters.
+</Warning>
+
+#### DB_HOST
+
+Database server hostname or IP address.
+
+```bash
+export DB_HOST="localhost"
+```
+
+#### DB_PORT
+
+PostgreSQL port number.
+
+```bash
+export DB_PORT="5432"
+```
+
+#### DB_NAME
+
+Database name.
+
+```bash
+export DB_NAME="DB_GREENGUARDIAN"
+```
+
+### Application Configuration
+
+#### SPRING_PROFILES_ACTIVE
+
+Active Spring Boot profile.
+
+```bash
+export SPRING_PROFILES_ACTIVE="prod"
+```
+
+Options: `dev`, `test`, `prod`
+
+#### SERVER_PORT
+
+Application server port.
+
+```bash
+export SERVER_PORT="8080"
+```
+
+#### LOG_LEVEL
+
+Application logging level.
+
+```bash
+export LOG_LEVEL="INFO"
+```
+
+Options: `TRACE`, `DEBUG`, `INFO`, `WARN`, `ERROR`
+
+### Security Configuration
+
+#### JWT_SECRET
+
+Secret key for JWT token generation (if implemented).
+
+```bash
+export JWT_SECRET="your_jwt_secret_key_min_256_bits"
+```
+
+#### CORS_ALLOWED_ORIGINS
+
+Allowed origins for CORS.
+
+```bash
+export CORS_ALLOWED_ORIGINS="http://localhost:4200,https://greenguard.example.com"
+```
+
+### Firebase Cloud Messaging (FCM)
+
+#### FCM_SERVER_KEY
+
+Firebase Cloud Messaging server key for push notifications.
+
+```bash
+export FCM_SERVER_KEY="your_fcm_server_key"
+```
+
+#### FCM_PROJECT_ID
+
+Firebase project ID.
+
+```bash
+export FCM_PROJECT_ID="greenguard-firebase"
+```
+
+## Frontend Environment Variables
+
+### API Configuration
+
+#### API_URL
+
+Backend API base URL.
+
+```bash
+export API_URL="http://localhost:8080/api"
+```
+
+**Development:**
+```bash
+export API_URL="http://localhost:8080/api"
+```
+
+**Production:**
+```bash
+export API_URL="https://api.greenguard.example.com"
+```
+
+### Firebase Configuration
+
+#### FIREBASE_API_KEY
+
+Firebase API key for frontend.
+
+```bash
+export FIREBASE_API_KEY="your_firebase_api_key"
+```
+
+#### FIREBASE_AUTH_DOMAIN
+
+Firebase authentication domain.
+
+```bash
+export FIREBASE_AUTH_DOMAIN="greenguard.firebaseapp.com"
+```
+
+#### FIREBASE_PROJECT_ID
+
+Firebase project ID.
+
+```bash
+export FIREBASE_PROJECT_ID="greenguard-firebase"
+```
+
+#### FIREBASE_STORAGE_BUCKET
+
+Firebase storage bucket.
+
+```bash
+export FIREBASE_STORAGE_BUCKET="greenguard.appspot.com"
+```
+
+#### FIREBASE_MESSAGING_SENDER_ID
+
+Firebase messaging sender ID.
+
+```bash
+export FIREBASE_MESSAGING_SENDER_ID="123456789012"
+```
+
+#### FIREBASE_APP_ID
+
+Firebase app ID.
+
+```bash
+export FIREBASE_APP_ID="1:123456789012:web:abcdef123456"
+```
+
+### Maps Configuration
+
+#### GOOGLE_MAPS_API_KEY
+
+Google Maps API key for map functionality.
+
+```bash
+export GOOGLE_MAPS_API_KEY="your_google_maps_api_key"
+```
+
+## Using Environment Variables
+
+### In application.properties
+
+Reference environment variables with default values:
+
+```properties
+# Database
+spring.datasource.url=${DATABASE_URL:jdbc:postgresql://localhost:5432/DB_GREENGUARDIAN}
+spring.datasource.username=${DB_USERNAME:postgres}
+spring.datasource.password=${DB_PASSWORD:postgres}
+
+# Server
+server.port=${SERVER_PORT:8080}
+
+# Logging
+logging.level.root=${LOG_LEVEL:INFO}
+```
+
+Format: `${VARIABLE_NAME:default_value}`
+
+### In Angular Environment Files
+
+**src/environments/environment.ts** (Development):
+
+```typescript
+export const environment = {
+  production: false,
+  apiUrl: 'http://localhost:8080/api',
+  firebase: {
+    apiKey: 'development_api_key',
+    authDomain: 'greenguard-dev.firebaseapp.com',
+    projectId: 'greenguard-dev',
+    storageBucket: 'greenguard-dev.appspot.com',
+    messagingSenderId: '123456789012',
+    appId: '1:123456789012:web:abcdef123456'
+  },
+  googleMapsApiKey: 'development_maps_key'
+};
+```
+
+**src/environments/environment.prod.ts** (Production):
+
+```typescript
+export const environment = {
+  production: true,
+  apiUrl: process.env['API_URL'] || 'https://api.greenguard.example.com',
+  firebase: {
+    apiKey: process.env['FIREBASE_API_KEY'],
+    authDomain: process.env['FIREBASE_AUTH_DOMAIN'],
+    projectId: process.env['FIREBASE_PROJECT_ID'],
+    storageBucket: process.env['FIREBASE_STORAGE_BUCKET'],
+    messagingSenderId: process.env['FIREBASE_MESSAGING_SENDER_ID'],
+    appId: process.env['FIREBASE_APP_ID']
+  },
+  googleMapsApiKey: process.env['GOOGLE_MAPS_API_KEY']
+};
+```
+
+## Setting Environment Variables
+
+### Linux/macOS
+
+#### Temporary (Current Session)
+
+```bash
+export DB_USERNAME="postgres"
+export DB_PASSWORD="secure_password"
+export DATABASE_URL="jdbc:postgresql://localhost:5432/DB_GREENGUARDIAN"
+```
+
+#### Permanent (Bash Profile)
+
+Add to `~/.bashrc` or `~/.bash_profile`:
+
+```bash
+# GreenGuard Environment Variables
+export DB_USERNAME="postgres"
+export DB_PASSWORD="secure_password"
+export DATABASE_URL="jdbc:postgresql://localhost:5432/DB_GREENGUARDIAN"
+export SERVER_PORT="8080"
+export SPRING_PROFILES_ACTIVE="prod"
+```
+
+Reload profile:
+
+```bash
+source ~/.bashrc
+```
+
+### Windows
+
+#### Temporary (Command Prompt)
+
+```cmd
+set DB_USERNAME=postgres
+set DB_PASSWORD=secure_password
+set DATABASE_URL=jdbc:postgresql://localhost:5432/DB_GREENGUARDIAN
+```
+
+#### Temporary (PowerShell)
+
+```powershell
+$env:DB_USERNAME="postgres"
+$env:DB_PASSWORD="secure_password"
+$env:DATABASE_URL="jdbc:postgresql://localhost:5432/DB_GREENGUARDIAN"
+```
+
+#### Permanent (System Properties)
+
+1. Open System Properties (Win + Pause/Break)
+2. Click "Advanced system settings"
+3. Click "Environment Variables"
+4. Add new variables under "User variables" or "System variables"
+
+### .env File (Development)
+
+Create a `.env` file in the project root:
+
+```bash
+# Database
+DB_USERNAME=postgres
+DB_PASSWORD=postgres
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=DB_GREENGUARDIAN
+DATABASE_URL=jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
+
+# Application
+SERVER_PORT=8080
+SPRING_PROFILES_ACTIVE=dev
+LOG_LEVEL=DEBUG
+
+# Security
+JWT_SECRET=dev_jwt_secret_key
+CORS_ALLOWED_ORIGINS=http://localhost:4200
+
+# Firebase
+FCM_SERVER_KEY=your_dev_fcm_key
+FCM_PROJECT_ID=greenguard-dev
+```
+
+<Warning>
+  Add `.env` to `.gitignore` to prevent committing sensitive information.
+</Warning>
+
+```gitignore
+# Environment files
+.env
+.env.local
+.env.*.local
+```
+
+### Docker Compose
+
+```yaml
+version: '3.8'
+
+services:
+  backend:
+    image: greenguard-backend
+    environment:
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=postgres
+      - DATABASE_URL=jdbc:postgresql://db:5432/DB_GREENGUARDIAN
+      - SPRING_PROFILES_ACTIVE=prod
+    env_file:
+      - .env
+
+  frontend:
+    image: greenguard-frontend
+    environment:
+      - API_URL=http://backend:8080/api
+      - GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY}
+```
+
+### Kubernetes
+
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: greenguard-config
+data:
+  SERVER_PORT: "8080"
+  SPRING_PROFILES_ACTIVE: "prod"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: greenguard-secrets
+type: Opaque
+stringData:
+  DB_USERNAME: postgres
+  DB_PASSWORD: secure_password
+  JWT_SECRET: your_jwt_secret
+```
+
+## Environment Variable Reference
+
+### Complete Backend Variables
+
+```bash
+# Database
+DATABASE_URL=jdbc:postgresql://localhost:5432/DB_GREENGUARDIAN
+DB_USERNAME=postgres
+DB_PASSWORD=postgres
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=DB_GREENGUARDIAN
+
+# Application
+SPRING_PROFILES_ACTIVE=prod
+SERVER_PORT=8080
+LOG_LEVEL=INFO
+
+# Security
+JWT_SECRET=your_jwt_secret_key
+CORS_ALLOWED_ORIGINS=http://localhost:4200,https://greenguard.example.com
+
+# Firebase
+FCM_SERVER_KEY=your_fcm_server_key
+FCM_PROJECT_ID=greenguard-firebase
+```
+
+### Complete Frontend Variables
+
+```bash
+# API
+API_URL=http://localhost:8080/api
+
+# Firebase
+FIREBASE_API_KEY=your_firebase_api_key
+FIREBASE_AUTH_DOMAIN=greenguard.firebaseapp.com
+FIREBASE_PROJECT_ID=greenguard-firebase
+FIREBASE_STORAGE_BUCKET=greenguard.appspot.com
+FIREBASE_MESSAGING_SENDER_ID=123456789012
+FIREBASE_APP_ID=1:123456789012:web:abcdef123456
+
+# Maps
+GOOGLE_MAPS_API_KEY=your_google_maps_api_key
+```
+
+## Verification
+
+### Check Environment Variables
+
+<Steps>
+  <Step title="List All Variables">
+    <CodeGroup>
+    ```bash Linux/macOS
+    printenv | grep -E '(DB_|SPRING_|SERVER_|API_|FIREBASE_)'
+    ```
+
+    ```cmd Windows (CMD)
+    set | findstr /I "DB_ SPRING_ SERVER_ API_ FIREBASE_"
+    ```
+
+    ```powershell Windows (PowerShell)
+    Get-ChildItem Env: | Where-Object {$_.Name -match '(DB_|SPRING_|SERVER_|API_|FIREBASE_)'}
+    ```
+    </CodeGroup>
+  </Step>
+
+  <Step title="Test Application Connection">
+    Start the backend and check logs for successful database connection:
+
+    ```bash
+    ./mvnw spring-boot:run
+    ```
+
+    Look for:
+    ```
+    HikariPool-1 - Started.
+    Hibernate: 
+    ```
+  </Step>
+
+  <Step title="Verify from Application">
+    Create a test endpoint to verify configuration:
+
+    ```java
+    @RestController
+    @RequestMapping("/api/health")
+    public class HealthController {
+        @Value("${spring.datasource.url}")
+        private String datasourceUrl;
+        
+        @GetMapping("/config")
+        public Map<String, String> getConfig() {
+            return Map.of(
+                "profile", environment.getActiveProfiles()[0],
+                "database", datasourceUrl.replaceAll("password=.*?(&|$)", "password=***$1")
+            );
+        }
+    }
+    ```
+  </Step>
+</Steps>
+
+## Best Practices
+
+1. **Never Commit Secrets:** Add `.env` files to `.gitignore`
+2. **Use Different Values:** Different credentials per environment
+3. **Strong Passwords:** Use password generators for secure values
+4. **Rotate Regularly:** Change secrets periodically
+5. **Principle of Least Privilege:** Grant minimum required permissions
+6. **Document Variables:** Maintain list of required variables
+7. **Use Secrets Management:** Consider tools like HashiCorp Vault for production
+8. **Default Values:** Provide sensible defaults for development
+
+## Troubleshooting
+
+### Variable Not Found
+
+Check if variable is set:
+
+```bash
+echo $DB_USERNAME
+```
+
+If empty, set the variable and restart the application.
+
+### Connection Failed
+
+Verify database variables:
+
+```bash
+echo $DATABASE_URL
+echo $DB_USERNAME
+```
+
+Test connection manually:
+
+```bash
+psql "$DATABASE_URL" -U $DB_USERNAME
+```
+
+### Wrong Environment
+
+Check active profile:
+
+```bash
+echo $SPRING_PROFILES_ACTIVE
+```
+
+Ensure it matches your intended environment.
+
+## Next Steps
+
+- [Application Configuration](/configuration/application)
+- [Database Configuration](/configuration/database)
+- Implement secrets management for production
+- Set up CI/CD environment variables

@@ -1,0 +1,269 @@
+---
+title: "Get User's Coupons"
+description: "Retrieve all coupons redeemed by a specific user"
+api: 'GET /usuarioCupon/usuario/{id}'
+---
+
+## Overview
+
+This endpoint retrieves all coupons that have been redeemed by a specific user, including their current status, verification codes, and usage history.
+
+## Path Parameters
+
+<ParamField path="id" type="integer" required>
+  The unique identifier of the user
+</ParamField>
+
+## Query Parameters
+
+<ParamField query="estado" type="string">
+  Filter by coupon status: `AC` (Active), `VE` (Expired), or `CA` (Cashed/Used)
+</ParamField>
+
+<ParamField query="canjeado" type="boolean">
+  Filter by whether coupon has been used at store
+</ParamField>
+
+## Response
+
+Returns an array of user coupon objects.
+
+<ResponseField name="idUsuarioCupon" type="integer">
+  Unique identifier for the redeemed coupon record
+</ResponseField>
+
+<ResponseField name="cupon" type="object">
+  The redeemed coupon details
+  <ResponseField name="idCupon" type="integer">
+    Coupon identifier
+  </ResponseField>
+  <ResponseField name="nombreCupon" type="string">
+    Coupon name
+  </ResponseField>
+  <ResponseField name="descCupon" type="string">
+    Coupon description
+  </ResponseField>
+  <ResponseField name="categoria" type="object">
+    Category information
+  </ResponseField>
+  <ResponseField name="puntosRequeridos" type="integer">
+    Points that were deducted for this coupon
+  </ResponseField>
+  <ResponseField name="tienda" type="object">
+    Store where coupon can be used
+    <ResponseField name="idTienda" type="integer">
+      Store identifier
+    </ResponseField>
+    <ResponseField name="nomTienda" type="string">
+      Store name
+    </ResponseField>
+    <ResponseField name="distrito" type="object">
+      District information
+    </ResponseField>
+  </ResponseField>
+</ResponseField>
+
+<ResponseField name="usuario" type="object">
+  User information (summary)
+  <ResponseField name="idUsu" type="integer">
+    User identifier
+  </ResponseField>
+  <ResponseField name="nomUsu" type="string">
+    User's first name
+  </ResponseField>
+</ResponseField>
+
+<ResponseField name="CodigoCupon" type="string">
+  Unique coupon code for this redemption
+</ResponseField>
+
+<ResponseField name="qrVerificationCode" type="string">
+  QR code verification string for in-store validation
+</ResponseField>
+
+<ResponseField name="fechaCanje" type="datetime">
+  Timestamp when the coupon was redeemed (ISO 8601 format)
+</ResponseField>
+
+<ResponseField name="canjeado" type="boolean">
+  Whether the coupon has been used at the store
+  - `false`: Coupon obtained but not yet used
+  - `true`: Coupon has been used at the store
+</ResponseField>
+
+<ResponseField name="fechaUso" type="datetime" nullable>
+  Timestamp when the coupon was used at the store (null if not yet used)
+</ResponseField>
+
+<ResponseField name="estado" type="string">
+  Current status of the coupon:
+  - `AC` (Activo): Active and can be used
+  - `VE` (Vencido): Expired and cannot be used
+  - `CA` (Canjeado): Has been used at the store
+</ResponseField>
+
+## Example Request
+
+Get all coupons for a user:
+
+```bash
+curl -X GET "https://api.greenguard.com/usuarioCupon/usuario/123" \
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+## Example Response
+
+```json
+[
+  {
+    "idUsuarioCupon": 456,
+    "cupon": {
+      "idCupon": 5,
+      "nombreCupon": "20% de descuento en productos ecológicos",
+      "descCupon": "Obtén un 20% de descuento en todos los productos ecológicos de nuestra tienda",
+      "categoria": {
+        "idCate": 1,
+        "descCate": "Descuentos"
+      },
+      "codCupon": "ECO20",
+      "puntosRequeridos": 200,
+      "tienda": {
+        "idTienda": 5,
+        "nomTienda": "EcoMercado San Isidro",
+        "distrito": {
+          "idDistrito": 10
+        }
+      }
+    },
+    "usuario": {
+      "idUsu": 123,
+      "nomUsu": "Juan"
+    },
+    "CodigoCupon": "ECO20-USER123-456",
+    "qrVerificationCode": "QR-GG-456-8A7B9C",
+    "fechaCanje": "2024-03-13T15:30:00",
+    "canjeado": false,
+    "fechaUso": null,
+    "estado": "AC"
+  },
+  {
+    "idUsuarioCupon": 457,
+    "cupon": {
+      "idCupon": 2,
+      "nombreCupon": "Café gratis en EcoCafé",
+      "descCupon": "Disfruta de un café americano gratis en cualquier sucursal de EcoCafé",
+      "categoria": {
+        "idCate": 2,
+        "descCate": "Alimentos y Bebidas"
+      },
+      "codCupon": "CAFEGRATIS",
+      "puntosRequeridos": 100,
+      "tienda": {
+        "idTienda": 8,
+        "nomTienda": "EcoCafé Miraflores",
+        "distrito": {
+          "idDistrito": 15
+        }
+      }
+    },
+    "usuario": {
+      "idUsu": 123,
+      "nomUsu": "Juan"
+    },
+    "CodigoCupon": "CAFEGRATIS-USER123-457",
+    "qrVerificationCode": "QR-GG-457-3D5E7F",
+    "fechaCanje": "2024-03-10T10:15:00",
+    "canjeado": true,
+    "fechaUso": "2024-03-11T08:30:00",
+    "estado": "CA"
+  }
+]
+```
+
+## Filter by Active Coupons
+
+Get only active (usable) coupons:
+
+```bash
+curl -X GET "https://api.greenguard.com/usuarioCupon/usuario/123?estado=AC" \
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+## Filter by Used Coupons
+
+Get only coupons that have been used:
+
+```bash
+curl -X GET "https://api.greenguard.com/usuarioCupon/usuario/123?canjeado=true" \
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+## Filter by Unused Coupons
+
+Get only coupons that haven't been used yet:
+
+```bash
+curl -X GET "https://api.greenguard.com/usuarioCupon/usuario/123?canjeado=false&estado=AC" \
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+## Estado Lifecycle
+
+Understanding coupon states helps organize the user's coupon wallet:
+
+### AC (Activo) - Active
+- Coupon has been redeemed with points
+- Ready to be used at the store
+- Display with QR code for scanning
+- Show expiration date if applicable
+
+### VE (Vencido) - Expired
+- Coupon validity period has passed
+- Cannot be used anymore
+- Points are NOT refunded
+- Move to "Expired" section in UI
+
+### CA (Canjeado) - Used
+- Coupon has been successfully used at store
+- `canjeado` field is `true`
+- `fechaUso` contains usage timestamp
+- Move to "History" or "Used" section in UI
+
+## UI Organization Tips
+
+Organize coupons in the user interface by status:
+
+**Active Coupons** (`estado=AC, canjeado=false`)
+- Show prominently with "Use Now" action
+- Display QR code
+- Show store location and details
+- Include expiration warning if near expiry
+
+**Used Coupons** (`estado=CA, canjeado=true`)
+- Show in history/archive section
+- Display usage date
+- Show store where it was used
+- Useful for transaction history
+
+**Expired Coupons** (`estado=VE`)
+- Show in separate "Expired" section
+- Explain why it expired
+- Suggest similar active coupons
+
+## Points Tracking
+
+Each coupon record includes `puntosRequeridos`, which shows how many points were spent:
+- Useful for showing spending history
+- Calculate total points redeemed
+- Display "You saved X points worth of value"
+- No refunds once redeemed (even if expired)
+
+## Empty Response
+
+If user has no coupons:
+
+```json
+[]
+```
+
+Consider showing a friendly message encouraging users to earn points and redeem coupons.
