@@ -1,0 +1,171 @@
+{
+  "projectType": "saas",
+  "projectName": "GreenGuard",
+  "projectDescription": "Urban incident reporting platform with AI integration, gamification, and multi-role management system for citizens, municipalities, and partner stores",
+  "theme": "palm",
+  "primaryColor": "#2d8659",
+  "lightColor": "#4CAF50",
+  "darkColor": "#1b5e3a",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Platform",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": [
+              "introduction",
+              "quickstart"
+            ]
+          },
+          {
+            "group": "Core Features",
+            "pages": [
+              "features/incident-reporting",
+              "features/gamification",
+              "features/notifications",
+              "features/rewards"
+            ]
+          },
+          {
+            "group": "User Roles",
+            "pages": [
+              "roles/citizens",
+              "roles/municipality",
+              "roles/stores",
+              "roles/admin"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Setup & Deployment",
+        "groups": [
+          {
+            "group": "Installation",
+            "pages": [
+              "setup/requirements",
+              "setup/backend",
+              "setup/frontend",
+              "setup/database"
+            ]
+          },
+          {
+            "group": "Configuration",
+            "pages": [
+              "configuration/application",
+              "configuration/database",
+              "configuration/environment"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "groups": [
+          {
+            "group": "Authentication",
+            "pages": [
+              "api/auth/overview",
+              "api/auth/login",
+              "api/auth/register"
+            ]
+          },
+          {
+            "group": "Reports",
+            "pages": [
+              "api/reports/create",
+              "api/reports/list",
+              "api/reports/update",
+              "api/reports/delete"
+            ]
+          },
+          {
+            "group": "Users",
+            "pages": [
+              "api/users/profile",
+              "api/users/points",
+              "api/users/update"
+            ]
+          },
+          {
+            "group": "Coupons",
+            "pages": [
+              "api/coupons/list",
+              "api/coupons/redeem",
+              "api/coupons/user-coupons"
+            ]
+          },
+          {
+            "group": "Notifications",
+            "pages": [
+              "api/notifications/send",
+              "api/notifications/list"
+            ]
+          },
+          {
+            "group": "Reference Data",
+            "pages": [
+              "api/reference/districts",
+              "api/reference/incident-types",
+              "api/reference/classifications",
+              "api/reference/categories"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Admin Panel",
+        "groups": [
+          {
+            "group": "Getting Started",
+            "pages": [
+              "admin/overview",
+              "admin/access"
+            ]
+          },
+          {
+            "group": "Management",
+            "pages": [
+              "admin/users",
+              "admin/reports",
+              "admin/stores",
+              "admin/coupons"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Geolocation-based incident reporting with photo uploads",
+    "Multi-role user system (Citizens, Municipality, Stores, Admin)",
+    "Gamification with points and rewards system",
+    "Real-time push notifications via FCM",
+    "AI-powered incident classification",
+    "Coupon redemption marketplace",
+    "Angular-based admin dashboard",
+    "PostgreSQL database with comprehensive data model",
+    "Spring Boot REST API backend",
+    "Incident tracking and status management"
+  ],
+  "publicApiSurface": [
+    "POST /auth/login - User authentication",
+    "POST /auth/register - User registration",
+    "GET /reporte - List incident reports",
+    "POST /reporte - Create new incident report",
+    "PUT /reporte/{id} - Update incident report",
+    "GET /usuario - Get user profile",
+    "PUT /usuario/{id} - Update user profile",
+    "GET /cupon - List available coupons",
+    "POST /usuario-cupon - Redeem coupon",
+    "GET /usuario-cupon - Get user's coupons",
+    "GET /notificacion - List notifications",
+    "POST /notificacion - Send notification",
+    "GET /distrito - List districts",
+    "GET /tipo-incidentes - List incident types",
+    "GET /tipo-clasificacion - List classification types",
+    "GET /categoria - List coupon categories",
+    "GET /tienda - List partner stores"
+  ]
+}
